@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Note
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="NoteBase.xsd">
+  <text>
+    <time value ="11:11:11" >
+      <type>DEFAULT</type>
+      <position>
+        <x>1</x>
+        <y>2</y>
+      </position>
+    </time>
+  </text>
+</Note>

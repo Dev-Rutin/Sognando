@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Note>
+	<text>
+		<time value="qweasd">
+			<type>DEFAULT</type>
+			<position>
+				<x>1</x>
+				<y>2</y>
+			</position>
+		</time>
+		<time value="11:11:12.000">
+			<type>UP</type>
+			<position>
+				<x>1</x>
+				<y>3</y>
+			</position>
+		</time>
+		<time value="11:11:13.000">
+			<type>DOWN</type>
+			<position>
+				<x>1</x>
+				<y>3</y>
+			</position>
+		</time>
+		<time value="11:11:14.000">
+			<type>LEFT</type>
+			<position>
+				<x>1</x>
+				<y>4</y>
+			</position>
+		</time>
+		<time value="11:11:15.000">
+			<type>RIGHT</type>
+			<position>
+				<x>1</x>
+				<y>5</y>
+			</position>
+		</time>
+	</text>
+</Note>

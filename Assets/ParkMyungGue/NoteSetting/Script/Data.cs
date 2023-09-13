@@ -8,19 +8,12 @@ using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Rendering;
-public enum NoteType
-{
-    DEFAULT,
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT
-}
 public class Note
 {
     public TimeSpan time;
-    public NoteType type;
+    public Cube_Note_Status type;
     public Vector2 position;
+    public bool passCenter;
 }
 public class Data :MonoBehaviour
 {
@@ -154,28 +147,29 @@ public class Data :MonoBehaviour
         else
             return rList;
     }
+ 
     private void Start()
     {
-        foreach (var data in typeof(Note).GetFields().ToList())
+        /*foreach (var data in typeof(Note).GetFields().ToList())
         {
             //Debug.Log(data.FieldType);
            
-        }
+        }*/
         /*string tests = "Circle";
         NoteType type = (NoteType)Enum.Parse(typeof(NoteType), tests);
         Debug.Log(type);
         TimeSpan timetest = new TimeSpan(0, 1, 0);
         Debug.Log(timetest);*/
-        SetPath(Resources.Load("XML/testbase"));
-        SetPath("C:\\Users\\ricos\\Desktop\\작업\\게임\\유니티\\CK\\CalibrationSample\\Assets\\Resources\\XML\\testbase.xml");
-        List<Note>test1= NoteLoad(new TimeSpan(11,11,11));
+        //SetPath(Resources.Load("XML/testbase"));
+        //SetPath("C:\\Users\\ricos\\Desktop\\작업\\게임\\유니티\\CK\\CalibrationSample\\Assets\\Resources\\XML\\testbase.xml");
+        //List<Note>test1= NoteLoad(new TimeSpan(11,11,11));
         //Debug.Log(test1[0].time + "/" + test1[0].type + "/" + test1[0].position);
         //Debug.Log(test1[1].time + "/" + test1[1].type+"/" + test1[1].position);
-        List<Note> noteall = NoteLoadAll();
-        foreach(var data in noteall)
+        //List<Note> noteall = NoteLoadAll();
+        /*foreach(var data in noteall)
         {
             Debug.Log(data.time + "/" +data.type + "/" + data.position);
-        }
+        }*/
 
     }
 }

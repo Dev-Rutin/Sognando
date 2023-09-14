@@ -15,26 +15,38 @@ public class Note
     public Vector2 position;
     public bool passCenter;
 }
-public class Data :MonoBehaviour
+public class Data
 {
-    XmlDocument xdocPath;
+    public XmlDocument xdocPath;
+    public Data() { }
+    public Data(object path)
+    {
+        SetPath(path);
+    }
     public void SetPath(object path)
     {
-        if(xdocPath == null)
+        try
         {
-            xdocPath = new XmlDocument();   
+            if (xdocPath == null)
+            {
+                xdocPath = new XmlDocument();
+            }
+            if (path.GetType() == typeof(string))
+            {
+                SetPath((string)path);
+            }
+            else if (path.GetType() == typeof(TextAsset))
+            {
+                SetPath((TextAsset)path);
+            }
+            else if (path.GetType() == typeof(XmlReader))
+            {
+                SetPath((XmlReader)path);
+            }
         }
-        if(path.GetType()==typeof(string))
+        catch
         {
-            SetPath((string)path);
-        }
-        else if(path.GetType()==typeof(TextAsset))
-        {
-            SetPath((TextAsset)path);
-        }
-        else if(path.GetType()==typeof(XmlReader))
-        {
-            SetPath((XmlReader)path);
+            xdocPath = null;
         }
     }
     public void SetPath(TextAsset path)
@@ -148,7 +160,7 @@ public class Data :MonoBehaviour
             return rList;
     }
  
-    private void Start()
+    /*private void Start()
     {
         /*foreach (var data in typeof(Note).GetFields().ToList())
         {
@@ -169,7 +181,7 @@ public class Data :MonoBehaviour
         /*foreach(var data in noteall)
         {
             Debug.Log(data.time + "/" +data.type + "/" + data.position);
-        }*/
+        }
 
-    }
+    }*/
 }

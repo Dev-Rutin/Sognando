@@ -63,7 +63,8 @@ public class NoteManager_s : MonoBehaviour
                 break;
         }
         if (target != null)
-            NoteEnd(target);
+        { }
+            //  NoteEnd(target);
     }
     void Update()
     {

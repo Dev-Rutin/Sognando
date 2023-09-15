@@ -8,10 +8,27 @@ using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Rendering;
+public enum NoteType
+{
+    DEFAULT,
+    LONG
+}
+public enum NoteImage
+{
+    DEFAULT,
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
+}
 public class Note
 {
+    //none autoload
     public TimeSpan time;
-    public Cube_Note_Status type;
+    public TimeSpan time2;
+    //autoload
+    public NoteImage image;
+    public NoteType type;
     public Vector2 position;
     public bool passCenter;
 }
@@ -89,10 +106,10 @@ public class Data
             }*/
         }
     }
-    public Note GetNote(XmlNode notetime,string time)
+    public Note GetNote(XmlNode notetime)
     {
         Note rValue = new Note();
-        rValue.time = TimeSpan.Parse(time);
+        rValue.time = TimeSpan.Parse(notetime.Attributes["value"].Value);
         foreach (XmlNode notedata in notetime.ChildNodes)
         {
             var noteVariable = rValue.GetType().GetFields().ToList();
@@ -110,13 +127,16 @@ public class Data
                     {
                         foreach (XmlNode childvalue in notedata.ChildNodes)
                         {
-
                             sendvalues.Add(childvalue.InnerText);
                         }
                     }
                     StringConverter(ref rValue, data, sendvalues);
                 }
             }
+        }
+        if(rValue.type==NoteType.LONG)
+        {
+            rValue.time2 = TimeSpan.Parse(notetime.Attributes["value2"].Value);
         }
         return rValue;
     }
@@ -136,7 +156,7 @@ public class Data
         {
             if (time == TimeSpan.Parse(notetime.Attributes["value"].Value))
             {
-                rList.Add(GetNote(notetime, notetime.Attributes["value"].Value));
+                rList.Add(GetNote(notetime));
             }          
         }
         if (rList.Count == 0)
@@ -152,7 +172,7 @@ public class Data
         XmlNodeList nodes = xdocPath.SelectNodes("/Note/text/time");
         foreach (XmlNode notetime in nodes)
         {
-            rList.Add(GetNote(notetime, notetime.Attributes["value"].Value));
+            rList.Add(GetNote(notetime));
         }
         if (rList.Count == 0)
             return null;

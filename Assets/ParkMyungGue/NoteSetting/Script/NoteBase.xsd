@@ -11,7 +11,7 @@
             <xs:element name="time" maxOccurs ="unbounded">
               <xs:complexType>
                 <xs:sequence>
-                  <xs:element name="type">
+                  <xs:element name="image">
                     <xs:simpleType>
                       <xs:restriction base="xs:string">
                         <xs:enumeration value ="DEFAULT"/>
@@ -19,6 +19,14 @@
                        <xs:enumeration value ="DOWN"/>
                         <xs:enumeration value ="LEFT"/>
                         <xs:enumeration value ="RIGHT"/>
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="type">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:enumeration value ="DEFAULT"/>
+                        <xs:enumeration value ="LONG"/>
                       </xs:restriction>
                     </xs:simpleType>
                   </xs:element>
@@ -31,7 +39,8 @@
                     </xs:complexType>
                   </xs:element>
                   </xs:sequence>
-                <xs:attribute name="value" type="xs:time"/>         
+                <xs:attribute name="value" type="xs:time"/>
+                <xs:attribute name="value2" type="xs:time"/>
               </xs:complexType>
             </xs:element>
           </xs:sequence>

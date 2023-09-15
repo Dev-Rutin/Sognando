@@ -40,7 +40,7 @@ public class NoteManager_s : MonoBehaviour
         note.passCenter = false;
         GameObject instnote = Instantiate(Resources.Load<GameObject>("Prefabs\\ParkMyungGue\\Note"), transform.Find("UI").Find("Canvas").Find("Notes"));
         instnote.transform.localPosition = note.position;
-        instnote.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("ParkMyungGue\\NoteImage\\" + note.type.ToString());
+        instnote.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("ParkMyungGue\\NoteImage\\" + note.image.ToString());
         Notes.Add(instnote, note);
         instnote.SetActive(true);
         return instnote;

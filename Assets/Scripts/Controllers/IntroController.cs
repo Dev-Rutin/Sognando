@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 public class IntroController : MonoBehaviour
 {
-    [SerializeField] private Button skipBtn;
+    //[SerializeField] private Button skipBtn;
     [SerializeField] private float FadeTime;
     [Header("CutSceneSprite")]
     [SerializeField] private Image cutscene;
@@ -21,7 +21,7 @@ public class IntroController : MonoBehaviour
 
     private void Start()
     {
-        skipBtn.onClick.AddListener(delegate { SkipIntro(); });
+        //skipBtn.onClick.AddListener(delegate { SkipIntro(); });
         SceneSoundManager.Instance.PlaySound(ESoundTypes.Bgm, SceneSoundNames.INTRO_BGM);
         SceneFadeManager.Instance.FadeCheck(FadeTime, null);
         StartCoroutine(TypingCoroutine());

@@ -2,17 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.Mathematics;
-using Unity.PlasticSCM.Editor.WebApi;
-using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
-using static UnityEngine.GraphicsBuffer;
 
-enum GameStatus
+enum EGameStatus
 {
     NONE,
     STARTWAITTING,
@@ -20,7 +14,7 @@ enum GameStatus
     END,
     PAUSE
 }
-public enum CubeObjStatus
+public enum ECubeObjStatus
 {
     STOP,
     ROTATION,
@@ -43,75 +37,75 @@ public interface IAudio
 public partial class MainGame_s : MonoBehaviour, IUI  //Display
 {
     //main system
-    Dictionary<KeyCode, Action> OtherKeyBinds;
-    Data MusicData;
+    private Dictionary<KeyCode, Action> _otherKeyBinds;
+    private Data _musicData;
     //cube
-    Dictionary<KeyCode, Action> CubeKeyBinds;
-    Queue<KeyCode> KeyInputQueue;  
-    List<KeyCode> CubeKeyPressCheck;
-    Queue<IEnumerator> RotationQueue;
-    bool IsSetting;
-    Vector3 PreviousRoatePos;
-    IEnumerator IPreviousRotation;
-    int rotatecount;
+    private Dictionary<KeyCode, Action> _cubeKeyBinds;
+    private Queue<KeyCode> _keyInputQueue;  
+    private List<KeyCode> _cubeKeyPressCheck;
+    private Queue<IEnumerator> _rotationQueue;
+    private bool _isSetting;
+    private Vector3 _previousRoatePos;
+    private IEnumerator _previousRotation;
+    private int _rotateCount;
     //note
-    Queue<Note> NoteQueue;
-    Dictionary<GameObject, Note> Notes;
-    WaitForFixedUpdate NoteWait;
-    List<Sprite> NoteImages;
-    List<Material> NoteMaterial;
+    private Queue<Note> _noteQueue;
+    private Dictionary<GameObject, Note> _notes;
+    private WaitForFixedUpdate _noteWait;
+    private List<Sprite> _noteImages;
+    private List<Material> _noteMaterial;
 
     [Header("Required Value")]
     //main system
-    [SerializeField] Transform ButtonsTsf;
-    [SerializeField] AudioManager_s AudioManager;
-    [SerializeField] Transform TimeTsf;
+    [SerializeField] private Transform _buttonsTsf;
+    [SerializeField] private AudioManager_s _audioManager;
+    [SerializeField] private Transform _timeTsf;
     //cube
-    [SerializeField] GameObject GameCube;
+    [SerializeField] private GameObject _gameCube;
     //note
-    [SerializeField] Transform ScoreTsf;
-    [SerializeField] Transform ComboTsf;
-    [SerializeField] GameObject NoteObj;
-    [SerializeField] GameObject LongNoteObj;
-    [SerializeField] Transform NotesTsf;
+    [SerializeField] private Transform _scoreTsf;
+    [SerializeField] private Transform _comboTsf;
+    [SerializeField] private GameObject _noteObj;
+    [SerializeField] private GameObject _longNoteObj;
+    [SerializeField] private Transform _notesTsf;
     [Header("Only Display")]
     //main system
-    [SerializeField] AudioClip MusicClip;
-    [SerializeField] TimeSpan MainGameCurTime;
+    [SerializeField] private AudioClip _musicClip;
+    [SerializeField] private TimeSpan _mainGameCurTime;
     //cube
-    [SerializeField] GameStatus CurGameStatus;
-    [SerializeField] CubeObjStatus CurCubeObjStatus;
-    [SerializeField] NoteImage CurCubeImageStatus;
+    [SerializeField] private EGameStatus _curGameStatus;
+    [SerializeField] private ECubeObjStatus _curCubeObjStatus;
+    [SerializeField] private ENoteImage _curCubeImageStatus;
     //note
-    [SerializeField] int Combo;
+    [SerializeField] private int _combo;
     
     [Header("Changeable Value")]
     //cube
-    [SerializeField] int DefaultRotateTime;
+    [SerializeField] private int _defaultRotateTime;
     //note
-    [SerializeField] float perfect;
-    [SerializeField] float good;
-    [SerializeField] float FadeOutValue;
-    [SerializeField] float NoteSpeed;
+    [SerializeField] private float _perfect;
+    [SerializeField] private float _good;
+    [SerializeField] private float _fadeOutValue;
+    [SerializeField] private float _noteSpeed;
 }
 public partial class MainGame_s : MonoBehaviour ,IUI //main system
 {
-    void Start()
+    private void Start()
     {
         //main system
-        OtherKeyBinds = new Dictionary<KeyCode, Action>();
-        MusicData = new Data();
+        _otherKeyBinds = new Dictionary<KeyCode, Action>();
+        _musicData = new Data();
         //cube
-        CubeKeyBinds = new Dictionary<KeyCode, Action>();
-        KeyInputQueue = new Queue<KeyCode>();
-        CubeKeyPressCheck = new List<KeyCode>();
-        RotationQueue = new Queue<IEnumerator>();
+        _cubeKeyBinds = new Dictionary<KeyCode, Action>();
+        _keyInputQueue = new Queue<KeyCode>();
+        _cubeKeyPressCheck = new List<KeyCode>();
+        _rotationQueue = new Queue<IEnumerator>();
         //note
-        NoteQueue = new Queue<Note>();
-        Notes = new Dictionary<GameObject, Note>();           
-        NoteWait = new WaitForFixedUpdate();
-        NoteImages = new List<Sprite>();
-        NoteMaterial = new List<Material>();
+        _noteQueue = new Queue<Note>();
+        _notes = new Dictionary<GameObject, Note>();           
+        _noteWait = new WaitForFixedUpdate();
+        _noteImages = new List<Sprite>();
+        _noteMaterial = new List<Material>();
 
         DefaultDataSetting();
         DefaultValueSetting();
@@ -119,86 +113,104 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
         ButtonBind();
         //only Test
         UIOpen();
-        MusicSetting("Test150");    
+        MusicSetting("Test140");    
     }
-    void DefaultDataSetting()
+    private void DefaultDataSetting()
     {
-        if (ScoreTsf == null)
-            ScoreTsf = transform.Find("UI").Find("Canvas").Find("Score");
-        if (ComboTsf == null)
-            ComboTsf = transform.Find("UI").Find("Canvas").Find("Combo");
-        if (GameCube == null)
-            GameCube = GameObject.Find("Cube").gameObject;
-        if (ButtonsTsf == null)
-            ButtonsTsf = transform.Find("UI").Find("Canvas").Find("Buttons");
-        if (AudioManager == null)
-            AudioManager = GameObject.Find("AudioManager").GetComponent<AudioManager_s>();
-        if (TimeTsf == null)
-            TimeTsf = transform.Find("UI").Find("Canvas").Find("Time");
-        if (NoteObj == null)
-            NoteObj = Resources.Load<GameObject>("Prefabs\\ParkMyungGue\\Note");
-        if (LongNoteObj == null)
-            LongNoteObj = Resources.Load<GameObject>("Prefabs\\ParkMyungGue\\LongNote");
-        if (NotesTsf == null)
-            NotesTsf = transform.Find("UI").Find("Canvas").Find("Notes");
+        if (_scoreTsf == null)
+        {
+            _scoreTsf = transform.Find("UI").Find("Canvas").Find("Score");
+        }
+        if (_comboTsf == null)
+        {
+            _comboTsf = transform.Find("UI").Find("Canvas").Find("Combo");
+        }
+        if (_gameCube == null)
+        {
+            _gameCube = GameObject.Find("Cube").gameObject;
+        }
+        if (_buttonsTsf == null)
+        {
+            _buttonsTsf = transform.Find("UI").Find("Canvas").Find("Buttons");
+        }
+        if (_audioManager == null)
+        { 
+            _audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager_s>();
+        }
+        if (_timeTsf == null)
+        { 
+            _timeTsf = transform.Find("UI").Find("Canvas").Find("Time");
+        }
+        if (_noteObj == null)
+        { 
+            _noteObj = Resources.Load<GameObject>("Prefabs\\ParkMyungGue\\Note");
+        }
+        if (_longNoteObj == null)
+        { 
+            _longNoteObj = Resources.Load<GameObject>("Prefabs\\ParkMyungGue\\LongNote");
+        }
+        if (_notesTsf == null)
+        { 
+            _notesTsf = transform.Find("UI").Find("Canvas").Find("Notes");
+        }
         foreach (var data in Resources.LoadAll<Sprite>("ParkMyungGue\\NoteImage"))
         {
-            NoteImages.Add(data);
+            _noteImages.Add(data);
         }
         foreach (var data in Resources.LoadAll<Material>("ParkMyungGue\\NoteMaterial"))
         {
-            NoteMaterial.Add(data);
+            _noteMaterial.Add(data);
         }
     }
-    void DefaultValueSetting()
+    private void DefaultValueSetting()
     {
-        DefaultRotateTime = DefaultRotateTime == 0 ? 100 : DefaultRotateTime;
-        perfect = perfect == 0 ? 0.3f : perfect;
-        good = good == 0 ? 1f : good;
-        CurGameStatus = GameStatus.NONE;
-        FadeOutValue = FadeOutValue== 0 ? 1.6f : FadeOutValue;
-        NoteSpeed = NoteSpeed == 0 ? 0.0025f : NoteSpeed;
+        _defaultRotateTime = _defaultRotateTime == 0 ? 100 : _defaultRotateTime;
+        _perfect = _perfect == 0 ? 0.3f : _perfect;
+        _good = _good == 0 ? 1f : _good;
+        _curGameStatus = EGameStatus.NONE;
+        _fadeOutValue = _fadeOutValue== 0 ? 1.6f : _fadeOutValue;
+        _noteSpeed = _noteSpeed == 0 ? 0.0025f : _noteSpeed;
     }
-    void Update()
+    private void Update()
     {
-        if (CurGameStatus == GameStatus.PLAYING)
+        if (_curGameStatus == EGameStatus.PLAYING)
         {
             if (Input.anyKeyDown)
             {
-                foreach (var dic in OtherKeyBinds)
+                foreach (var dic in _otherKeyBinds)
                 {
                     if (Input.GetKey(dic.Key))
                     {
                         dic.Value();
                     }
                 }
-                foreach (var dic in CubeKeyBinds)
+                foreach (var dic in _cubeKeyBinds)
                 {
-                    if (Input.GetKey(dic.Key) && !CubeKeyPressCheck.Contains(dic.Key))
+                    if (Input.GetKey(dic.Key) && !_cubeKeyPressCheck.Contains(dic.Key))
                     {
-                        KeyInputQueue.Enqueue(dic.Key);
-                        CubeKeyPressCheck.Add(dic.Key);
+                        _keyInputQueue.Enqueue(dic.Key);
+                        _cubeKeyPressCheck.Add(dic.Key);
                     }
                 }
             }
-            if (KeyInputQueue.Count != 0 && !IsSetting)
+            if (_keyInputQueue.Count != 0 && !_isSetting)
             {
-                CubeKeyBinds[KeyInputQueue.Dequeue()]();
+                _cubeKeyBinds[_keyInputQueue.Dequeue()]();
             }
-            if (RotationQueue.Count != 0 && CurCubeObjStatus != CubeObjStatus.ROTATION)
+            if (_rotationQueue.Count != 0 && _curCubeObjStatus != ECubeObjStatus.ROTATION)
             {
-                IPreviousRotation = RotationQueue.Peek();
-                StartCoroutine(RotationQueue.Dequeue());
+                _previousRotation = _rotationQueue.Peek();
+                StartCoroutine(_rotationQueue.Dequeue());
             }
             PressCheck();
-            TimeTsf.GetComponent<TextMeshProUGUI>().text = MainGameCurTime.ToString();
+            _timeTsf.GetComponent<TextMeshProUGUI>().text = _mainGameCurTime.ToString();
 
         }
         else
         {
             if (Input.anyKeyDown)
             {
-                foreach (var dic in OtherKeyBinds)
+                foreach (var dic in _otherKeyBinds)
                 {
                     if (Input.GetKey(dic.Key))
                     {
@@ -210,204 +222,212 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
     }
     public void UIOpen()
     {     
-        CurCubeImageStatus = NoteImage.DEFAULT;
-        CurCubeObjStatus = CubeObjStatus.STOP;
-        IsSetting = false;
-        CurGameStatus = GameStatus.STARTWAITTING;
+        _curCubeImageStatus = ENoteImage.DEFAULT;
+        _curCubeObjStatus = ECubeObjStatus.STOP;
+        _isSetting = false;
+        _curGameStatus = EGameStatus.STARTWAITTING;
     }
     public void UIPause()
     {
-        if (CurGameStatus == GameStatus.PAUSE)
+        if (_curGameStatus == EGameStatus.PAUSE)
         {
-            CurGameStatus = GameStatus.PLAYING;
-            AudioManager.AudioUnPause(MainGameCurTime);
+            _curGameStatus = EGameStatus.PLAYING;
+            _audioManager.AudioUnPause(_mainGameCurTime);
         }
         else
         {
-            CurGameStatus = GameStatus.PAUSE;
-            AudioManager.AudioPause();   
+            _curGameStatus = EGameStatus.PAUSE;
+            _audioManager.AudioPause();   
         }
     }
     public void UIClose()
     {
-        CurGameStatus = GameStatus.NONE;
+        _curGameStatus = EGameStatus.NONE;
     }
-    void BindSetting()
+    public void MusicSetting(string name)
     {
-        KeyBind(ref CubeKeyBinds,KeyCode.LeftArrow, () => RotateCube(new Vector3(0, -90, 0),NoteImage.LEFT));
-        KeyBind(ref CubeKeyBinds,KeyCode.RightArrow, () => RotateCube(new Vector3(0, 90, 0), NoteImage.RIGHT));
-        KeyBind(ref CubeKeyBinds, KeyCode.UpArrow, () => RotateCube(new Vector3(-90, 0, 0), NoteImage.UP));
-        KeyBind(ref CubeKeyBinds, KeyCode.DownArrow, () => RotateCube(new Vector3(90, 0, 0), NoteImage.DOWN));
-        KeyBind(ref CubeKeyBinds, KeyCode.A, () => RotateCube(new Vector3(0, -90, 0), NoteImage.LEFT));
-        KeyBind(ref CubeKeyBinds, KeyCode.D, () => RotateCube(new Vector3(0, 90, 0), NoteImage.RIGHT));
-        KeyBind(ref CubeKeyBinds, KeyCode.W, () => RotateCube(new Vector3(-90, 0, 0), NoteImage.UP));
-        KeyBind(ref CubeKeyBinds, KeyCode.S, () => RotateCube(new Vector3(90, 0, 0), NoteImage.DOWN));
-        KeyBind(ref OtherKeyBinds, KeyCode.Space, () => UIPause());
+        if (_curGameStatus == EGameStatus.STARTWAITTING)
+        {
+            _musicData.SetPath((Resources.Load("ParkMyungGue\\XML\\" + name)));
+            if (_musicData.xdocPath != null)
+            {
+                _musicClip = Resources.Load<AudioClip>("ParkMyungGue\\Music\\" + name);
+            }
+        }
     }
-    void KeyBind(ref Dictionary<KeyCode,Action> binddic,KeyCode keycode, Action action)
+    private void BindSetting()
     {
-        if (!OtherKeyBinds.ContainsKey(keycode) && !CubeKeyBinds.ContainsKey(keycode))
+        KeyBind(ref _cubeKeyBinds,KeyCode.LeftArrow, () => RotateCube(new Vector3(0, -90, 0),ENoteImage.LEFT));
+        KeyBind(ref _cubeKeyBinds,KeyCode.RightArrow, () => RotateCube(new Vector3(0, 90, 0), ENoteImage.RIGHT));
+        KeyBind(ref _cubeKeyBinds, KeyCode.UpArrow, () => RotateCube(new Vector3(-90, 0, 0), ENoteImage.UP));
+        KeyBind(ref _cubeKeyBinds, KeyCode.DownArrow, () => RotateCube(new Vector3(90, 0, 0), ENoteImage.DOWN));
+        KeyBind(ref _cubeKeyBinds, KeyCode.A, () => RotateCube(new Vector3(0, -90, 0), ENoteImage.LEFT));
+        KeyBind(ref _cubeKeyBinds, KeyCode.D, () => RotateCube(new Vector3(0, 90, 0), ENoteImage.RIGHT));
+        KeyBind(ref _cubeKeyBinds, KeyCode.W, () => RotateCube(new Vector3(-90, 0, 0), ENoteImage.UP));
+        KeyBind(ref _cubeKeyBinds, KeyCode.S, () => RotateCube(new Vector3(90, 0, 0), ENoteImage.DOWN));
+        KeyBind(ref _otherKeyBinds, KeyCode.Space, () => UIPause());
+    }
+    private void KeyBind(ref Dictionary<KeyCode,Action> binddic,KeyCode keycode, Action action)
+    {
+        if (!_otherKeyBinds.ContainsKey(keycode) && !_cubeKeyBinds.ContainsKey(keycode))
         {
             binddic.Add(keycode, action);
         }
     }
-   void ButtonBind()
+    private void ButtonBind()
     {     
-        foreach (Transform child in ButtonsTsf)
+        foreach (Transform child in _buttonsTsf)
         {
-                child.GetComponent<Button>().onClick.AddListener((UnityAction)Delegate.CreateDelegate(typeof(UnityAction), this,child.name));
+            child.GetComponent<Button>().onClick.AddListener((UnityAction)Delegate.CreateDelegate(typeof(UnityAction), this,child.name));
         }
     }
-    public void MusicSetting(string name)
+    private void GameStart()
     {
-        if(CurGameStatus==GameStatus.STARTWAITTING)
+        if (_curGameStatus == EGameStatus.STARTWAITTING)
         {
-            MusicData.SetPath((Resources.Load("ParkMyungGue\\XML\\" + name)));
-            if (MusicData.xdocPath != null)
-            {
-                MusicClip = Resources.Load<AudioClip>("ParkMyungGue\\Music\\" + name);
-            }
-        }
-    }
-    void GameStart()
-    {
-        if (CurGameStatus == GameStatus.STARTWAITTING)
-        {
-            Combo = 0;
-            MainGameCurTime = new TimeSpan(0, 0, 0);
-            CurGameStatus = GameStatus.PLAYING;
-            ButtonsTsf.Find("GameStart").gameObject.SetActive(false);
-            AudioManager.AudioPlay(MusicClip);
+            _combo = 0;
+            ShowCombo();
+            _mainGameCurTime = new TimeSpan(0, 0, 0);
+            _curGameStatus = EGameStatus.PLAYING;
+            _buttonsTsf.Find("GameStart").gameObject.SetActive(false);
+            _audioManager.AudioPlay(_musicClip);
             StartCoroutine(GamePlaying());
         }
     }
-  
     IEnumerator GamePlaying()
     {
-      
-        foreach(var data in MusicData.NoteLoadAll())
+        List<Note> notes = _musicData.LoadNoteAllOrNull();
+        if (notes != null)
         {
-            NoteQueue.Enqueue(data);
+            foreach (var data in notes)
+            {
+                _noteQueue.Enqueue(data);
+            }
         }
         WaitForSeconds time = new WaitForSeconds(0.01f);       
-        while (MainGameCurTime.TotalSeconds<= MusicClip.length)
+        while (_mainGameCurTime.TotalSeconds<= _musicClip.length)
         {
-            if (CurGameStatus == GameStatus.PLAYING)
+            if (_curGameStatus == EGameStatus.PLAYING)
             {
-                if (NoteQueue.Count != 0)
+                if (_noteQueue.Count != 0)
                 {
-                    if (MainGameCurTime == NoteQueue.Peek().time)
+                    if (_mainGameCurTime == _noteQueue.Peek().time)
                     {
-                        CreateNote(NoteQueue.Dequeue());
+                        CreateNote(_noteQueue.Dequeue());
                     }
                 }
-                MainGameCurTime = MainGameCurTime.Add(new TimeSpan(0, 0, 0, 0, 010));
+                _mainGameCurTime = _mainGameCurTime.Add(new TimeSpan(0, 0, 0, 0, 010));
             }
             yield return time;         
         }
     }
-    void GameEnd()
+    private void GameEnd()
     {
-        AudioManager.AudioStop(MusicClip);
-        NoteQueue.Clear();
-        if (CurGameStatus == GameStatus.PLAYING)
+        _combo = 0;
+        ShowCombo();
+        ShowScore("");
+        _audioManager.AudioStop(_musicClip);
+        _noteQueue.Clear();
+        if (_curGameStatus == EGameStatus.PLAYING)
         {
-            CurGameStatus = GameStatus.END;
-            var copy = new Dictionary<GameObject, Note>(Notes);
+            _curGameStatus = EGameStatus.END;
+            var copy = new Dictionary<GameObject, Note>(_notes);
             foreach (var data in copy)
             {
-                Notes.Remove(data.Key);
+                _notes.Remove(data.Key);
                 Destroy(data.Key);
             }        
-            CurGameStatus = GameStatus.STARTWAITTING;
-            ButtonsTsf.Find("GameStart").gameObject.SetActive(true);
+            _curGameStatus = EGameStatus.STARTWAITTING;
+            _buttonsTsf.Find("GameStart").gameObject.SetActive(true);       
         }   
     }
 }
 public partial class MainGame_s : MonoBehaviour, IUI // cube
 {
-    void PressCheck()
+    private void PressCheck()
     {     
-        var checktemp = new List<KeyCode>(CubeKeyPressCheck);
+        var checktemp = new List<KeyCode>(_cubeKeyPressCheck);
         foreach (var keylist in checktemp)
         {
             if (!Input.GetKey(keylist))
             {
-                CubeKeyPressCheck.Remove(keylist);
+                _cubeKeyPressCheck.Remove(keylist);
             }
         }
-        if (CubeKeyPressCheck.Count == 0&&CurCubeImageStatus!=NoteImage.DEFAULT)
+        if (_cubeKeyPressCheck.Count == 0&&_curCubeImageStatus!=ENoteImage.DEFAULT)
         {
-            RotateCube(Vector3.zero, NoteImage.DEFAULT);
+            RotateCube(Vector3.zero, ENoteImage.DEFAULT);
         }    
     }
-
-    void RotateCube(Vector3 rotateposition, NoteImage setstatus)
+    private void RotateCube(Vector3 rotateposition, ENoteImage setstatus)
     {     
-        if (PreviousRoatePos != rotateposition)
+        if (_previousRoatePos != rotateposition)
         {
-            IsSetting = true;           
-            PreviousRoatePos = rotateposition;
+            _isSetting = true;           
+            _previousRoatePos = rotateposition;
             if (rotateposition != Vector3.zero)
             {
-                switch (CurCubeObjStatus)
+                switch (_curCubeObjStatus)
                 {
-                    case CubeObjStatus.ROTATION:
-                        RotationQueue.Clear();
-                        RotationQueue.Enqueue(RotateTimeLock(Vector3.zero, GameCube, NoteImage.DEFAULT, rotatecount));
-                        if(IPreviousRotation!=null)StopCoroutine(IPreviousRotation);
-                        CurCubeObjStatus = CubeObjStatus.STOP;
+                    case ECubeObjStatus.ROTATION:
+                        _rotationQueue.Clear();
+                        _rotationQueue.Enqueue(RotateTimeLock(Vector3.zero, _gameCube, ENoteImage.DEFAULT, _rotateCount));
+                        if(_previousRotation!=null)StopCoroutine(_previousRotation);
+                        _curCubeObjStatus = ECubeObjStatus.STOP;
                         break;
-                    case CubeObjStatus.PRESS:
-                        RotationQueue.Enqueue(RotateTimeLock(Vector3.zero, GameCube, NoteImage.DEFAULT, rotatecount));               
+                    case ECubeObjStatus.PRESS:
+                        _rotationQueue.Enqueue(RotateTimeLock(Vector3.zero, _gameCube, ENoteImage.DEFAULT, _rotateCount));               
                         break;
                     default:
                         break;
                 }
             }  
-            RotationQueue.Enqueue(RotateTimeLock(rotateposition, GameCube, setstatus, DefaultRotateTime));
-            IsSetting = false;
+            _rotationQueue.Enqueue(RotateTimeLock(rotateposition, _gameCube, setstatus, _defaultRotateTime));
+            _isSetting = false;
         }
       
     }
-    IEnumerator RotateTimeLock(Vector3 rotateposition, GameObject targetobj, NoteImage setstatus,int rotatetime)
+    IEnumerator RotateTimeLock(Vector3 rotateposition, GameObject targetobj, ENoteImage setstatus,int rotatetime)
     {    
-        CurCubeObjStatus = CubeObjStatus.ROTATION;
-        CurCubeImageStatus = setstatus;
-        WaitForSeconds Wait = new WaitForSeconds(0.1f / rotatetime);
-            rotatecount = 0;
-            Vector3 rotatepos = new Vector3(
-                (rotateposition.x - targetobj.transform.eulerAngles.x) / rotatetime,
-                (rotateposition.y - targetobj.transform.eulerAngles.y) / rotatetime,
-                (rotateposition.z - targetobj.transform.eulerAngles.z) / rotatetime
-                );
+        _curCubeObjStatus = ECubeObjStatus.ROTATION;
+
+        
+        _rotateCount = 0;
       
-            if (targetobj.transform.rotation.w < 0 || targetobj.transform.rotation.x < 0 || targetobj.transform.rotation.y < 0 || targetobj.transform.rotation.z < 0)
+        Vector3 rotatepos = new Vector3(
+        (rotateposition.x - targetobj.transform.eulerAngles.x) / rotatetime,
+        (rotateposition.y - targetobj.transform.eulerAngles.y) / rotatetime,
+        (rotateposition.z - targetobj.transform.eulerAngles.z) / rotatetime
+        );
+        
+        if (targetobj.transform.rotation.w < 0 || targetobj.transform.rotation.x < 0 || targetobj.transform.rotation.y < 0 || targetobj.transform.rotation.z < 0)
+        {
+            rotatepos = new Vector3(
+            targetobj.transform.eulerAngles.x > 0 ? (360 - rotateposition.x - targetobj.transform.eulerAngles.x) / rotatetime : (rotateposition.x - targetobj.transform.eulerAngles.x) / rotatetime,
+            targetobj.transform.eulerAngles.y > 0 ? (360 - rotateposition.y - targetobj.transform.eulerAngles.y) / rotatetime : (rotateposition.y - targetobj.transform.eulerAngles.y) / rotatetime,
+            targetobj.transform.eulerAngles.z > 0 ? (360 - rotateposition.z - targetobj.transform.eulerAngles.z) / rotatetime : (rotateposition.z - targetobj.transform.eulerAngles.z) / rotatetime
+            );
+        }
+        WaitForSeconds Wait = new WaitForSeconds(0.1f / rotatetime);
+        for (int i = 0; i < rotatetime; i++)
             {
-                rotatepos = new Vector3(
-                    targetobj.transform.eulerAngles.x > 0 ? (360 - rotateposition.x - targetobj.transform.eulerAngles.x) / rotatetime : (rotateposition.x - targetobj.transform.eulerAngles.x) / rotatetime,
-                    targetobj.transform.eulerAngles.y > 0 ? (360 - rotateposition.y - targetobj.transform.eulerAngles.y) / rotatetime : (rotateposition.y - targetobj.transform.eulerAngles.y) / rotatetime,
-                    targetobj.transform.eulerAngles.z > 0 ? (360 - rotateposition.z - targetobj.transform.eulerAngles.z) / rotatetime : (rotateposition.z - targetobj.transform.eulerAngles.z) / rotatetime
-                    );
-            }
-            for (int i = 0; i < rotatetime; i++)
-            {
-            while(CurGameStatus==GameStatus.PAUSE)
+            while(_curGameStatus==EGameStatus.PAUSE)
             {
                 yield return Wait;
             }
                 targetobj.transform.Rotate(rotatepos);
                 yield return Wait;
-                rotatecount++;
+                _rotateCount++;
             }
         targetobj.transform.eulerAngles = rotateposition;
-        if(CubeKeyPressCheck.Count!=0)
+        _curCubeImageStatus = setstatus;
+        if (_cubeKeyPressCheck.Count!=0)
         {
-            CurCubeObjStatus = CubeObjStatus.PRESS;
+            _curCubeObjStatus = ECubeObjStatus.PRESS;
         }
         else
         {
-            CurCubeObjStatus = CubeObjStatus.STOP;
+            _curCubeObjStatus = ECubeObjStatus.STOP;
         }
     } 
 }
@@ -415,25 +435,25 @@ public partial class MainGame_s : MonoBehaviour, IUI // note
 {
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "Note" && Notes.ContainsKey(collision.gameObject))
+        if (collision.gameObject.tag == "Note" && _notes.ContainsKey(collision.gameObject))
         {
             NoteEnd(collision.gameObject);
         }
     }
-    void CreateNote(Note note)
+    private void CreateNote(Note note)
     {
-        note.passCenter = false;      
-        if (note.type == NoteType.LONG)
+        note.isPassCenter = false;      
+        if (note.type == ENoteType.LONG)
         {
             StartCoroutine(CreateLongNote(note));
         }
         else
         {
             GameObject instnote;
-            instnote = Instantiate(NoteObj, NotesTsf);
+            instnote = Instantiate(_noteObj, _notesTsf);
             instnote.transform.localPosition = note.position;
-            instnote.GetComponent<SpriteRenderer>().sprite = NoteImages.Find((Sprite sample) => sample.name == note.image.ToString());
-            Notes.Add(instnote, note);
+            instnote.GetComponent<SpriteRenderer>().sprite = _noteImages.Find((Sprite sample) => sample.name == note.image.ToString());
+            _notes.Add(instnote, note);
             instnote.SetActive(true);
             StartCoroutine(NoteMoving(instnote));
         }
@@ -444,12 +464,16 @@ public partial class MainGame_s : MonoBehaviour, IUI // note
         WaitForSeconds wait = new WaitForSeconds(0.5f);
         for (TimeSpan time = new TimeSpan(0,0,0,0); time<note.time2; time+=new TimeSpan(0,0,0,0,500))
         {
-            instnote = Instantiate(LongNoteObj, NotesTsf);
+            if(_curGameStatus!=EGameStatus.PLAYING)
+            {
+                break;
+            }
+            instnote = Instantiate(_longNoteObj, _notesTsf);
             instnote.transform.localPosition = note.position;
-            instnote.GetComponent<SpriteRenderer>().sprite = NoteImages.Find((Sprite sample) => sample.name == note.image.ToString());
-            instnote.GetComponent<ParticleSystemRenderer>().material = NoteMaterial.Find((Material sample) => sample.name == note.image.ToString());
+            instnote.GetComponent<SpriteRenderer>().sprite = _noteImages.Find((Sprite sample) => sample.name == note.image.ToString());
+            instnote.GetComponent<ParticleSystemRenderer>().material = _noteMaterial.Find((Material sample) => sample.name == note.image.ToString());
             instnote.GetComponent<ParticleSystem>().Play();
-            Notes.Add(instnote, note);
+            _notes.Add(instnote, note);
             instnote.SetActive(true);
             StartCoroutine(NoteMoving(instnote));
             yield return wait ;
@@ -462,71 +486,78 @@ public partial class MainGame_s : MonoBehaviour, IUI // note
         Vector2 movingposition = new Vector2(target.transform.localPosition.x * -1, target.transform.localPosition.y * -1);
         while (target != null && Vector2.Distance(target.transform.localPosition, movingposition) > 360)
         {
-            if (CurGameStatus == GameStatus.PLAYING)
+            if (_curGameStatus == EGameStatus.PLAYING)
             {
-                target.transform.localPosition = Vector2.Lerp(target.transform.localPosition, movingposition, NoteSpeed);
-                if ((target.transform.localPosition.x * previouspos.x < 0 || target.transform.localPosition.x == 0) && (target.transform.localPosition.y * previouspos.y < 0 || target.transform.localPosition.y == 0) && Notes.ContainsKey(target))
+                target.transform.localPosition = Vector2.Lerp(target.transform.localPosition, movingposition, _noteSpeed);
+                if ((target.transform.localPosition.x * previouspos.x < 0 || target.transform.localPosition.x == 0) && (target.transform.localPosition.y * previouspos.y < 0 || target.transform.localPosition.y == 0) && _notes.ContainsKey(target))
                 {
-                    target.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, FadeOutValue - Vector2.Distance(previouspos, movingposition) / Vector2.Distance(target.transform.localPosition, movingposition));
-                    Notes[target].passCenter = true;               
+                    target.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, _fadeOutValue - Vector2.Distance(previouspos, movingposition) / Vector2.Distance(target.transform.localPosition, movingposition));
+                    _notes[target].isPassCenter = true;               
                 }
             }
-            yield return NoteWait;
+            yield return _noteWait;
             if (target == null)
                 break;
         }
         if (target != null)
         {
             NoteEnd(target);
-            Debug.Log("aa");
         }
     }
-    void NoteEnd(GameObject target)
+    private void NoteEnd(GameObject target)
     {
-        if (CurCubeImageStatus == Notes[target].image&&CurCubeObjStatus!=CubeObjStatus.ROTATION)
+        if (_curCubeImageStatus == _notes[target].image&&_curCubeObjStatus!=ECubeObjStatus.ROTATION)
         {
-            if (Notes[target].passCenter)
+            if (_notes[target].isPassCenter)
             {
-                if (Vector2.Distance(target.transform.position, Vector2.zero) < perfect)
+                if (Vector2.Distance(target.transform.position, Vector2.zero) < _perfect)
                 {
                     ShowScore("PERFECT!");
-                    Combo++;
+                    _combo++;
                     ShowCombo();
 
                 }
-                else if (Vector2.Distance(target.transform.position, Vector2.zero) < good)
+                else if (Vector2.Distance(target.transform.position, Vector2.zero) < _good)
                 {
                     ShowScore("GOOD");
-                    Combo++;
+                    _combo++;
                     ShowCombo();
                 }
-                Notes.Remove(target);
+                _notes.Remove(target);
                 Destroy(target);
             }
-            else if (Vector2.Distance(target.transform.position, Vector2.zero) < perfect)
+            else if (Vector2.Distance(target.transform.position, Vector2.zero) < _perfect)
             {
                 ShowScore("PERFECT!");
-                Combo++;
+                _combo++;
                 ShowCombo();
-                Notes.Remove(target);
+                _notes.Remove(target);
                 Destroy(target);
             }
         }
-        else if (Notes[target].passCenter && Vector2.Distance(target.transform.position, Vector2.zero) > good)
+        else if (!_notes[target].isPassCenter&&_curCubeObjStatus==ECubeObjStatus.ROTATION&& _curCubeImageStatus == _notes[target].image&& Vector2.Distance(target.transform.position, Vector2.zero) < _good)
+        {
+            ShowScore("GOOD");
+            _combo++;
+            ShowCombo();
+            _notes.Remove(target);
+            Destroy(target);
+        }
+        else if (_notes[target].isPassCenter && Vector2.Distance(target.transform.position, Vector2.zero) > _good)
         {
             ShowScore("MISS");
-            Combo=0;
+            _combo=0;
             ShowCombo();
-            Notes.Remove(target);
+            _notes.Remove(target);
             Destroy(target);
         }
     }
-    void ShowScore(string score)
+    private void ShowScore(string score)
     {
-        ScoreTsf.GetComponent<TextMeshProUGUI>().text = score;
+        _scoreTsf.GetComponent<TextMeshProUGUI>().text = score;
     }
-    void ShowCombo()
+    private void ShowCombo()
     {
-        ComboTsf.GetComponent<TextMeshProUGUI>().text = Combo.ToString();
+        _comboTsf.GetComponent<TextMeshProUGUI>().text = _combo.ToString();
     }
 }

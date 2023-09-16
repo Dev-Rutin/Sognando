@@ -8,12 +8,12 @@ using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Rendering;
-public enum NoteType
+public enum ENoteType
 {
     DEFAULT,
     LONG
 }
-public enum NoteImage
+public enum ENoteImage
 {
     DEFAULT,
     UP,
@@ -27,10 +27,10 @@ public class Note
     public TimeSpan time;
     public TimeSpan time2;
     //autoload
-    public NoteImage image;
-    public NoteType type;
+    public ENoteImage image;
+    public ENoteType type;
     public Vector2 position;
-    public bool passCenter;
+    public bool isPassCenter;
 }
 public class Data
 {
@@ -134,20 +134,20 @@ public class Data
                 }
             }
         }
-        if(rValue.type==NoteType.LONG)
+        if(rValue.type==ENoteType.LONG)
         {
             rValue.time2 = TimeSpan.Parse(notetime.Attributes["value2"].Value);
         }
         return rValue;
     }
-    public List<Note> NoteLoad(TimeSpan time, object path = null)
+    public List<Note> LoadNote(TimeSpan time, object path = null)
     {
         if(path!=null)
             SetPath(path);
-        return NoteLoad(time);
+        return LoadNoteOrNull(time);
     }
  
-    public List<Note> NoteLoad(TimeSpan time)
+    public List<Note> LoadNoteOrNull(TimeSpan time)
     {
         
         var rList = new List<Note>();
@@ -164,7 +164,7 @@ public class Data
         else
             return rList;
     }
-    public List<Note> NoteLoadAll(object path =null)
+    public List<Note> LoadNoteAllOrNull(object path =null)
     {
         if (path != null)
             SetPath(path);

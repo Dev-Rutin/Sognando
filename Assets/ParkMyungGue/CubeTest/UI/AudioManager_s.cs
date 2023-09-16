@@ -44,8 +44,4 @@ public class AudioManager_s : MonoBehaviour,IAudio
         }       
     }
     public void ChangeVolume(float volume) { }
- 
- 
-
- 
 }

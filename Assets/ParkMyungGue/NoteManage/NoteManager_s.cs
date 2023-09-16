@@ -37,7 +37,7 @@ public class NoteManager_s : MonoBehaviour
     Dictionary<GameObject, Note> Notes;
     GameObject CreateNote(Note note)
     {
-        note.passCenter = false;
+        note.isPassCenter = false;
         GameObject instnote = Instantiate(Resources.Load<GameObject>("Prefabs\\ParkMyungGue\\Note"), transform.Find("UI").Find("Canvas").Find("Notes"));
         instnote.transform.localPosition = note.position;
         instnote.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("ParkMyungGue\\NoteImage\\" + note.image.ToString());
@@ -56,7 +56,7 @@ public class NoteManager_s : MonoBehaviour
             target.transform.localPosition = Vector2.Lerp(target.transform.localPosition, movingposition, 0.0025f);
             if ((target.transform.localPosition.x * previouspos.x < 0 || target.transform.localPosition.x == 0) && (target.transform.localPosition.y * previouspos.y < 0 || target.transform.localPosition.y == 0) && Notes.ContainsKey(target))
             {
-                Notes[target].passCenter = true;
+                Notes[target].isPassCenter = true;
             }
             yield return NoteWait;
             if (target == null)

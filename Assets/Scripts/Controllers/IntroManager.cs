@@ -1,9 +1,9 @@
 using System.Collections;
-using System.Collections.Generic;
+using Spine.Unity;
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.UI; 
+using UnityEngine.Assertions;
 
 public class IntroManager : MonoBehaviour
 {
@@ -11,7 +11,11 @@ public class IntroManager : MonoBehaviour
     [SerializeField] private GameObject _playerObject;
     [SerializeField] private float _fadeTime;
     [SerializeField] private float _sceneSpeed;
-    [Header("FadeScreen")]
+    private bool _isPlayerFading;
+    private Spine.Skeleton _playerColor;
+
+    [Header("FadeScreen")] 
+    [SerializeField] private GameObject _fadePanel;
     [Header("TextDialogs")]
     [TextArea]
     [SerializeField] private string[] _dialogStrings;
@@ -19,13 +23,15 @@ public class IntroManager : MonoBehaviour
     [SerializeField] private float _textDelayTime;
     private int _typingCount = 0;
     
-    private SpriteRenderer _playerColor;
+    
     
     // Start is called before the first frame update
     void Start()
     {
-        _playerColor = _playerObject.GetComponent<SpriteRenderer>();
-        StartCoroutine(FadeOutPlayer());
+        SceneSoundManager.Instance.PlaySound(ESoundTypes.Bgm, SceneSoundNames.INTRO_BGM);
+        _playerColor = _playerObject.GetComponent<SkeletonAnimation>().skeleton;
+        _playerColor.A = 0;
+        StartCoroutine(FadeInPlayer());
         StartCoroutine(TypingCoroutine());
     }
     
@@ -60,30 +66,31 @@ public class IntroManager : MonoBehaviour
 
     private IEnumerator FadeInPlayer()
     {
-        Color color = _playerColor.color;
+        float color = _playerColor.A;
         
         float time = 0f;
 
-        while (_playerColor.color.a > 0f)
+        while (_playerColor.A < 1f)
         {
             time += Time.deltaTime;
-            color.a = math.lerp(1f, 0f, time / _fadeTime);
-            _playerColor.color = color;
+            color = math.lerp(0f, 1f, time / _fadeTime);
+            _playerColor.A = color;
             yield return null;
         }
+        _isPlayerFading = false;
     }
     
     private IEnumerator FadeOutPlayer()
     {
-        Color color = _playerColor.color;
+        float color = _playerColor.A;
         
         float time = 0f;
 
-        while (_playerColor.color.a > 0f)
+        while (_playerColor.A > 0f)
         {
             time += Time.deltaTime;
-            color.a = math.lerp(1f, 0f, time / _fadeTime);
-            _playerColor.color = color;
+            color = math.lerp(1f, 0f, time / _fadeTime);
+            _playerColor.A = color;
             yield return null;
         }
         yield return null;

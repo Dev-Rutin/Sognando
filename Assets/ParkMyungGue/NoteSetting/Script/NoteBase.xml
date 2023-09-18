@@ -3,7 +3,8 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="NoteBase.xsd">
   <text>
-    <time value ="00:00:05" >
+    <time value ="00:00:05" value2 ="00:00:00">
+      <image>DEFAULT</image>
       <type>DEFAULT</type>
       <position>
         <x>-840</x>

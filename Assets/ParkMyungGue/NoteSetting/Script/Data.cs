@@ -8,33 +8,86 @@ using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Rendering;
+public enum ENoteType
+{
+    DEFAULT,
+    LONG
+}
+public enum ENoteImage
+{
+    DEFAULT,
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
+}
 public class Note
 {
+    //none autoload
     public TimeSpan time;
-    public Cube_Note_Status type;
+    public TimeSpan time2;
+    //autoload
+    public ENoteImage image;
+    public ENoteType type;
     public Vector2 position;
-    public bool passCenter;
+    //not load
+    public bool isPassCenter;
+
+    public Note()
+    {
+
+    }
+    public Note(Note note)
+    {
+        time = note.time;
+        time2= note.time2;
+        image = note.image;
+        type = note.type;
+        position = note.position;
+    }
+    public Note DeepCopy()
+    {
+        Note rnote = new Note();
+        rnote.time= time;
+        rnote.time2= time2;
+        rnote.image= image;
+        rnote.type= type;   
+        rnote.position= position;   
+        return rnote;  
+    }
 }
-public class Data :MonoBehaviour
+public class Data
 {
-    XmlDocument xdocPath;
+    public XmlDocument xdocPath;
+    public Data() { }
+    public Data(object path)
+    {
+        SetPath(path);
+    }
     public void SetPath(object path)
     {
-        if(xdocPath == null)
+        try
         {
-            xdocPath = new XmlDocument();   
+            if (xdocPath == null)
+            {
+                xdocPath = new XmlDocument();
+            }
+            if (path.GetType() == typeof(string))
+            {
+                SetPath((string)path);
+            }
+            else if (path.GetType() == typeof(TextAsset))
+            {
+                SetPath((TextAsset)path);
+            }
+            else if (path.GetType() == typeof(XmlReader))
+            {
+                SetPath((XmlReader)path);
+            }
         }
-        if(path.GetType()==typeof(string))
+        catch
         {
-            SetPath((string)path);
-        }
-        else if(path.GetType()==typeof(TextAsset))
-        {
-            SetPath((TextAsset)path);
-        }
-        else if(path.GetType()==typeof(XmlReader))
-        {
-            SetPath((XmlReader)path);
+            xdocPath = null;
         }
     }
     public void SetPath(TextAsset path)
@@ -77,10 +130,10 @@ public class Data :MonoBehaviour
             }*/
         }
     }
-    public Note GetNote(XmlNode notetime,string time)
+    public Note GetNote(XmlNode notetime)
     {
         Note rValue = new Note();
-        rValue.time = TimeSpan.Parse(time);
+        rValue.time = TimeSpan.Parse(notetime.Attributes["value"].Value);
         foreach (XmlNode notedata in notetime.ChildNodes)
         {
             var noteVariable = rValue.GetType().GetFields().ToList();
@@ -98,7 +151,6 @@ public class Data :MonoBehaviour
                     {
                         foreach (XmlNode childvalue in notedata.ChildNodes)
                         {
-
                             sendvalues.Add(childvalue.InnerText);
                         }
                     }
@@ -106,16 +158,20 @@ public class Data :MonoBehaviour
                 }
             }
         }
+        if(rValue.type==ENoteType.LONG)
+        {
+            rValue.time2 = TimeSpan.Parse(notetime.Attributes["value2"].Value);
+        }
         return rValue;
     }
-    public List<Note> NoteLoad(TimeSpan time, object path = null)
+    public List<Note> LoadNote(TimeSpan time, object path = null)
     {
         if(path!=null)
             SetPath(path);
-        return NoteLoad(time);
+        return LoadNote(time);
     }
  
-    public List<Note> NoteLoad(TimeSpan time)
+    public List<Note> LoadNote(TimeSpan time)
     {
         
         var rList = new List<Note>();
@@ -124,15 +180,12 @@ public class Data :MonoBehaviour
         {
             if (time == TimeSpan.Parse(notetime.Attributes["value"].Value))
             {
-                rList.Add(GetNote(notetime, notetime.Attributes["value"].Value));
+                rList.Add(GetNote(notetime));
             }          
         }
-        if (rList.Count == 0)
-            return null;
-        else
             return rList;
     }
-    public List<Note> NoteLoadAll(object path =null)
+    public List<Note> LoadNoteAll(object path =null)
     {
         if (path != null)
             SetPath(path);
@@ -140,15 +193,12 @@ public class Data :MonoBehaviour
         XmlNodeList nodes = xdocPath.SelectNodes("/Note/text/time");
         foreach (XmlNode notetime in nodes)
         {
-            rList.Add(GetNote(notetime, notetime.Attributes["value"].Value));
+            rList.Add(GetNote(notetime));
         }
-        if (rList.Count == 0)
-            return null;
-        else
             return rList;
     }
  
-    private void Start()
+    /*private void Start()
     {
         /*foreach (var data in typeof(Note).GetFields().ToList())
         {
@@ -169,7 +219,7 @@ public class Data :MonoBehaviour
         /*foreach(var data in noteall)
         {
             Debug.Log(data.time + "/" +data.type + "/" + data.position);
-        }*/
+        }
 
-    }
+    }*/
 }

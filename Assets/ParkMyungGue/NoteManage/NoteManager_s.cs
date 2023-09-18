@@ -1,14 +1,28 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.IO.LowLevel.Unsafe;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UIElements;
 
+public struct NoteObjTime
+{
+    public Note curnote;
+    public Vector2 curposition;
+
+}
 public class NoteManager_s : MonoBehaviour
 {
     Dictionary<AudioClip, Data> musicDic;
+    public MainGame_s maingame_s;
+    public Camera cam;
+    public Dictionary<TimeSpan, List<NoteObjTime>> timeline;
     void Start()
     {
+        cam = Camera.main;
         musicDic = new Dictionary<AudioClip, Data>();
         foreach(var data in Resources.LoadAll<AudioClip>("ParkMyungGue\\Music"))
         {
@@ -27,46 +41,49 @@ public class NoteManager_s : MonoBehaviour
             dropoption.Add(data.Key.name);
         }
         musicList.AddOptions(dropoption);
+   
+        maingame_s.CreateNoteEvent += CreateNote;
+        maingame_s.DeleteNoteEvent += DeleteNote;
     }
     public void TestStart()
     {
         transform.Find("SelectMusic").gameObject.SetActive(false);
         transform.Find("PlayScreen").gameObject.SetActive(true);
-        NoteWait = new WaitForSeconds(0.1f);
+   
     }
-    Dictionary<GameObject, Note> Notes;
-    GameObject CreateNote(Note note)
-    {
-        note.passCenter = false;
-        GameObject instnote = Instantiate(Resources.Load<GameObject>("Prefabs\\ParkMyungGue\\Note"), transform.Find("UI").Find("Canvas").Find("Notes"));
-        instnote.transform.localPosition = note.position;
-        instnote.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("ParkMyungGue\\NoteImage\\" + note.type.ToString());
-        Notes.Add(instnote, note);
-        instnote.SetActive(true);
-        return instnote;
+    public void CreateNote(Note note)
+    {     
     }
-    WaitForSeconds NoteWait;
-   IEnumerator NoteMoving(GameObject target)
+    public void DeleteNote(Note note)
     {
-        Vector2 previouspos = target.transform.position;
-        Vector2 movingposition = new Vector2(target.transform.localPosition.x * -1, target.transform.localPosition.y * -1);
+    }
+    void ShowNoteObj(Note note)
+    {
 
-        while (target != null && Vector2.Distance(target.transform.localPosition, movingposition) > 25)
-        {
-            target.transform.localPosition = Vector2.Lerp(target.transform.localPosition, movingposition, 0.0025f);
-            if ((target.transform.localPosition.x * previouspos.x < 0 || target.transform.localPosition.x == 0) && (target.transform.localPosition.y * previouspos.y < 0 || target.transform.localPosition.y == 0) && Notes.ContainsKey(target))
-            {
-                Notes[target].passCenter = true;
-            }
-            yield return NoteWait;
-            if (target == null)
-                break;
-        }
-        if (target != null)
-            NoteEnd(target);
     }
-    void Update()
+    private void Update()
     {
-        
+        if(maingame_s.curGameStatus==EGameStatus.PAUSE&&Input.GetMouseButtonDown(0))
+        {
+           RaycastHit2D hit = Physics2D.Raycast(cam.ScreenToWorldPoint(Input.mousePosition),transform.forward);
+            if (hit)
+            {
+                if(hit.transform.tag=="Note")
+                {
+                   
+                }
+            }
+        }
+        if(maingame_s.curGameStatus==EGameStatus.PLAYING)
+        {
+            if(!timeline.ContainsKey(maingame_s.curMainGameTime))
+            {
+                timeline.Add(maingame_s.curMainGameTime, new List<NoteObjTime>());
+            }
+            else
+            {
+
+            }
+        }
     }
 }

@@ -11,7 +11,6 @@ public class IntroManager : MonoBehaviour
     [SerializeField] private GameObject _playerObject;
     [SerializeField] private float _fadeTime;
     [SerializeField] private float _sceneSpeed;
-    private bool _isPlayerFading;
     private Spine.Skeleton _playerColor;
 
     [Header("FadeScreen")] 
@@ -23,7 +22,7 @@ public class IntroManager : MonoBehaviour
     [SerializeField] private float _textDelayTime;
     private int _typingCount = 0;
     
-    
+    public bool _IsPlayerFading { get; private set; }
     
     // Start is called before the first frame update
     void Start()
@@ -31,6 +30,7 @@ public class IntroManager : MonoBehaviour
         SceneSoundManager.Instance.PlaySound(ESoundTypes.Bgm, SceneSoundNames.INTRO_BGM);
         _playerColor = _playerObject.GetComponent<SkeletonAnimation>().skeleton;
         _playerColor.A = 0;
+        _IsPlayerFading = true;
         StartCoroutine(FadeInPlayer());
         StartCoroutine(TypingCoroutine());
     }
@@ -76,8 +76,12 @@ public class IntroManager : MonoBehaviour
             color = math.lerp(0f, 1f, time / _fadeTime);
             _playerColor.A = color;
             yield return null;
+            if (_playerColor.A >= 1f)
+            {
+                yield return new WaitForSeconds(0.5f);
+                _IsPlayerFading = false;
+            }
         }
-        _isPlayerFading = false;
     }
     
     private IEnumerator FadeOutPlayer()

@@ -30,7 +30,31 @@ public class Note
     public ENoteImage image;
     public ENoteType type;
     public Vector2 position;
+    //not load
     public bool isPassCenter;
+
+    public Note()
+    {
+
+    }
+    public Note(Note note)
+    {
+        time = note.time;
+        time2= note.time2;
+        image = note.image;
+        type = note.type;
+        position = note.position;
+    }
+    public Note DeepCopy()
+    {
+        Note rnote = new Note();
+        rnote.time= time;
+        rnote.time2= time2;
+        rnote.image= image;
+        rnote.type= type;   
+        rnote.position= position;   
+        return rnote;  
+    }
 }
 public class Data
 {
@@ -144,10 +168,10 @@ public class Data
     {
         if(path!=null)
             SetPath(path);
-        return LoadNoteOrNull(time);
+        return LoadNote(time);
     }
  
-    public List<Note> LoadNoteOrNull(TimeSpan time)
+    public List<Note> LoadNote(TimeSpan time)
     {
         
         var rList = new List<Note>();
@@ -159,12 +183,9 @@ public class Data
                 rList.Add(GetNote(notetime));
             }          
         }
-        if (rList.Count == 0)
-            return null;
-        else
             return rList;
     }
-    public List<Note> LoadNoteAllOrNull(object path =null)
+    public List<Note> LoadNoteAll(object path =null)
     {
         if (path != null)
             SetPath(path);
@@ -174,9 +195,6 @@ public class Data
         {
             rList.Add(GetNote(notetime));
         }
-        if (rList.Count == 0)
-            return null;
-        else
             return rList;
     }
  

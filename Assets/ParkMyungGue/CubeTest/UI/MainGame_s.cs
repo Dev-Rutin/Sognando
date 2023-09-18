@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-enum EGameStatus
+public enum EGameStatus
 {
     NONE,
     STARTWAITTING,
@@ -41,7 +41,7 @@ public partial class MainGame_s : MonoBehaviour, IUI  //Display
     private Data _musicData;
     //cube
     private Dictionary<KeyCode, Action> _cubeKeyBinds;
-    private Queue<KeyCode> _keyInputQueue;  
+    private Queue<KeyCode> _keyInputQueue;
     private List<KeyCode> _cubeKeyPressCheck;
     private Queue<IEnumerator> _rotationQueue;
     private bool _isSetting;
@@ -49,11 +49,14 @@ public partial class MainGame_s : MonoBehaviour, IUI  //Display
     private IEnumerator _previousRotation;
     private int _rotateCount;
     //note
-    private Queue<Note> _noteQueue;
-    private Dictionary<GameObject, Note> _notes;
+    private List<Note> _noteList;
+    private Dictionary<Note, GameObject> _notes;
     private WaitForFixedUpdate _noteWait;
     private List<Sprite> _noteImages;
     private List<Material> _noteMaterial;
+    public delegate void NoteDelegate(Note note);
+    public event NoteDelegate CreateNoteEvent;
+    public event NoteDelegate DeleteNoteEvent;
 
     [Header("Required Value")]
     //main system
@@ -71,22 +74,25 @@ public partial class MainGame_s : MonoBehaviour, IUI  //Display
     [Header("Only Display")]
     //main system
     [SerializeField] private AudioClip _musicClip;
-    [SerializeField] private TimeSpan _mainGameCurTime;
+    [SerializeField] public TimeSpan curMainGameTime;
     //cube
-    [SerializeField] private EGameStatus _curGameStatus;
+    [SerializeField] public EGameStatus curGameStatus;
     [SerializeField] private ECubeObjStatus _curCubeObjStatus;
     [SerializeField] private ENoteImage _curCubeImageStatus;
     //note
     [SerializeField] private int _combo;
-    
+
     [Header("Changeable Value")]
     //cube
     [SerializeField] private int _defaultRotateTime;
     //note
     [SerializeField] private float _perfect;
     [SerializeField] private float _good;
+    [SerializeField] private int _missRange;
     [SerializeField] private float _fadeOutValue;
-    [SerializeField] private float _noteSpeed;
+    [SerializeField] private float _noteSpeed;   
+    //test
+    [SerializeField] private string _musicName;
 }
 public partial class MainGame_s : MonoBehaviour ,IUI //main system
 {
@@ -101,8 +107,8 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
         _cubeKeyPressCheck = new List<KeyCode>();
         _rotationQueue = new Queue<IEnumerator>();
         //note
-        _noteQueue = new Queue<Note>();
-        _notes = new Dictionary<GameObject, Note>();           
+        _noteList = new List<Note>();
+        _notes = new Dictionary<Note, GameObject>();           
         _noteWait = new WaitForFixedUpdate();
         _noteImages = new List<Sprite>();
         _noteMaterial = new List<Material>();
@@ -113,7 +119,7 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
         ButtonBind();
         //only Test
         UIOpen();
-        MusicSetting("Test140");    
+        MusicSetting(_musicName);    
     }
     private void DefaultDataSetting()
     {
@@ -127,7 +133,7 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
         }
         if (_gameCube == null)
         {
-            _gameCube = GameObject.Find("Cube").gameObject;
+            _gameCube = transform.Find("NoneUI").Find("Cube").gameObject;
         }
         if (_buttonsTsf == null)
         {
@@ -135,7 +141,7 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
         }
         if (_audioManager == null)
         { 
-            _audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager_s>();
+            _audioManager = transform.Find("AudioManager").GetComponent<AudioManager_s>();
         }
         if (_timeTsf == null)
         { 
@@ -161,19 +167,22 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
         {
             _noteMaterial.Add(data);
         }
+        CreateNoteEvent += CreateNote;
+        DeleteNoteEvent += DestroyNote;
     }
     private void DefaultValueSetting()
     {
         _defaultRotateTime = _defaultRotateTime == 0 ? 100 : _defaultRotateTime;
-        _perfect = _perfect == 0 ? 0.3f : _perfect;
-        _good = _good == 0 ? 1f : _good;
-        _curGameStatus = EGameStatus.NONE;
+        _perfect = _perfect == 0 ? 35f : _perfect;
+        _good = _good == 0 ? 100f : _good;
+        _missRange = _missRange == 0 ? 165 : _missRange;
+        curGameStatus = EGameStatus.NONE;
         _fadeOutValue = _fadeOutValue== 0 ? 1.6f : _fadeOutValue;
-        _noteSpeed = _noteSpeed == 0 ? 0.0025f : _noteSpeed;
+        _noteSpeed = _noteSpeed == 0 ? 0.0025f : _noteSpeed;    
     }
     private void Update()
     {
-        if (_curGameStatus == EGameStatus.PLAYING)
+        if (curGameStatus == EGameStatus.PLAYING)
         {
             if (Input.anyKeyDown)
             {
@@ -203,7 +212,7 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
                 StartCoroutine(_rotationQueue.Dequeue());
             }
             PressCheck();
-            _timeTsf.GetComponent<TextMeshProUGUI>().text = _mainGameCurTime.ToString();
+            _timeTsf.GetComponent<TextMeshProUGUI>().text = curMainGameTime.ToString();
 
         }
         else
@@ -225,28 +234,28 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
         _curCubeImageStatus = ENoteImage.DEFAULT;
         _curCubeObjStatus = ECubeObjStatus.STOP;
         _isSetting = false;
-        _curGameStatus = EGameStatus.STARTWAITTING;
+        curGameStatus = EGameStatus.STARTWAITTING;
     }
     public void UIPause()
     {
-        if (_curGameStatus == EGameStatus.PAUSE)
+        if (curGameStatus == EGameStatus.PAUSE)
         {
-            _curGameStatus = EGameStatus.PLAYING;
-            _audioManager.AudioUnPause(_mainGameCurTime);
+            curGameStatus = EGameStatus.PLAYING;
+            _audioManager.AudioUnPause(curMainGameTime);
         }
         else
         {
-            _curGameStatus = EGameStatus.PAUSE;
+            curGameStatus = EGameStatus.PAUSE;
             _audioManager.AudioPause();   
         }
     }
     public void UIClose()
     {
-        _curGameStatus = EGameStatus.NONE;
+        curGameStatus = EGameStatus.NONE;
     }
     public void MusicSetting(string name)
     {
-        if (_curGameStatus == EGameStatus.STARTWAITTING)
+        if (curGameStatus == EGameStatus.STARTWAITTING)
         {
             _musicData.SetPath((Resources.Load("ParkMyungGue\\XML\\" + name)));
             if (_musicData.xdocPath != null)
@@ -283,40 +292,35 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
     }
     private void GameStart()
     {
-        if (_curGameStatus == EGameStatus.STARTWAITTING)
+        if (curGameStatus == EGameStatus.STARTWAITTING)
         {
             _combo = 0;
             ShowCombo();
-            _mainGameCurTime = new TimeSpan(0, 0, 0);
-            _curGameStatus = EGameStatus.PLAYING;
+            curMainGameTime = new TimeSpan(0, 0, 0);
+            curGameStatus = EGameStatus.PLAYING;
             _buttonsTsf.Find("GameStart").gameObject.SetActive(false);
             _audioManager.AudioPlay(_musicClip);
+            _noteList = _musicData.LoadNoteAll();
             StartCoroutine(GamePlaying());
         }
     }
     IEnumerator GamePlaying()
-    {
-        List<Note> notes = _musicData.LoadNoteAllOrNull();
-        if (notes != null)
-        {
-            foreach (var data in notes)
-            {
-                _noteQueue.Enqueue(data);
-            }
-        }
+    {     
         WaitForSeconds time = new WaitForSeconds(0.01f);       
-        while (_mainGameCurTime.TotalSeconds<= _musicClip.length)
+        while (curMainGameTime.TotalSeconds<= _musicClip.length)
         {
-            if (_curGameStatus == EGameStatus.PLAYING)
-            {
-                if (_noteQueue.Count != 0)
+            if (curGameStatus == EGameStatus.PLAYING)
+            {           
+                if (_noteList.Count != 0)
                 {
-                    if (_mainGameCurTime == _noteQueue.Peek().time)
+                    Note temp = _noteList.Find(temp => temp.time == curMainGameTime);
+                    if (temp != null)
                     {
-                        CreateNote(_noteQueue.Dequeue());
+                        temp = new Note(temp);
+                        CreateNoteEvent.Invoke(temp);
                     }
                 }
-                _mainGameCurTime = _mainGameCurTime.Add(new TimeSpan(0, 0, 0, 0, 010));
+                curMainGameTime = curMainGameTime.Add(new TimeSpan(0, 0, 0, 0, 010));
             }
             yield return time;         
         }
@@ -327,19 +331,29 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
         ShowCombo();
         ShowScore("");
         _audioManager.AudioStop(_musicClip);
-        _noteQueue.Clear();
-        if (_curGameStatus == EGameStatus.PLAYING)
+        _noteList.Clear();
+        if (curGameStatus == EGameStatus.PLAYING)
         {
-            _curGameStatus = EGameStatus.END;
-            var copy = new Dictionary<GameObject, Note>(_notes);
+            curGameStatus = EGameStatus.END;
+            var copy = new Dictionary<Note, GameObject>(_notes);
             foreach (var data in copy)
             {
                 _notes.Remove(data.Key);
-                Destroy(data.Key);
+                Destroy(data.Value);
             }        
-            _curGameStatus = EGameStatus.STARTWAITTING;
+            curGameStatus = EGameStatus.STARTWAITTING;
             _buttonsTsf.Find("GameStart").gameObject.SetActive(true);       
         }   
+    }
+
+    public GameObject NoteToGameObjectOrNull(Note note)
+    {
+        foreach(var data in _notes)
+        {
+            if (data.Key == note)
+                return data.Value;
+        }
+        return null;
     }
 }
 public partial class MainGame_s : MonoBehaviour, IUI // cube
@@ -411,7 +425,7 @@ public partial class MainGame_s : MonoBehaviour, IUI // cube
         WaitForSeconds Wait = new WaitForSeconds(0.1f / rotatetime);
         for (int i = 0; i < rotatetime; i++)
             {
-            while(_curGameStatus==EGameStatus.PAUSE)
+            while(curGameStatus==EGameStatus.PAUSE)
             {
                 yield return Wait;
             }
@@ -435,9 +449,14 @@ public partial class MainGame_s : MonoBehaviour, IUI // note
 {
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "Note" && _notes.ContainsKey(collision.gameObject))
+        if (collision.gameObject.tag == "Note" && _notes.ContainsValue(collision.gameObject))
         {
-            NoteEnd(collision.gameObject);
+            Dictionary<Note, GameObject> temp = new Dictionary<Note, GameObject>(_notes);
+            foreach(var data in temp)
+            {
+                if(data.Value.Equals(collision.gameObject))
+                    EndNote(data.Key);
+            }         
         }
     }
     private void CreateNote(Note note)
@@ -453,9 +472,9 @@ public partial class MainGame_s : MonoBehaviour, IUI // note
             instnote = Instantiate(_noteObj, _notesTsf);
             instnote.transform.localPosition = note.position;
             instnote.GetComponent<SpriteRenderer>().sprite = _noteImages.Find((Sprite sample) => sample.name == note.image.ToString());
-            _notes.Add(instnote, note);
+            _notes.Add(note,instnote);
             instnote.SetActive(true);
-            StartCoroutine(NoteMoving(instnote));
+            StartCoroutine(NoteMoving(note));
         }
     }
     IEnumerator CreateLongNote(Note note)
@@ -464,7 +483,7 @@ public partial class MainGame_s : MonoBehaviour, IUI // note
         WaitForSeconds wait = new WaitForSeconds(0.5f);
         for (TimeSpan time = new TimeSpan(0,0,0,0); time<note.time2; time+=new TimeSpan(0,0,0,0,500))
         {
-            if(_curGameStatus!=EGameStatus.PLAYING)
+            if(curGameStatus!=EGameStatus.PLAYING)
             {
                 break;
             }
@@ -473,84 +492,87 @@ public partial class MainGame_s : MonoBehaviour, IUI // note
             instnote.GetComponent<SpriteRenderer>().sprite = _noteImages.Find((Sprite sample) => sample.name == note.image.ToString());
             instnote.GetComponent<ParticleSystemRenderer>().material = _noteMaterial.Find((Material sample) => sample.name == note.image.ToString());
             instnote.GetComponent<ParticleSystem>().Play();
-            _notes.Add(instnote, note);
+            _notes.Add(note, instnote);
             instnote.SetActive(true);
-            StartCoroutine(NoteMoving(instnote));
+            StartCoroutine(NoteMoving(note));
             yield return wait ;
         }
      
     }
-    IEnumerator NoteMoving(GameObject target)
+    IEnumerator NoteMoving(Note target)
     {
-        Vector2 previouspos = target.transform.position;
-        Vector2 movingposition = new Vector2(target.transform.localPosition.x * -1, target.transform.localPosition.y * -1);
-        while (target != null && Vector2.Distance(target.transform.localPosition, movingposition) > 360)
+        Vector2 previouspos = _notes[target].transform.position;
+        Vector2 movingposition = new Vector2(_notes[target].transform.localPosition.x * -1, _notes[target].transform.localPosition.y * -1);
+        while (_notes[target] != null && !(Vector2.Distance(_notes[target].transform.localPosition, Vector2.zero) >=_missRange && target.isPassCenter))
         {
-            if (_curGameStatus == EGameStatus.PLAYING)
+            if (curGameStatus == EGameStatus.PLAYING)
             {
-                target.transform.localPosition = Vector2.Lerp(target.transform.localPosition, movingposition, _noteSpeed);
-                if ((target.transform.localPosition.x * previouspos.x < 0 || target.transform.localPosition.x == 0) && (target.transform.localPosition.y * previouspos.y < 0 || target.transform.localPosition.y == 0) && _notes.ContainsKey(target))
+                _notes[target].transform.localPosition = Vector2.Lerp(_notes[target].transform.localPosition, movingposition, _noteSpeed);
+                if ((_notes[target].transform.localPosition.x * previouspos.x < 0 || _notes[target].transform.localPosition.x == 0) && (_notes[target].transform.localPosition.y * previouspos.y < 0 || _notes[target].transform.localPosition.y == 0) && _notes.ContainsKey(target))
                 {
-                    target.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, _fadeOutValue - Vector2.Distance(previouspos, movingposition) / Vector2.Distance(target.transform.localPosition, movingposition));
-                    _notes[target].isPassCenter = true;               
+                    _notes[target].GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, _fadeOutValue - Vector2.Distance(previouspos, movingposition) / Vector2.Distance(_notes[target].transform.localPosition, movingposition));
+                    target.isPassCenter = true;               
                 }
             }
             yield return _noteWait;
-            if (target == null)
+            if (!_notes.ContainsKey(target))
                 break;
         }
-        if (target != null)
+        if (_notes.ContainsKey(target))
         {
-            NoteEnd(target);
+            EndNote(target);
         }
     }
-    private void NoteEnd(GameObject target)
+    private void EndNote(Note target)
     {
-        if (_curCubeImageStatus == _notes[target].image&&_curCubeObjStatus!=ECubeObjStatus.ROTATION)
+        if (_curCubeImageStatus == target.image&&_curCubeObjStatus!=ECubeObjStatus.ROTATION)
         {
-            if (_notes[target].isPassCenter)
+            if (target.isPassCenter)
             {
-                if (Vector2.Distance(target.transform.position, Vector2.zero) < _perfect)
+                if (Vector2.Distance(_notes[target].transform.localPosition, Vector2.zero) <= _perfect)
                 {
                     ShowScore("PERFECT!");
                     _combo++;
                     ShowCombo();
+                    DeleteNoteEvent.Invoke(target);
 
                 }
-                else if (Vector2.Distance(target.transform.position, Vector2.zero) < _good)
+                else if (Vector2.Distance(_notes[target].transform.localPosition, Vector2.zero) <= _good)
                 {
                     ShowScore("GOOD");
                     _combo++;
                     ShowCombo();
+                    DeleteNoteEvent.Invoke(target);
                 }
-                _notes.Remove(target);
-                Destroy(target);
             }
-            else if (Vector2.Distance(target.transform.position, Vector2.zero) < _perfect)
+            else if (Vector2.Distance(_notes[target].transform.localPosition, Vector2.zero) <= _perfect)
             {
                 ShowScore("PERFECT!");
                 _combo++;
                 ShowCombo();
-                _notes.Remove(target);
-                Destroy(target);
+                DeleteNoteEvent.Invoke(target);
             }
         }
-        else if (!_notes[target].isPassCenter&&_curCubeObjStatus==ECubeObjStatus.ROTATION&& _curCubeImageStatus == _notes[target].image&& Vector2.Distance(target.transform.position, Vector2.zero) < _good)
+        else if (!target.isPassCenter&&_curCubeObjStatus==ECubeObjStatus.ROTATION&& _curCubeImageStatus == target.image&& Vector2.Distance(_notes[target].transform.localPosition, Vector2.zero) <= _good)
         {
             ShowScore("GOOD");
             _combo++;
             ShowCombo();
-            _notes.Remove(target);
-            Destroy(target);
+            DeleteNoteEvent.Invoke(target);
         }
-        else if (_notes[target].isPassCenter && Vector2.Distance(target.transform.position, Vector2.zero) > _good)
+        else if (target.isPassCenter && Vector2.Distance(_notes[target].transform.localPosition, Vector2.zero) >=_missRange)
         {
             ShowScore("MISS");
             _combo=0;
             ShowCombo();
-            _notes.Remove(target);
-            Destroy(target);
+            DeleteNoteEvent.Invoke(target);
         }
+    }
+    private void DestroyNote(Note target)
+    {
+        Destroy(_notes[target]);
+        _notes.Remove(target);
+       
     }
     private void ShowScore(string score)
     {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.UI; 
 
 public class IntroManager : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class IntroManager : MonoBehaviour
     [SerializeField] private GameObject _playerObject;
     [SerializeField] private float _fadeTime;
     [SerializeField] private float _sceneSpeed;
+    [Header("FadeScreen")]
     [Header("TextDialogs")]
     [TextArea]
     [SerializeField] private string[] _dialogStrings;

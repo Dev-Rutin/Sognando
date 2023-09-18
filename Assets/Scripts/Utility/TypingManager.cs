@@ -4,67 +4,67 @@ using TMPro;
 
 public class TypingManager : Singleton<TypingManager>
 {
-    [SerializeField] private float timeForCharacter;
-    [SerializeField] private float timeForCharacter_Fast; 
-    private float characterTime;
+    [SerializeField] private float _timeForCharacter;
+    [SerializeField] private float _timeForCharacter_Fast; 
+    private float _characterTime;
 
-    private string[] dialogsSave;
-    TextMeshProUGUI tmpSave;
+    private string[] _dialogsSave;
+    private TextMeshProUGUI _tmpSave;
 
-    private static bool isDialogEnd;
+    private static bool _isDialogEnd;
 
-    private bool isTypingEnd = false;
-    private int dialogNumber = 0;
-    private float timer; // 출력 타이머
+    private bool _isTypingEnd = false;
+    private int _dialogNumber = 0;
+    private float _timer; // 출력 타이머
 
     private void Awake()
     {
-        timer = timeForCharacter;
-        characterTime = timeForCharacter;
+        _timer = _timeForCharacter;
+        _characterTime = _timeForCharacter;
     }
 
     public void Typing(string[] dialogs, TextMeshProUGUI textObj)
     {
-        isDialogEnd = false;
-        dialogsSave = dialogs;
-        tmpSave = textObj;
-        if (dialogNumber < dialogs.Length)
+        _isDialogEnd = false;
+        _dialogsSave = dialogs;
+        _tmpSave = textObj;
+        if (_dialogNumber < dialogs.Length)
         {
             //받아온 다이얼 로그를 char로 변환.
-            char[] chars = dialogs[dialogNumber].ToCharArray();
+            char[] chars = dialogs[_dialogNumber].ToCharArray();
             StartCoroutine(Typer(chars, textObj));
         }
         else
         {
-            tmpSave.text = "";
-            isDialogEnd = true;
-            dialogsSave = null;
-            tmpSave = null;
-            dialogNumber = 0;
+            _tmpSave.text = "";
+            _isDialogEnd = true;
+            _dialogsSave = null;
+            _tmpSave = null;
+            _dialogNumber = 0;
         }
     }
 
     // 입력에 따른 빠른 문장 넘기기
     public void GetInputDown()
     {
-        if (dialogsSave != null)
+        if (_dialogsSave != null)
         {
-            if (isTypingEnd)
+            if (_isTypingEnd)
             {
-                tmpSave.text = "";
-                Typing(dialogsSave, tmpSave);
+                _tmpSave.text = "";
+                Typing(_dialogsSave, _tmpSave);
             }
             else
             {
-                characterTime = timeForCharacter_Fast;
+                _characterTime = _timeForCharacter_Fast;
             }
         }
     }
     public void GetInputUp()
     {
-        if (dialogsSave != null)
+        if (_dialogsSave != null)
         {
-            characterTime = timeForCharacter;
+            _characterTime = _timeForCharacter;
         }
     }
 
@@ -73,7 +73,7 @@ public class TypingManager : Singleton<TypingManager>
     {
         int currentChar = 0;
         int charLength = chars.Length;
-        isTypingEnd = false;
+        _isTypingEnd = false;
         if(textObj.text.Length != 0)
         {
             textObj.text = "";
@@ -82,31 +82,31 @@ public class TypingManager : Singleton<TypingManager>
         {
             if(chars[currentChar] == '<')
             {
-                characterTime = 0f;
+                _characterTime = 0f;
             }
             if(chars[currentChar] == '>')
             {
-                characterTime = timeForCharacter;
+                _characterTime = _timeForCharacter;
             }
-            if (timer >= 0)
+            if (_timer >= 0)
             {
-                if(characterTime != 0)
+                if(_characterTime != 0)
                 {
                     yield return null;
                 }
-                timer -= Time.deltaTime;
+                _timer -= Time.deltaTime;
             }
             else
             {
                 textObj.text += chars[currentChar].ToString();
                 currentChar++;
-                timer = characterTime;
+                _timer = _characterTime;
             }
         }
         if (currentChar >= charLength)
         {
-            isTypingEnd = true;
-            dialogNumber++;
+            _isTypingEnd = true;
+            _dialogNumber++;
             yield break;
         }
     }

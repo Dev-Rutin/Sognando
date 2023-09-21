@@ -2,12 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor.Experimental.GraphView;
-using UnityEditor.Presets;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using static UnityEngine.GraphicsBuffer;
 
 public enum EGameStatus
 {
@@ -54,12 +51,17 @@ public partial class MainGame_s : MonoBehaviour, IUI  //Display
     //note
     private List<Note> _noteList;
     private Dictionary<Note, List<GameObject>> _notes;
-    private WaitForFixedUpdate _noteWait;
     private List<Sprite> _noteImages;
     private List<Material> _noteMaterial;
     public delegate void NoteDelegate(Note note);
     public event NoteDelegate CreateNoteEvent;
     public event NoteDelegate DeleteNoteEvent;
+
+    //time
+    private WaitForSeconds _GameWaitWFS;
+    private WaitForSeconds _longNoteCreateWaitWFS;
+    private WaitForFixedUpdate _noteMovingWaitWFS;
+    public int _speedLoader;
 
     [Header("Required Value")]
     //main system
@@ -93,7 +95,10 @@ public partial class MainGame_s : MonoBehaviour, IUI  //Display
     [SerializeField] private float _good;
     [SerializeField] private int _missRange;
     [SerializeField] private float _fadeOutValue;
-    [SerializeField] private float _noteSpeed;   
+    [SerializeField] private float _noteSpeed;
+    //time
+    [SerializeField] private float _GameWait;
+    [SerializeField] private float _longNoteCreateWait;
     //test
     [SerializeField] private string _musicName;
 }
@@ -112,12 +117,13 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
         //note
         _noteList = new List<Note>();
         _notes = new Dictionary<Note, List<GameObject>>();           
-        _noteWait = new WaitForFixedUpdate();
         _noteImages = new List<Sprite>();
         _noteMaterial = new List<Material>();
-
+        //time
+        _noteMovingWaitWFS = new WaitForFixedUpdate();
         DefaultDataSetting();
         DefaultValueSetting();
+        TimeSetting();
         BindSetting();
         ButtonBind();
         //only Test
@@ -174,13 +180,21 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
     }
     private void DefaultValueSetting()
     {
+        _longNoteCreateWait = _longNoteCreateWait == 0 ? 0.5f : _longNoteCreateWait;
         _defaultRotateTime = _defaultRotateTime == 0 ? 100 : _defaultRotateTime;
         _perfect = _perfect == 0 ? 35f : _perfect;
         _good = _good == 0 ? 100f : _good;
         _missRange = _missRange == 0 ? 165 : _missRange;
         curGameStatus = EGameStatus.NONE;
         _fadeOutValue = _fadeOutValue== 0 ? 1.6f : _fadeOutValue;
-        _noteSpeed = _noteSpeed == 0 ? 0.0025f : _noteSpeed;    
+        _noteSpeed = _noteSpeed == 0 ? 0.005f: _noteSpeed;
+        _GameWait = _GameWait == 0 ? 0.1f : _GameWait;
+        _speedLoader = _speedLoader == 0 ? 1 : _speedLoader;
+    }
+    public void TimeSetting()
+    {
+        _GameWaitWFS = new WaitForSeconds(_GameWait/_speedLoader);
+        _longNoteCreateWaitWFS = new WaitForSeconds(_longNoteCreateWait/_speedLoader);
     }
     private void Update()
     {
@@ -214,7 +228,7 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
                 StartCoroutine(_rotationQueue.Dequeue());
             }
             PressCheck();
-            _timeTsf.GetComponent<TextMeshProUGUI>().text = curMainGameTime.ToString();
+            _timeTsf.GetComponent<TextMeshProUGUI>().text = curMainGameTime.Minutes.ToString() + curMainGameTime.Seconds.ToString();
 
         }
         else
@@ -311,24 +325,29 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
         }
     }
     IEnumerator GamePlaying()
-    {     
-        WaitForSeconds time = new WaitForSeconds(0.1f);       
-        while (curMainGameTime.TotalSeconds<= musicClip.length)
+    {            
+        while (curMainGameTime.TotalSeconds<= musicClip.length&& (curGameStatus == EGameStatus.PLAYING || curGameStatus == EGameStatus.PAUSE))
         {
             if (curGameStatus == EGameStatus.PLAYING)
             {           
                 if (_noteList.Count != 0)
                 {
-                    Note temp = _noteList.Find(temp => temp.time == curMainGameTime);
-                    if (temp != null)
+                    if (_noteList[0].time.TotalMilliseconds <= (curMainGameTime + new TimeSpan(0, 0, 0, 0, (int)(_GameWait * 1000))).TotalMilliseconds &&
+                    _noteList[0].time.TotalMilliseconds >= (curMainGameTime - new TimeSpan(0, 0, 0, 0, (int)(_GameWait * 1000))).TotalMilliseconds)
+                    {
+                    
+                    }
+                    Note temp = _noteList.Find(temp => temp.time.TotalMilliseconds <= (curMainGameTime + new TimeSpan(0, 0, 0, 0, (int)(_GameWait * 1000))).TotalMilliseconds &&
+                    temp.time.TotalMilliseconds >= (curMainGameTime - new TimeSpan(0, 0, 0, 0, (int)(_GameWait * 1000))).TotalMilliseconds);
+                    if (temp != null&&!_notes.ContainsKey(temp))
                     {
                         temp = new Note(temp);
                         CreateNoteEvent.Invoke(temp);
                     }
                 }
-                curMainGameTime = curMainGameTime.Add(new TimeSpan(0, 0, 0, 0, 100));
+                curMainGameTime = curMainGameTime.Add(new TimeSpan(0,0,0,0,(int)(_GameWait*1000)));
             }
-            yield return time;         
+            yield return _GameWaitWFS;         
         }
     }
     private void GameEnd()
@@ -338,7 +357,7 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
         ShowScore("");
         _audioManager.AudioStop(musicClip);
         _noteList.Clear();
-        if (curGameStatus == EGameStatus.PLAYING)
+        if (curGameStatus == EGameStatus.PLAYING||curGameStatus==EGameStatus.PAUSE)
         {
             curGameStatus = EGameStatus.END;
             var temp = new Dictionary<Note, List<GameObject>>(_notes);
@@ -429,17 +448,13 @@ public partial class MainGame_s : MonoBehaviour, IUI // cube
     }
     IEnumerator RotateTimeLock(Vector3 rotateposition, GameObject targetobj, ENoteImage setstatus,int rotatetime)
     {    
-        _curCubeObjStatus = ECubeObjStatus.ROTATION;
-
-        
-        _rotateCount = 0;
-      
+        _curCubeObjStatus = ECubeObjStatus.ROTATION;      
+        _rotateCount = 0;  
         Vector3 rotatepos = new Vector3(
         (rotateposition.x - targetobj.transform.eulerAngles.x) / rotatetime,
         (rotateposition.y - targetobj.transform.eulerAngles.y) / rotatetime,
         (rotateposition.z - targetobj.transform.eulerAngles.z) / rotatetime
-        );
-        
+        );   
         if (targetobj.transform.rotation.w < 0 || targetobj.transform.rotation.x < 0 || targetobj.transform.rotation.y < 0 || targetobj.transform.rotation.z < 0)
         {
             rotatepos = new Vector3(
@@ -453,7 +468,7 @@ public partial class MainGame_s : MonoBehaviour, IUI // cube
             {
             while(curGameStatus==EGameStatus.PAUSE)
             {
-                yield return Wait;
+                yield return _GameWaitWFS;
             }
                 targetobj.transform.Rotate(rotatepos);
                 yield return Wait;
@@ -504,15 +519,15 @@ public partial class MainGame_s : MonoBehaviour, IUI // note
     IEnumerator CreateLongNote(Note note)
     {
         GameObject instnote;
-        WaitForSeconds wait = new WaitForSeconds(0.5f);
         _notes.Add(note, new List<GameObject>());
-        for (TimeSpan time = new TimeSpan(0,0,0,0); time<note.time2; time+=new TimeSpan(0,0,0,0,500))
+        TimeSpan startTime = curMainGameTime;
+        for (double t = startTime.TotalMilliseconds; t<=note.time2.TotalMilliseconds; t+=_longNoteCreateWait)
         {
             if(curGameStatus!=EGameStatus.PLAYING)
             {
                while(curGameStatus!=EGameStatus.PLAYING)
                 {
-                    yield return wait;
+                    yield return _GameWaitWFS;
                 }
             }
             instnote = Instantiate(_longNoteObj, _notesTsf);
@@ -523,7 +538,7 @@ public partial class MainGame_s : MonoBehaviour, IUI // note
             _notes[note].Add(instnote);
             instnote.SetActive(true);
             StartCoroutine(NoteMoving(note,instnote));
-            yield return wait ;
+            yield return _longNoteCreateWaitWFS;
         }
      
     }
@@ -535,7 +550,7 @@ public partial class MainGame_s : MonoBehaviour, IUI // note
         {
             if (curGameStatus == EGameStatus.PLAYING)
             {
-                obj.transform.localPosition = Vector2.Lerp(obj.transform.localPosition, movingposition, _noteSpeed);
+                obj.transform.localPosition = Vector2.Lerp(obj.transform.localPosition, movingposition, _noteSpeed*_speedLoader);
                 if ((obj.transform.localPosition.x * previouspos.x < 0 || obj.transform.localPosition.x == 0) && (obj.transform.localPosition.y * previouspos.y < 0 || obj.transform.localPosition.y == 0) && _notes.ContainsKey(target))
                 {
                     obj.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, _fadeOutValue - Vector2.Distance(previouspos, movingposition) / Vector2.Distance(obj.transform.localPosition, movingposition));
@@ -550,7 +565,7 @@ public partial class MainGame_s : MonoBehaviour, IUI // note
             {
                 break;
             }
-            yield return _noteWait;          
+            yield return _noteMovingWaitWFS;
         }
         if (ContainsGameOjbectCheck(obj))
         {

@@ -74,6 +74,7 @@ public class NoteManager_s : MonoBehaviour
     }
     public void TestStart()
     {
+        timecheck = true;
         maingame_s.UIOpen();
         maingame_s.MusicSetting("Test160");
         TimeLineSetting();
@@ -128,9 +129,14 @@ public class NoteManager_s : MonoBehaviour
                 }
                 //Debug.Log(timeline[maingame_s.curMainGameTime].Count);
             }
-
+        }
+        if(maingame_s.curMainGameTime>=new TimeSpan(0,0,5)&&timecheck)
+        {
+            Debug.Log(timeLineDic.Count);
+            timecheck = false;
         }
     }
+    bool timecheck;
     void ShowNoteObj()
     {
         if (noteStatusTsf.gameObject.activeSelf == false)

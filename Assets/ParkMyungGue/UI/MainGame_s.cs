@@ -57,11 +57,12 @@ public partial class MainGame_s : MonoBehaviour, IUI  //Display
     public event NoteDelegate CreateNoteEvent;
     public event NoteDelegate DeleteNoteEvent;
 
-    //time
+    //time !!!!!TIME : defulat was seconds!!!!!
     private WaitForSeconds _GameWaitWFS;
     private WaitForSeconds _longNoteCreateWaitWFS;
     private WaitForFixedUpdate _noteMovingWaitWFS;
     public int _speedLoader;
+    private float _beatCount;
 
     [Header("Required Value")]
     //main system
@@ -76,6 +77,8 @@ public partial class MainGame_s : MonoBehaviour, IUI  //Display
     [SerializeField] private GameObject _noteObj;
     [SerializeField] private GameObject _longNoteObj;
     [SerializeField] private Transform _notesTsf;
+    //time
+    [SerializeField] private Transform _beatTsf;
     [Header("Only Display")]
     //main system
     [SerializeField] public AudioClip musicClip;
@@ -97,8 +100,9 @@ public partial class MainGame_s : MonoBehaviour, IUI  //Display
     [SerializeField] private float _fadeOutValue;
     [SerializeField] private float _noteSpeed;
     //time
-    [SerializeField] private float _GameWait;
+    [SerializeField] private float _gameWait;
     [SerializeField] private float _longNoteCreateWait;
+    [SerializeField] private float _beatTime;
     //test
     [SerializeField] private string _musicName;
 }
@@ -127,8 +131,8 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
         BindSetting();
         ButtonBind();
         //only Test
-        //UIOpen();
-        //MusicSetting(_musicName);    
+        UIOpen();
+        MusicSetting(_musicName);    
     }
     private void DefaultDataSetting()
     {
@@ -188,12 +192,13 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
         curGameStatus = EGameStatus.NONE;
         _fadeOutValue = _fadeOutValue== 0 ? 1.6f : _fadeOutValue;
         _noteSpeed = _noteSpeed == 0 ? 0.005f: _noteSpeed;
-        _GameWait = _GameWait == 0 ? 0.1f : _GameWait;
+        _gameWait = _gameWait == 0 ? 0.05f : _gameWait;
         _speedLoader = _speedLoader == 0 ? 1 : _speedLoader;
+        _beatTime = _beatTime == 0 ? 1f : _beatTime;
     }
     public void TimeSetting()
     {
-        _GameWaitWFS = new WaitForSeconds(_GameWait/_speedLoader);
+        _GameWaitWFS = new WaitForSeconds(_gameWait/_speedLoader);
         _longNoteCreateWaitWFS = new WaitForSeconds(_longNoteCreateWait/_speedLoader);
     }
     private void Update()
@@ -213,8 +218,16 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
                 {
                     if (Input.GetKey(dic.Key) && !_cubeKeyPressCheck.Contains(dic.Key))
                     {
-                        _keyInputQueue.Enqueue(dic.Key);
-                        _cubeKeyPressCheck.Add(dic.Key);
+                        if (MathF.Abs(1 - _beatCount) <= 0.2f)
+                        {
+                            _keyInputQueue.Enqueue(dic.Key);
+                            _cubeKeyPressCheck.Add(dic.Key);
+                            ShowScore("");
+                        }
+                        else
+                        {
+                            ShowScore("Miss Beat");
+                        }
                     }
                 }
             }
@@ -229,7 +242,6 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
             }
             PressCheck();
             _timeTsf.GetComponent<TextMeshProUGUI>().text = curMainGameTime.Minutes.ToString() + curMainGameTime.Seconds.ToString();
-
         }
         else
         {
@@ -332,20 +344,22 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
             {           
                 if (_noteList.Count != 0)
                 {
-                    if (_noteList[0].time.TotalMilliseconds <= (curMainGameTime + new TimeSpan(0, 0, 0, 0, (int)(_GameWait * 1000))).TotalMilliseconds &&
-                    _noteList[0].time.TotalMilliseconds >= (curMainGameTime - new TimeSpan(0, 0, 0, 0, (int)(_GameWait * 1000))).TotalMilliseconds)
+                    if (_noteList[0].time.TotalMilliseconds <= (curMainGameTime + new TimeSpan(0, 0, 0, 0, (int)(_gameWait * 1000))).TotalMilliseconds &&
+                    _noteList[0].time.TotalMilliseconds >= (curMainGameTime - new TimeSpan(0, 0, 0, 0, (int)(_gameWait * 1000))).TotalMilliseconds)
                     {
                     
                     }
-                    Note temp = _noteList.Find(temp => temp.time.TotalMilliseconds <= (curMainGameTime + new TimeSpan(0, 0, 0, 0, (int)(_GameWait * 1000))).TotalMilliseconds &&
-                    temp.time.TotalMilliseconds >= (curMainGameTime - new TimeSpan(0, 0, 0, 0, (int)(_GameWait * 1000))).TotalMilliseconds);
+                    Note temp = _noteList.Find(temp => temp.time.TotalMilliseconds <= (curMainGameTime + new TimeSpan(0, 0, 0, 0, (int)(_gameWait * 1000))).TotalMilliseconds &&
+                    temp.time.TotalMilliseconds >= (curMainGameTime - new TimeSpan(0, 0, 0, 0, (int)(_gameWait * 1000))).TotalMilliseconds);
                     if (temp != null&&!_notes.ContainsKey(temp))
                     {
                         temp = new Note(temp);
                         CreateNoteEvent.Invoke(temp);
                     }
                 }
-                curMainGameTime = curMainGameTime.Add(new TimeSpan(0,0,0,0,(int)(_GameWait*1000)));
+                curMainGameTime = curMainGameTime.Add(new TimeSpan(0,0,0,0,(int)(_gameWait*1000)));
+                _beatCount =(float)((curMainGameTime.TotalSeconds / _beatTime) - (int)(curMainGameTime.TotalSeconds / _beatTime));
+                BeatShow();
             }
             yield return _GameWaitWFS;         
         }
@@ -399,6 +413,13 @@ public partial class MainGame_s : MonoBehaviour ,IUI //main system
             }
         }
         return false;
+    }
+
+    void BeatShow()
+    {
+        _beatTsf.GetComponent<Image>().color = new Vector4(1, 0, 0, _beatCount);
+        _beatTsf.Find("Left").transform.localPosition = new Vector3(-900+(950*_beatCount), 0, 0);
+        _beatTsf.Find("Right").transform.localPosition = new Vector3(900 - (950 * _beatCount), 0, 0);
     }
 }
 public partial class MainGame_s : MonoBehaviour, IUI // cube

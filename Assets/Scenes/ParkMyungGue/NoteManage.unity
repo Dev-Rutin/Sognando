@@ -1315,14 +1315,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 115101227612888882, guid: 9430371310dbb0c4db02417fb0bf16ae, type: 3}
-      propertyPath: _GameWait
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 115101227612888882, guid: 9430371310dbb0c4db02417fb0bf16ae, type: 3}
-      propertyPath: _noteSpeed
-      value: 0.02
-      objectReference: {fileID: 0}
     - target: {fileID: 3524212222351787938, guid: 9430371310dbb0c4db02417fb0bf16ae, type: 3}
       propertyPath: m_Name
       value: MainGame

@@ -39,7 +39,7 @@ AudioMixerController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: IntroAudioMix
+  m_Name: AudioMix
   m_OutputGroup: {fileID: 0}
   m_MasterGroup: {fileID: 24300002}
   m_Snapshots:
@@ -48,7 +48,13 @@ AudioMixerController:
   m_SuspendThreshold: -80
   m_EnableSuspend: 1
   m_UpdateMode: 0
-  m_ExposedParameters: []
+  m_ExposedParameters:
+  - guid: 756c87351fc4b0a4182293c14b64c0bc
+    name: BGM
+  - guid: c7613c3e396fe4b48a42b4ca589cc511
+    name: Master
+  - guid: e99f1454e6c07944384c9c91c05bc417
+    name: SE
   m_AudioMixerGroupViews:
   - guids:
     - 864f4973a4e888f43a414f51c55c954e

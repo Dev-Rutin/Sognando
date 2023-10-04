@@ -6,10 +6,7 @@
     <time value ="00:00:05" value2 ="00:00:00">
       <image>DEFAULT</image>
       <type>DEFAULT</type>
-      <position>
-        <x>-840</x>
-        <y>420</y>
-      </position>
+      <position>(-400,420)</position>
     </time>
   </text>
 </Note>

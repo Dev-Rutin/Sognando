@@ -2,10 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.WindowsRuntime;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.UI;
 public enum ERotatePosition
 {
@@ -37,14 +40,27 @@ public enum ECurCubeFace
     FIVE,
     SIX
 }
+
+public enum EEnemyMode
+{
+    PATH,
+    BLOCK,
+    LINEATTACK
+}
 public struct CubeData
 {
     public Vector2 position;
     public Vector2 transform;
+    public GameObject coin;
+    public GameObject fire;
+    public GameObject path;
     public CubeData(Vector2 _position,Vector2 _transform)
     {
         position = _position;
         transform = _transform;
+        coin = null;
+        fire = null;
+        path = null;
     }
 }
 public partial class DivideCube_s : MonoBehaviour, IUI  //Display
@@ -53,6 +69,8 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
     private Dictionary<KeyCode, Action> _otherKeyBinds;
     public Data musicData;
     private bool _isBeatChecked;
+    private List<EEnemyMode> _curEnemyMods;
+    private Dictionary<EEnemyMode, Action> _enemyModBinds;
     //cube
     private CubeData[,] _cubeDatas; //x,y
     //player
@@ -79,10 +97,14 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
     [SerializeField] private GameObject _gameCubeObj;
     [SerializeField] private Transform _cubeSizeTsf;
     [SerializeField] private Transform _rotateImageTsf;
-  //player
-  [SerializeField] private GameObject _playerObj;
+    //player
+    [SerializeField] private GameObject _playerObj;
     [SerializeField] private Transform _movePathTsf;
     [SerializeField] private GameObject _pathSampleObj;
+    [SerializeField] private Transform _coinsTsf;
+    [SerializeField] private GameObject _coinSampleObj;
+    [SerializeField] private Transform _fireTsf;
+    [SerializeField] private GameObject _fireSampleObj;
     //time
     [SerializeField] private Transform _beatTsf;
     [Header("Only Display")]
@@ -93,9 +115,9 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
     [SerializeField] private bool _IsInput;
     [SerializeField] private int _curPlayerHP;
     [SerializeField] private EInGameStatus _curInGameStatus;
-    [SerializeField] private int _playerCount;
+    [SerializeField] private int _beatTimeCount;
     //cube
-    [SerializeField] private string _curSideName;
+    [SerializeField] private ECurCubeFace _curSideName;
     [SerializeField] private ERotatePosition _rotateTarget;
     //player
     [SerializeField] private Vector2 _playerPos;
@@ -120,6 +142,8 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
     {
         //main system
         _otherKeyBinds = new Dictionary<KeyCode, Action>();
+        _curEnemyMods = new List<EEnemyMode>();
+        _enemyModBinds = new Dictionary<EEnemyMode, Action>();
         musicData = new Data();
         //cube
         _cubeDatas = new CubeData[_arrX, _arrY];
@@ -209,7 +233,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
                     }
                     else
                     {
-                        HPDown();
+                        HPDown("beat miss");
                         _IsInput = true;
                     }
                 }
@@ -278,12 +302,22 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         _playerMoveData.Add(KeyCode.DownArrow, new Vector2(0,1));
 
         KeyBind(ref _otherKeyBinds, KeyCode.Space, () => UIPause());
+
+        KeyBind(ref _enemyModBinds, EEnemyMode.PATH, PathAction);
+        KeyBind(ref _enemyModBinds, EEnemyMode.BLOCK, CoinAction);
     }
     private void KeyBind(ref Dictionary<KeyCode, Action> binddic, KeyCode keycode, Action action)
     {
         if (!_otherKeyBinds.ContainsKey(keycode)&&!binddic.ContainsKey(keycode))
         {
             binddic.Add(keycode, action);
+        }
+    }
+    private void KeyBind<T>(ref Dictionary<T, Action> binddic, T mod, Action action)
+    {
+        if (!binddic.ContainsKey(mod))
+        {
+            binddic.Add(mod, action);
         }
     }
     private void ButtonBind()
@@ -305,16 +339,18 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
             _curPlayerHP = _playerMaxHP;
             _playerHPTsf.GetComponent<TextMeshProUGUI>().text = _curPlayerHP.ToString();
             _IsInput = false;
-            _playerCount = 0;
+            _beatTimeCount = 0;
             _audioManager.AudioPlay(musicClip);
             _isBeatChecked = false;
             //cube
             _gameCubeObj.transform.localEulerAngles = Vector3.zero;
-            _curSideName = "1";
+            _curSideName = ECurCubeFace.ONE;
             //player
             _playerPos = Vector2.zero;
-            _playerObj.transform.localPosition = _cubeDatas[(int)_playerPos.x, (int)_playerPos.y].transform;       
-            
+            _playerObj.transform.localPosition = _cubeDatas[(int)_playerPos.x, (int)_playerPos.y].transform;
+            //test
+            _curEnemyMods.Add(EEnemyMode.BLOCK);
+
             StartCoroutine(GamePlaying());
         }
     }
@@ -346,32 +382,67 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         switch (_curInGameStatus)
         {
             case EInGameStatus.SHOWPATH:
-                if (_playerMovePathQueue.Count == 0)
-                {
-                    GetPath();
+                if(_coinsTsf.childCount==0)
+                { 
+                    DoEnemyMode();
+                    _beatTimeCount = 2;
                 }
-                _playerCount--;
-                if (_playerCount == 0)
+                _beatTimeCount--;
+                if(_beatTimeCount==0)
                 {
-                    _playerCount = _playerMovePathQueue.Count;
+                    TransparentObjs(_coinsTsf);
                     _curInGameStatus = EInGameStatus.PLAYERMOVE;
-                    TransparentPath();
                 }
                 break;
             case EInGameStatus.PLAYERMOVE:
+                if(PlayerMoveEndCheck())
+                {
+                    DoEnemyMode();
+                    GetRandomeRotate();
+                    RotateCube(GetERotatePositionToVec3(_rotateTarget));
+                    MovePlayer(new Vector2(_playerPos.x * -1, _playerPos.y * -1));
+                    _curInGameStatus = EInGameStatus.SHOWPATH;
+                }
                 break;
             default:
                 break;
         }
+        if (!_IsInput)
+        {
+            PlayerPositionCheck();
+        }
         _IsInput = false;
     }
-    private void GetPath()
+    private void DoEnemyMode()
     {
-        _rotateTarget = ERotatePosition.NONE;
-        _playerMovePathQueue.Clear();
-        _curMovePathShowObj.Clear();
-        GetRandomePath();
-        ShowPath();
+        foreach(var data in _curEnemyMods)
+        {
+            _enemyModBinds[data]();
+        }
+    }
+    private bool PlayerMoveEndCheck()
+    {
+        foreach(var data in _curEnemyMods)
+        {
+            switch(data)
+            {
+                case EEnemyMode.BLOCK:
+                    if (_coinsTsf.childCount == 0)
+                    {
+                        return true;
+                    }
+                    break;
+                case EEnemyMode.PATH:
+                    if(_movePathTsf.childCount==0)
+                    {
+                        return true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        return false;
     }
     private void GameEnd()
     {
@@ -406,9 +477,9 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
     {
         _beatCheckTsf.GetComponent<TextMeshProUGUI>().text = data;     
     }
-    private void HPDown()
+    private void HPDown(string message)
     {
-        BeatCheck("miss");
+        BeatCheck(message);
         _curPlayerHP--;
         _playerHPTsf.GetComponent<TextMeshProUGUI>().text = _curPlayerHP.ToString();
         if (_curPlayerHP == 0)
@@ -495,7 +566,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI // cube
 {
     private void RotateCube(Vector3 rotateposition)
     {
-            switch(_rotateTarget)
+            /*switch(_rotateTarget)
             {
                 case ERotatePosition.LEFT:
                     MovePlayer(new Vector2(GetERotatePositionToVec2(_rotateTarget).x* GetERotatePositionToVec2(_rotateTarget).y,0));
@@ -511,7 +582,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI // cube
                     break;
                 default:
                     break;
-            }
+            }*/
             StartCoroutine(RotateTimeLock(rotateposition, _gameCubeObj, _defaultMovingTime));
     }
     IEnumerator RotateTimeLock(Vector3 rotateposition, GameObject targetobj, int rotatetime)
@@ -538,27 +609,55 @@ public partial class DivideCube_s : MonoBehaviour, IUI // cube
         }
         targetobj.transform.localEulerAngles = new Vector3(MathF.Round(targetobj.transform.localEulerAngles.x), MathF.Round(targetobj.transform.localEulerAngles.y), MathF.Round(targetobj.transform.localEulerAngles.z));
         GetCubeImage();
-        _curInGameStatus = EInGameStatus.SHOWPATH;
-        GetPath();
     }
     void GetCubeImage()
     {
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(1920 / 2, 1080/2, 0));
         RaycastHit hit;
         Physics.Raycast(ray, out hit);
-        _curSideName = hit.transform.name;
+        _curSideName =(ECurCubeFace)Enum.Parse(typeof(ECurCubeFace), hit.transform.name);
     }
 }
 public partial class DivideCube_s : MonoBehaviour, IUI //player
 {
+    private bool PlayerMoveCheck(Vector2 pos)
+    {
+        if (_curEnemyMods.Contains(EEnemyMode.PATH))
+        {
+            if (_playerMovePathQueue.Count != 0)
+            {
+                if (_playerMovePathQueue.Peek() != _playerPos + pos)
+                {
+                    HPDown("Move Miss!!");
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    private void PlayerPositionCheck()
+    {
+        if (_curEnemyMods.Contains(EEnemyMode.BLOCK))
+        {
+            if (_cubeDatas[(int)_playerPos.x, (int)_playerPos.y].coin != null)
+            {
+                Destroy(_cubeDatas[(int)_playerPos.x, (int)_playerPos.y].coin);
+                _cubeDatas[(int)_playerPos.x, (int)_playerPos.y].coin = null;
+            }
+            if (_cubeDatas[(int)_playerPos.x, (int)_playerPos.y].fire != null)
+            {
+                HPDown("Fire!!!");
+            }
+        }
+        if(_curEnemyMods.Contains(EEnemyMode.PATH))
+        {
+            UpdatePath();
+        }
+    }
     private void MovePlayer(Vector2 pos)
     {
-        if (_playerMovePathQueue.Count >= 1)
+        if (PlayerMoveCheck(pos))
         {
-            if (_playerMovePathQueue.Count>1&&pos != _playerMovePathQueue.Peek() - _playerPos)
-            {
-                return;
-            }
             Vector2 previouspos = _playerPos;
             _playerPos += pos;
             _playerPos.x = _playerPos.x < 0 ? 0 : _playerPos.x;
@@ -568,11 +667,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
             if (_playerPos != previouspos)
             {
                 StartCoroutine(MoveTimeLock(_cubeDatas[(int)_playerPos.x, (int)_playerPos.y].transform, _playerObj, _defaultMovingTime));
-                if (_playerMovePathQueue.Count != 0)
-                {
-                    _playerMovePathQueue.Dequeue();
-                }
-            }   
+            }
         }
     }
     IEnumerator MoveTimeLock(Vector2 moveposition, GameObject targetobj, int rotatetime)
@@ -589,28 +684,18 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
                 yield return _GameWaitWFS;
             }
             targetobj.transform.localPosition = new Vector2(targetobj.transform.localPosition.x + movedividepos.x, targetobj.transform.localPosition.y + movedividepos.y);
-            _movePathTsf.GetComponent<LineRenderer>().SetPosition(0, _playerObj.transform.position);
+            if (_curEnemyMods.Contains(EEnemyMode.PATH))
+            {
+                _movePathTsf.GetComponent<LineRenderer>().SetPosition(0, targetobj.transform.position);
+            }
             yield return Wait;
         }
         targetobj.transform.localPosition = moveposition;
-        if (_curInGameStatus == EInGameStatus.PLAYERMOVE)
-        {
-            UpdatePath();
-        }
-        if (_playerMovePathQueue.Count == 1)
-        {
-            RotateCube(GetERotatePositionToVec3(_rotateTarget));
-            _rotateImageTsf.Find(_rotateTarget.ToString()).gameObject.SetActive(false);
-        }
-        if (_playerMovePathQueue.Count == 2)
-        {
-            _rotateImageTsf.Find(_rotateTarget.ToString()).gameObject.SetActive(true);
-        }
+        PlayerPositionCheck();
     }
     private void GetRandomePath()//only test
     {
         Vector2 movedPlayerPos = _playerPos;
-        bool lastCheck = false;
         for (int i = 0; i < 10; i++)
         {
             _movePathCheckList.Clear();
@@ -646,46 +731,6 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
                 break;
             }
         }
-        _playerMovePathQueue = ReverseQueue(_playerMovePathQueue);
-        while (!lastCheck)
-        {
-            if ((_playerMovePathQueue.Peek().x == 0 || _playerMovePathQueue.Peek().x == _arrX - 1 || _playerMovePathQueue.Peek().y == 0 || _playerMovePathQueue.Peek().y == _arrY - 1) || _playerMovePathQueue.Count == 0)
-            {
-                if(_playerMovePathQueue.Count==0)
-                {
-                    _playerMovePathQueue.Enqueue(_playerPos);
-                }
-                lastCheck = true;
-                break;
-            }
-            _playerMovePathQueue.Dequeue();
-        }
-        _movePathCheckList.Clear();
-        if(_playerMovePathQueue.Peek().x==0)
-        {
-            _movePathCheckList.Add(new Vector2(-1, -1*(_arrY-1)));
-        }
-        if (_playerMovePathQueue.Peek().x == _arrX-1)
-        {
-            _movePathCheckList.Add(new Vector2(1, -1 * (_arrY - 1)));
-        }
-        if (_playerMovePathQueue.Peek().y == 0)
-        {
-            _movePathCheckList.Add(new Vector2(-1 * (_arrX - 1), -1));
-        }
-        if (_playerMovePathQueue.Peek().y == _arrY-1)
-        {
-            _movePathCheckList.Add(new Vector2(-1 * (_arrX - 1), 1));
-        }
-        _playerMovePathQueue = ReverseQueue(_playerMovePathQueue);
-        Vector2 rotateTarget=_movePathCheckList[UnityEngine.Random.Range(0, _movePathCheckList.Count)];
-        if (_playerMovePathQueue.Peek()==_playerPos)
-        {
-            _playerMovePathQueue.Dequeue(); 
-        }
-        _rotateTarget = GetVec2ToERotatePosition(rotateTarget);
-        _playerMovePathQueue.Enqueue(rotateTarget);
-        _playerCount = 2;
     }
     private Queue<T> ReverseQueue<T>(Queue<T> queue)
     {
@@ -706,7 +751,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
         if (_playerMovePathQueue.Count != 0)
         {
             int count = 0;
-            _movePathTsf.GetComponent<LineRenderer>().positionCount = _playerMovePathQueue.Count>=5?5:_playerMovePathQueue.Count;
+            _movePathTsf.GetComponent<LineRenderer>().positionCount = _playerMovePathQueue.Count>=4?4:_playerMovePathQueue.Count;
             _movePathTsf.GetComponent<LineRenderer>().SetPosition(count, _playerObj.transform.position);
             count++;
             foreach (var data in _playerMovePathQueue)
@@ -742,7 +787,6 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
                 }
             }
             _movePathTsf.GetComponent<LineRenderer>().positionCount = 1;
-            ShowPath();
         }
         else if(_curInGameStatus==EInGameStatus.PLAYERMOVE)
         {
@@ -769,11 +813,98 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
             }
         }
     }
-    private void TransparentPath()
+    private void TransparentObjs(Transform target)
     {
-        foreach(Transform data in _movePathTsf)
+        foreach(Transform data in target)
         {
-            data.GetComponent<Image>().color = new Vector4(1, 0.6f, 0, 0.5f);
+            data.GetComponent<Image>().color = new Vector4(data.GetComponent<Image>().color.r, data.GetComponent<Image>().color.g, data.GetComponent<Image>().color.b, 0.5f);
+        }
+    }
+
+    private void GetRandomeCoin()
+    {
+        for(int i=0;i<5;i++)
+        {
+            bool isCreate = false;
+            while(!isCreate)
+            {
+                int x = UnityEngine.Random.Range(0, _arrX);
+                int y = UnityEngine.Random.Range(0, _arrY);
+                if (new Vector2(x, y) == _playerPos || _cubeDatas[x, y].coin != null)
+                {
+                    continue;
+                }
+                else
+                {
+                    GameObject instCoin = Instantiate(_coinSampleObj,_coinsTsf);
+                    instCoin.transform.localPosition = _cubeDatas[x, y].transform;
+                    _cubeDatas[x,y].coin = instCoin;
+                    isCreate = true;
+                }
+                
+            }
+        }
+    }
+    private void GetRandomeRotate()
+    {    
+        _rotateTarget = (ERotatePosition)Enum.GetValues(typeof(ERotatePosition)).GetValue(UnityEngine.Random.Range(1, Enum.GetValues(typeof(ERotatePosition)).Length));
+    }
+    private void GetRandomeFire()
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            bool isCreate = false;
+            while (!isCreate)
+            {
+                int x = UnityEngine.Random.Range(0, _arrX);
+                int y = UnityEngine.Random.Range(0, _arrY);
+                if (new Vector2(x, y) == _playerPos || _cubeDatas[x, y].coin != null || _cubeDatas[x, y].fire != null || _cubeDatas[x, y].path != null)
+                {
+                    continue;
+                }
+                else
+                {
+                    GameObject instCoin = Instantiate(_fireSampleObj, _fireTsf);
+                    instCoin.transform.localPosition = _cubeDatas[x, y].transform;
+                    _cubeDatas[x, y].fire = instCoin;
+                    isCreate = true;
+                }
+
+            }
+        }
+    }
+    private void EndFire()
+    {
+        foreach(Transform data in _fireTsf)
+        { 
+            Destroy(data.gameObject);
+        }
+    }
+    private void CoinAction()
+    {
+        if (_curInGameStatus == EInGameStatus.SHOWPATH)
+        {
+            GetRandomeCoin();
+            GetRandomeFire();
+        }
+        else
+        {
+            EndFire();
+        }
+    }
+    private void PathAction()
+    {
+        if (_curInGameStatus == EInGameStatus.SHOWPATH)
+        {
+            GetRandomePath();
+            ShowPath();
+        }
+        else
+        {
+            _rotateTarget = ERotatePosition.NONE;
+            _playerMovePathQueue.Clear();
+            _curMovePathShowObj.Clear();
+            UpdatePath();
         }
     }
 }

@@ -20,16 +20,16 @@ public class SceneSoundManager : Singleton<SceneSoundManager>
     // UI 상호작용 오디오 소스
     [SerializeField] private AudioSource _interfaceSeSource;
 
-    private void Start()
+    /*private void Start()
     {
         UpdateValue();
-    }
+    }*/
 
     // 오디오 값 갱신
-    public void UpdateValue()
+    /*public void UpdateValue()
     {
         SettingsValueManager.ApplyPlayerPrefsValues(_bgmSource, _transitionSeSource, _interactionSeSource, _interfaceSeSource);
-    }
+    }*/
 
     // 오디오 재생
     public void PlaySound(ESoundTypes Etypes, string soundKey)

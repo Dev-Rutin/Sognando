@@ -18,7 +18,6 @@ public class CarouselController : MonoBehaviour/*, IInitializePotentialDragHandl
     [SerializeField] private RectTransform viewport;
     [SerializeField] private HorizontalLayoutGroup layout;
     [SerializeField] private AnimationCurve centeringCurve;
-    [SerializeField] private GameObject stageData;
     [SerializeField] private GameObject _settingCanvas;
 
     private int _leftMostIndex; // 가장 왼쪽 버튼
@@ -157,7 +156,6 @@ public class CarouselController : MonoBehaviour/*, IInitializePotentialDragHandl
 
     private void OnSelectedItem(int index)
     {
-        stageData.GetComponent<StageDataController>().data = index;
         if (_items.Count == 0)
         {
             return;
@@ -178,10 +176,10 @@ public class CarouselController : MonoBehaviour/*, IInitializePotentialDragHandl
                     break;
                 case (int)EButtonName.Continue:
                     // send data script
-                    SceneManager.LoadScene("StoryScene");
+                    Debug.Log("Continue Button");
                     break;
                 case (int)EButtonName.Start:
-                    SceneManager.LoadScene("StoryScene");
+                    Debug.Log("Start Button");
                     break;
                 case (int)EButtonName.Archive:
                     // enable Archive UI

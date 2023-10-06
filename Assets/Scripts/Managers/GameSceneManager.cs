@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameSceneManager : MonoBehaviour
+public class GameSceneManager : Singleton<GameSceneManager>
 {
     [SerializeField] private GameObject _fadePenal;
     [SerializeField] private float _fadeTime;

@@ -6,6 +6,11 @@ public class StorySceneManager : Singleton<StorySceneManager>
 {
     [SerializeField] private GameObject _fadePenal;
     [SerializeField] private float _fadeTime;
+    [SerializeField] private GameObject _player;
+    [SerializeField] private GameObject _NPC;
+    private string[] _dialogStrings;
+
+    private bool _isStoryStart;
     // Start is called before the first frame update
     void Start()
     {

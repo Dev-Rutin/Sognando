@@ -135,8 +135,8 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
 {
     //main system
     private Dictionary<KeyCode, Action> _otherKeyBinds;
-    public Data musicData;
     private bool _isBeatChecked;
+    private bool _isBeatMusicChecked;
     private List<EEnemyMode> _curEnemyMods;
     private Dictionary<EEnemyMode, Action> _enemyModBinds;
     //cube
@@ -187,6 +187,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
     [Header("Only Display")]
     //main system
     [SerializeField] public AudioClip musicClip;
+    [SerializeField] public AudioClip beatClip;
     [SerializeField] public TimeSpan curMainGameTime;
     [SerializeField] public EDivideGameStatus curGameStatus;
     [SerializeField] private bool _IsInput;
@@ -229,7 +230,6 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         _otherKeyBinds = new Dictionary<KeyCode, Action>();
         _curEnemyMods = new List<EEnemyMode>();
         _enemyModBinds = new Dictionary<EEnemyMode, Action>();
-        musicData = new Data();
         //cube
         _cubeKeyBinds = new Dictionary<KeyCode, Action>();
         _cubeDatas = new CubeData[_arrX, _arrY];
@@ -246,7 +246,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         ButtonBind();
         //only Test
         UIOpen();
-        MusicSetting(_musicName);
+        MusicSetting("Test140_mp3cut.net");
     }
     private void DefaultDataSetting()
     {
@@ -386,11 +386,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
 
         if (curGameStatus == EDivideGameStatus.STARTWAITTING)
         {
-            musicData.SetPath((Resources.Load("ParkMyungGue\\XML\\" + name)));
-            if (musicData.xdocPath != null)
-            {
-                musicClip = Resources.Load<AudioClip>("ParkMyungGue\\Music\\" + name);
-            }
+                beatClip = Resources.Load<AudioClip>("ParkMyungGue\\Music\\" + name);
         }
     }
     private void BindSetting()
@@ -451,8 +447,8 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
             _playerHPTsf.GetComponent<TextMeshProUGUI>().text = _curPlayerHP.ToString();
             _IsInput = false;
             _beatTimeCount = 0;
-            _audioManager.AudioPlay(musicClip);
             _isBeatChecked = false;
+            _isBeatMusicChecked = false;
             _score = 0;
             _combo = 0;
             //cube
@@ -473,13 +469,19 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
     }
     IEnumerator GamePlaying()
     {
-        while (curMainGameTime.TotalSeconds <= musicClip.length && (curGameStatus == EDivideGameStatus.PLAYING || curGameStatus == EDivideGameStatus.PAUSE))
+        //curMainGameTime.TotalSeconds <= musicClip.length &&
+        while ( (curGameStatus == EDivideGameStatus.PLAYING || curGameStatus == EDivideGameStatus.PAUSE))
         {
             if (curGameStatus == EDivideGameStatus.PLAYING)
             {
                 curMainGameTime = curMainGameTime.Add(new TimeSpan(0, 0, 0, 0, (int)(_gameWait * 1000)));
                 _beatCount = (float)((curMainGameTime.TotalSeconds / _beatTime) - (int)(curMainGameTime.TotalSeconds / _beatTime));
                 BeatShow();
+                if(_beatCount<=0.95f&&_beatCount>=0.92f&&_isBeatMusicChecked)
+                {
+                    _audioManager.AudioPlay(beatClip);
+                    _isBeatMusicChecked = false;
+                }
                 if(_beatCount <= 0.1f && _beatCount >= 0f && _isBeatChecked)
                 {
                     _isBeatChecked = false;
@@ -488,6 +490,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
                 {
                     MoveNextBeat();
                     _isBeatChecked = true;
+                    _isBeatMusicChecked = true;
                 }            
             }
             yield return _GameWaitWFS;
@@ -733,7 +736,6 @@ public partial class DivideCube_s : MonoBehaviour, IUI // cube
         {
             HPDown("Don't Rotate");
             RotateCube(GetERotatePositionToVec3(_rotateTarget));
-            MovePlayer(new Vector2(_playerPos.x * -1, _playerPos.y * -1));
         }
         StartCoroutine(WaitTime(_curAnimationTime));
     }
@@ -757,6 +759,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI // cube
                     break;
             }*/
             StartCoroutine(RotateTimeLock(rotateposition, _gameCubeObj, _defaultMovingTime));
+            MovePlayer(new Vector2(_playerPos.x * -1, _playerPos.y * -1));
     }
     IEnumerator RotateTimeLock(Vector3 rotateposition, GameObject targetobj, int rotatetime)
     {

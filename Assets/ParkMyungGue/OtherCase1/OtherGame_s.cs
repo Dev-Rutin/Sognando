@@ -19,7 +19,7 @@ public enum EOtherGameStatus
    PLAYERTURN,
    ENEMYTURN
 }
-public partial class OtherGame_s : MonoBehaviour, IUI  //Display
+public partial class OtherGame_s : MonoBehaviour //Display
 {
     //main system
     private Dictionary<KeyCode, Action> _otherKeyBinds;
@@ -69,7 +69,7 @@ public partial class OtherGame_s : MonoBehaviour, IUI  //Display
     //test
     [SerializeField] private string _musicName;
 }
-public partial class OtherGame_s : MonoBehaviour, IUI //main system
+public partial class OtherGame_s : MonoBehaviour//main system
 {
     private void Awake()
     {
@@ -279,7 +279,7 @@ public partial class OtherGame_s : MonoBehaviour, IUI //main system
         _beatTsf.Find("Right").transform.localPosition = new Vector3(900 - (950 * _beatCount), 0, 0);
     }
 }
-public partial class OtherGame_s : MonoBehaviour, IUI // cube
+public partial class OtherGame_s : MonoBehaviour// cube
 {
     private void PressCheck()
     {

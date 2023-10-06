@@ -1,16 +1,24 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.WindowsRuntime;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Experimental.Rendering;
+using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
+interface IUI
+{
+    public void UIOpen();
+    public void UIClose();
+    public void UIPause();
+
+    public void UpdateCombo(int changevalue);
+    public void UpdateScore(int changevalue);
+    public void UpdatePlayerHP(int changevalue);
+    public void UpdateEnemyHP(int changevalue);
+
+   
+}
 public enum ECubeMode
 {
     ROTATE,
@@ -35,7 +43,8 @@ public enum EDivideGameStatus
 public enum EInGameStatus
 {
     SHOWPATH,
-    PLAYERMOVE
+    PLAYERMOVE,
+    TIMEWAIT
 }
 public enum ECurCubeFace
 {
@@ -153,6 +162,8 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
     [SerializeField] private Transform _playerHPTsf;
     [SerializeField] private float _beatEndScaleX;
     [SerializeField] private float _beatEndScaleY;
+    [SerializeField] private Transform _scoreTsf;
+    [SerializeField] private Transform _comboTsf;
     //cube
     [SerializeField] private GameObject _gameCubeObj;
     [SerializeField] private Transform _cubeSizeTsf;
@@ -180,8 +191,13 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
     [SerializeField] public EDivideGameStatus curGameStatus;
     [SerializeField] private bool _IsInput;
     [SerializeField] private int _curPlayerHP;
+    [SerializeField] private int _curEnemyHP;
     [SerializeField] private EInGameStatus _curInGameStatus;
     [SerializeField] private int _beatTimeCount;
+    [SerializeField] private float _curAnimationTime;
+    [SerializeField] private bool _IsPlayerMoveEnd;
+    [SerializeField] private int _score;
+    [SerializeField] private int _combo;
     //cube
     [SerializeField] private ECurCubeFace _curSideName;
     [SerializeField] private ERotatePosition _rotateTarget;
@@ -193,6 +209,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
     [Header("Changeable Value")]
     //main system
     [SerializeField] private int _playerMaxHP;
+    [SerializeField] private int _enemyMaxHP;
     [SerializeField] private float _beatJudge;
     //cube
     [SerializeField] private int _defaultMovingTime;
@@ -258,6 +275,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         _speedLoader = _speedLoader == 0 ? 1 : _speedLoader;
         _beatTime = _beatTime == 0 ? 1f : _beatTime;
         _playerMaxHP = _playerMaxHP == 0 ? 100 : _playerMaxHP;
+        _enemyMaxHP = _enemyMaxHP == 0 ? 6 : _enemyMaxHP;
         _arrX = _arrX == 0 ? 4 : _arrX;
         _arrY = _arrY == 0 ? 4 : _arrY;
         float xChange = _cubeSizeTsf.GetComponent<RectTransform>().rect.width / _arrX;
@@ -287,7 +305,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
                         dic.Value();
                     }
                 }
-                if (!_IsInput)
+                if (!_IsInput && _curInGameStatus != EInGameStatus.TIMEWAIT)
                 {
                     if (MathF.Abs(1 - _beatCount) <= _beatJudge)
                     {
@@ -299,6 +317,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
                                 {
                                     _cubeKeyBinds[dic.Key]();
                                     _IsInput = true;
+                                    BeatJudgement(MathF.Abs(1 - _beatCount));
                                 }
                             }
                         }
@@ -310,6 +329,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
                                 {
                                     _playerKeyBinds[dic.Key]();
                                     _IsInput = true;
+                                    BeatJudgement(MathF.Abs(1 - _beatCount));
                                 }
                             }
                         }
@@ -427,11 +447,14 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
             curGameStatus = EDivideGameStatus.PLAYING;
             _curInGameStatus = EInGameStatus.SHOWPATH;
             _curPlayerHP = _playerMaxHP;
+            _curEnemyHP = _enemyMaxHP;
             _playerHPTsf.GetComponent<TextMeshProUGUI>().text = _curPlayerHP.ToString();
             _IsInput = false;
             _beatTimeCount = 0;
             _audioManager.AudioPlay(musicClip);
             _isBeatChecked = false;
+            _score = 0;
+            _combo = 0;
             //cube
             _gameCubeObj.transform.localEulerAngles = Vector3.zero;
             _curSideName = ECurCubeFace.ONE;
@@ -441,7 +464,10 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
             _playerObj.transform.localPosition = _cubeDatas[(int)_playerPos.x, (int)_playerPos.y].transform;
             //test
             _curEnemyMods.Add(EEnemyMode.COIN);
-            _curEnemyMods.Add(EEnemyMode.LINEATTACK);
+            //_curEnemyMods.Add(EEnemyMode.BLOCK);
+            //_curEnemyMods.Add(EEnemyMode.PATH);
+            _curAnimationTime = 2f;
+
             StartCoroutine(GamePlaying());
         }
     }
@@ -484,46 +510,37 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
                     if (_beatTimeCount == 0)
                     {
                         TransparentObjs();
+                        _IsPlayerMoveEnd = PlayerMoveEndCheck();
                         _curInGameStatus = EInGameStatus.PLAYERMOVE;
                     }
                 }
                 break;
             case EInGameStatus.PLAYERMOVE:
-                if(_curEnemyMods.Contains(EEnemyMode.LINEATTACK))
+                _IsPlayerMoveEnd = PlayerMoveEndCheck();
+                DoEnemyMode();
+                if (_IsPlayerMoveEnd)
                 {
-                    if(_curLineAttackMod==ELineAttackMode.NONE)
-                    {
-                        GetRandomeLineAttack();
-                    }
-                    else if(_curLineAttackMod==ELineAttackMode.SHOW)
-                    {
-                        _curLineAttackMod = ELineAttackMode.ATTACK;
-                        foreach(Transform data in _lineAttackTsf)
-                        {
-                            data.Find("Attack").gameObject.SetActive(true);
-                        }
-
-                    }else if(_curLineAttackMod==ELineAttackMode.ATTACK)
-                    {
-                        EndRandomeLineAttack();
-                    }                   
-                }
-                if(PlayerMoveEndCheck())
-                {
-                    DoEnemyMode();
                     GetRandomeRotate();
                     StartCoroutine(RotateMode());
-                    _curInGameStatus = EInGameStatus.SHOWPATH;
                 }
+                if (!_IsInput)
+                {
+                    PlayerPositionCheck();
+                }
+                break;
+            case EInGameStatus.TIMEWAIT:
                 break;
             default:
                 break;
         }
-        if (!_IsInput)
-        {
-            PlayerPositionCheck();
-        }
         _IsInput = false;
+    }
+    IEnumerator WaitTime(float time)
+    {
+        _curInGameStatus = EInGameStatus.TIMEWAIT;
+        yield return new WaitForSeconds(time);
+        UpdateEnemyHP(-1);
+        _curInGameStatus = EInGameStatus.SHOWPATH;
     }
     private void DoEnemyMode()
     {
@@ -589,16 +606,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
     {
         _beatCheckTsf.GetComponent<TextMeshProUGUI>().text = data;     
     }
-    private void HPDown(string message)
-    {
-        BeatCheck(message);
-        _curPlayerHP--;
-        _playerHPTsf.GetComponent<TextMeshProUGUI>().text = _curPlayerHP.ToString();
-        if (_curPlayerHP == 0)
-        {
-            GameOver();
-        }
-    }
+   
     private ERotatePosition GetVec3ToERotatePosition(Vector3 position)
     {
         if(position== new Vector3(0, -90, 0))
@@ -673,6 +681,46 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         }
         return new Vector2(0,0);
     }
+    public void BeatJudgement(float value)
+    {
+        if(value<=0.15f)
+        {
+            //perfect
+            Debug.Log("perfect");
+        }
+        else
+        {
+            //good
+            Debug.Log("good");
+        }
+    }
+    public void UpdateCombo(int changevalue)
+    {
+        _combo += changevalue;
+    }
+    public void UpdateScore(int changevalue)
+    {
+        _score += changevalue;
+    }
+    public void UpdatePlayerHP(int changevalue)
+    {
+        _curPlayerHP+=changevalue;
+        _playerHPTsf.GetComponent<TextMeshProUGUI>().text = _curPlayerHP.ToString();
+    }
+    public void UpdateEnemyHP(int changevalue)
+    {
+        _curEnemyHP += changevalue;
+    }
+    private void HPDown(string message)
+    {
+        BeatCheck(message);
+        UpdatePlayerHP(-1);
+        UpdateCombo(_combo * -1);
+        if (_curPlayerHP == 0)
+        {
+            GameOver();
+        }
+    }
 }
 public partial class DivideCube_s : MonoBehaviour, IUI // cube
 {
@@ -686,7 +734,8 @@ public partial class DivideCube_s : MonoBehaviour, IUI // cube
             HPDown("Don't Rotate");
             RotateCube(GetERotatePositionToVec3(_rotateTarget));
             MovePlayer(new Vector2(_playerPos.x * -1, _playerPos.y * -1));
-        }     
+        }
+        StartCoroutine(WaitTime(_curAnimationTime));
     }
     private void RotateCube(Vector3 rotateposition)
     {
@@ -791,7 +840,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
         }
         if(_curEnemyMods.Contains(EEnemyMode.LINEATTACK))
         {
-            if (_cubeDatas[(int)_playerPos.x, (int)_playerPos.y].lineAttack != null)
+            if (_cubeDatas[(int)_playerPos.x, (int)_playerPos.y].lineAttack != null&&_curLineAttackMod==ELineAttackMode.ATTACK)
             {
                 HPDown("Line Attack!!!");
             }
@@ -811,6 +860,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
             {
                 StartCoroutine(MoveTimeLock(_cubeDatas[(int)_playerPos.x, (int)_playerPos.y].transform, _playerObj, _defaultMovingTime));
             }
+            PlayerPositionCheck();
         }
     }
     IEnumerator MoveTimeLock(Vector2 moveposition, GameObject targetobj, int rotatetime)
@@ -834,7 +884,6 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
             yield return Wait;
         }
         targetobj.transform.localPosition = moveposition;
-        PlayerPositionCheck();
     }
     private void GetRandomeRotate()
     {
@@ -1045,10 +1094,13 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
         }
         else
         {
-            _rotateTarget = ERotatePosition.NONE;
-            _playerMovePathQueue.Clear();
-            _curMovePathShowObj.Clear();
-            UpdatePath();
+            if (_IsPlayerMoveEnd)
+            {
+                _rotateTarget = ERotatePosition.NONE;
+                _playerMovePathQueue.Clear();
+                _curMovePathShowObj.Clear();
+                UpdatePath();
+            }
         }
     }
     private void GetRandomeCoin()
@@ -1072,7 +1124,10 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
         }
         else
         {
-            EndFire();
+            if (_IsPlayerMoveEnd)
+            {
+                EndFire();
+            }
         }
     }
 
@@ -1092,7 +1147,10 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
         }
         else
         {
-            EndBlock();
+            if (_IsPlayerMoveEnd)
+            {
+                EndBlock();
+            }
         }
     }
     private void GetRandomeLineAttack()
@@ -1141,7 +1199,37 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
         }
         else
         {
-            EndRandomeLineAttack();
+            if (_IsPlayerMoveEnd)
+            {
+                EndRandomeLineAttack();
+            }
+            else
+            {
+                if (_curEnemyMods.Contains(EEnemyMode.LINEATTACK))
+                {
+                    if (_curLineAttackMod == ELineAttackMode.NONE)
+                    {
+                        GetRandomeLineAttack();
+                    }
+                    else if (_curLineAttackMod == ELineAttackMode.SHOW)
+                    {
+                        _curLineAttackMod = ELineAttackMode.ATTACK;
+                        foreach (Transform data in _lineAttackTsf)
+                        {
+                            data.Find("Attack").gameObject.SetActive(true);
+                           
+                        }
+                        if (_IsInput)
+                        {
+                            PlayerPositionCheck();
+                        }
+                    }
+                    else if (_curLineAttackMod == ELineAttackMode.ATTACK)
+                    {
+                        EndRandomeLineAttack();
+                    }
+                }
+            }
         }
     }
 }

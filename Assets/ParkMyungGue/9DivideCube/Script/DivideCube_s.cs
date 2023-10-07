@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
 interface IUI
 {
@@ -18,6 +17,14 @@ interface IUI
     public void UpdateEnemyHP(int changevalue);
 
    
+}
+public enum EStage
+{
+    STAGE_ONE,
+    STAGE_TWO,
+    STAGE_THREE,
+    STAGE_FOUR,
+    STAGE_FIVE
 }
 public enum ECubeMode
 {
@@ -61,6 +68,7 @@ public enum EEnemyMode
     PATH,
     COIN,
     LINEATTACK,
+    LINKLINEATTACK,
     BLOCK
 }
 public enum ELineAttackMode
@@ -78,6 +86,7 @@ public struct CubeData
     public GameObject path;
     public GameObject wall;
     public GameObject lineAttack;
+    public GameObject linkLineAttack;
     public CubeData(Vector2 _position,Vector2 _transform)
     {
         position = _position;
@@ -87,6 +96,7 @@ public struct CubeData
         path = null;
         wall = null;
         lineAttack = null;
+        linkLineAttack = null;
     }
     public bool isCanMakeCheck(bool isStack,string dataName)
     {
@@ -127,6 +137,10 @@ public struct CubeData
             {
                 return false;
             }
+            if (linkLineAttack!= null)
+            {
+                return false;
+            }
         }
         return true;
     }
@@ -139,15 +153,20 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
     private bool _isBeatMusicChecked;
     private List<EEnemyMode> _curEnemyMods;
     private Dictionary<EEnemyMode, Action> _enemyModBinds;
+    public TimeSpan curMainGameTime;
     //cube
     private Dictionary<KeyCode, Action> _cubeKeyBinds;
     private CubeData[,] _cubeDatas; //x,y
+    private Queue<ERotatePosition> _rotateQueue;
+    private Dictionary<ECurCubeFace, bool> _curCubeSideStatus; 
     //player
     private Dictionary<KeyCode, Action> _playerKeyBinds;
     private Dictionary<KeyCode, Vector2> _playerMoveData;
     private Queue<Vector2> _playerMovePathQueue;
     private List<Vector2> _movePathCheckList;
     private Queue<GameObject> _curMovePathShowObj;
+    private Dictionary<GameObject, ELineAttackMode> _curLinkLineAttackDic;
+    private Queue<GameObject> _curLinkLIneAttackQueue;
     //time !!!!!TIME : defulat was seconds!!!!!
     private WaitForSeconds _GameWaitWFS;
     public int _speedLoader;
@@ -157,13 +176,17 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
     //main system
     [SerializeField] private Transform _buttonsTsf;
     [SerializeField] private AudioManager_s _audioManager;
-    [SerializeField] private Transform _timeTsf;
+    [SerializeField] private Transform _bgmSlider;
     [SerializeField] private Transform _beatCheckTsf;
     [SerializeField] private Transform _playerHPTsf;
+    [SerializeField] private Transform _enemyHPTsf;
+    [SerializeField] private Transform _enemyATKTsf;
     [SerializeField] private float _beatEndScaleX;
     [SerializeField] private float _beatEndScaleY;
     [SerializeField] private Transform _scoreTsf;
     [SerializeField] private Transform _comboTsf;
+    [SerializeField] private EStage _curStage;
+    [SerializeField] public AudioClip beatClip;
     //cube
     [SerializeField] private GameObject _gameCubeObj;
     [SerializeField] private Transform _cubeSizeTsf;
@@ -171,6 +194,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
     [SerializeField] private ECubeMode _curCubeMode;
     //player
     [SerializeField] private GameObject _playerObj;
+    [Header("Required Value(enemy attack)")]
     //enemy attack
     [SerializeField] private Transform _movePathTsf;
     [SerializeField] private GameObject _pathSampleObj;
@@ -182,23 +206,24 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
     [SerializeField] private GameObject _blockSampleObj;
     [SerializeField] private Transform _lineAttackTsf;
     [SerializeField] private GameObject _lineAttackSampleObj;
+    [SerializeField] private Transform _linkLineAttackTsf;
     //time
     [SerializeField] private Transform _beatTsf;
     [Header("Only Display")]
     //main system
-    [SerializeField] public AudioClip musicClip;
-    [SerializeField] public AudioClip beatClip;
-    [SerializeField] public TimeSpan curMainGameTime;
     [SerializeField] public EDivideGameStatus curGameStatus;
     [SerializeField] private bool _IsInput;
     [SerializeField] private int _curPlayerHP;
     [SerializeField] private int _curEnemyHP;
+    [SerializeField] private int _curEnemyATKGauge;
+    [SerializeField] private int _EnemyATKGaugeCount;
     [SerializeField] private EInGameStatus _curInGameStatus;
     [SerializeField] private int _beatTimeCount;
     [SerializeField] private float _curAnimationTime;
     [SerializeField] private bool _IsPlayerMoveEnd;
     [SerializeField] private int _score;
     [SerializeField] private int _combo;
+    [SerializeField] public AudioClip curMusicClip;
     //cube
     [SerializeField] private ECurCubeFace _curSideName;
     [SerializeField] private ERotatePosition _rotateTarget;
@@ -212,15 +237,14 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
     [SerializeField] private int _playerMaxHP;
     [SerializeField] private int _enemyMaxHP;
     [SerializeField] private float _beatJudge;
+    [SerializeField] private int _enemyAttackGaugeMax;
     //cube
     [SerializeField] private int _defaultMovingTime;
     [SerializeField] private int _arrX;
     [SerializeField] private int _arrY;
-  //time
-  [SerializeField] private float _gameWait;
+    //time
+    [SerializeField] private float _gameWait;
     [SerializeField] private float _beatTime;
-    //test
-    [SerializeField] private string _musicName;
 }
 public partial class DivideCube_s : MonoBehaviour, IUI //main system
 {
@@ -233,12 +257,16 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         //cube
         _cubeKeyBinds = new Dictionary<KeyCode, Action>();
         _cubeDatas = new CubeData[_arrX, _arrY];
+        _rotateQueue = new Queue<ERotatePosition>();
+        _curCubeSideStatus = new Dictionary<ECurCubeFace, bool>();
         //player
         _playerKeyBinds = new Dictionary<KeyCode, Action>();
         _playerMoveData = new Dictionary<KeyCode, Vector2>();
         _playerMovePathQueue = new Queue<Vector2>();
         _movePathCheckList = new List<Vector2>();
         _curMovePathShowObj = new Queue<GameObject>();
+        _curLinkLineAttackDic = new Dictionary<GameObject, ELineAttackMode>();
+        _curLinkLIneAttackQueue = new Queue<GameObject>();
         DefaultDataSetting();
         DefaultValueSetting();
         TimeSetting();
@@ -246,26 +274,9 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         ButtonBind();
         //only Test
         UIOpen();
-        MusicSetting("Test140_mp3cut.net");
     }
     private void DefaultDataSetting()
     {
-        if (_gameCubeObj == null)
-        {
-            _gameCubeObj = transform.Find("NoneUI").Find("Cube").gameObject;
-        }
-        if (_buttonsTsf == null)
-        {
-            _buttonsTsf = transform.Find("UI").Find("Canvas").Find("Buttons");
-        }
-        if (_audioManager == null)
-        {
-            _audioManager = transform.Find("AudioManager").GetComponent<AudioManager_s>();
-        }
-        if (_timeTsf == null)
-        {
-            _timeTsf = transform.Find("UI").Find("Canvas").Find("Time");
-        }
     }
     private void DefaultValueSetting()
     {
@@ -274,10 +285,11 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         _gameWait = _gameWait == 0 ? 0.05f : _gameWait;
         _speedLoader = _speedLoader == 0 ? 1 : _speedLoader;
         _beatTime = _beatTime == 0 ? 1f : _beatTime;
-        _playerMaxHP = _playerMaxHP == 0 ? 100 : _playerMaxHP;
+        _playerMaxHP = _playerMaxHP == 0 ? 6 : _playerMaxHP;
         _enemyMaxHP = _enemyMaxHP == 0 ? 6 : _enemyMaxHP;
         _arrX = _arrX == 0 ? 4 : _arrX;
         _arrY = _arrY == 0 ? 4 : _arrY;
+        _enemyAttackGaugeMax = _enemyAttackGaugeMax== 0 ? 5 : _enemyAttackGaugeMax;
         float xChange = _cubeSizeTsf.GetComponent<RectTransform>().rect.width / _arrX;
         float yChange = _cubeSizeTsf.GetComponent<RectTransform>().rect.height / _arrY;
         for (int i=0;i<_arrX;i++)
@@ -307,6 +319,10 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
                 }
                 if (!_IsInput && _curInGameStatus != EInGameStatus.TIMEWAIT)
                 {
+                    if (Input.GetKeyDown(KeyCode.Mouse0))
+                    {
+                        return;
+                    }
                     if (MathF.Abs(1 - _beatCount) <= _beatJudge)
                     {
                         if (_curCubeMode==ECubeMode.ROTATE&&_rotateTarget!=ERotatePosition.NONE)
@@ -336,12 +352,11 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
                     }
                     else
                     {
-                        HPDown("beat miss");
+                        PlayerHPDown("beat miss");
                         _IsInput = true;
                     }
                 }
             }
-            _timeTsf.GetComponent<TextMeshProUGUI>().text = curMainGameTime.Minutes.ToString() + curMainGameTime.Seconds.ToString();
         }
         else
         {
@@ -386,7 +401,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
 
         if (curGameStatus == EDivideGameStatus.STARTWAITTING)
         {
-                beatClip = Resources.Load<AudioClip>("ParkMyungGue\\Music\\" + name);
+               curMusicClip = Resources.Load<AudioClip>("ParkMyungGue\\Music\\" + name);
         }
     }
     private void BindSetting()
@@ -411,6 +426,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         KeyBind(ref _enemyModBinds, EEnemyMode.COIN, CoinAction);
         KeyBind(ref _enemyModBinds, EEnemyMode.BLOCK, BlockAction);
         KeyBind(ref _enemyModBinds, EEnemyMode.LINEATTACK, LineAttackAction);
+        KeyBind(ref _enemyModBinds, EEnemyMode.LINKLINEATTACK, LinkLineAttackAction);
     }
     private void KeyBind(ref Dictionary<KeyCode, Action> binddic, KeyCode keycode, Action action)
     {
@@ -439,12 +455,17 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         {
             //main system
             _buttonsTsf.Find("GameStart").gameObject.SetActive(false);
+            MusicSetting(_curStage.ToString());
             curMainGameTime = new TimeSpan(0, 0, 0);
             curGameStatus = EDivideGameStatus.PLAYING;
             _curInGameStatus = EInGameStatus.SHOWPATH;
-            _curPlayerHP = _playerMaxHP;
-            _curEnemyHP = _enemyMaxHP;
-            _playerHPTsf.GetComponent<TextMeshProUGUI>().text = _curPlayerHP.ToString();
+            _curPlayerHP = 0;
+            UpdatePlayerHP(_playerMaxHP);
+            _curEnemyHP = 0;
+            UpdateEnemyHP(_enemyMaxHP);
+            _curEnemyATKGauge = 0;
+            UpdateEnemyATKGauge(0);
+            _EnemyATKGaugeCount = 0;
             _IsInput = false;
             _beatTimeCount = 0;
             _isBeatChecked = false;
@@ -453,28 +474,42 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
             _combo = 0;
             //cube
             _gameCubeObj.transform.localEulerAngles = Vector3.zero;
-            _curSideName = ECurCubeFace.ONE;
+            GetCubeImage();
             _curCubeMode = ECubeMode.MAINTAIN;
             //player
             _playerPos = Vector2.zero;
             _playerObj.transform.localPosition = _cubeDatas[(int)_playerPos.x, (int)_playerPos.y].transform;
             //test
             _curEnemyMods.Add(EEnemyMode.COIN);
+            _curEnemyMods.Add(EEnemyMode.LINKLINEATTACK);
+            _curEnemyMods.Add(EEnemyMode.LINEATTACK);
             //_curEnemyMods.Add(EEnemyMode.BLOCK);
             //_curEnemyMods.Add(EEnemyMode.PATH);
             _curAnimationTime = 2f;
-
+            _rotateQueue.Enqueue(ERotatePosition.RIGHT);
+            _rotateQueue.Enqueue(ERotatePosition.UP);
+            _rotateQueue.Enqueue(ERotatePosition.UP);
+            _rotateQueue.Enqueue(ERotatePosition.UP) ;
+            _rotateQueue.Enqueue(ERotatePosition.RIGHT);
+            _curCubeSideStatus.Add(ECurCubeFace.ONE, true);
+            _curCubeSideStatus.Add(ECurCubeFace.TWO, true);
+            _curCubeSideStatus.Add(ECurCubeFace.THREE, true);
+            _curCubeSideStatus.Add(ECurCubeFace.FOUR, true);
+            _curCubeSideStatus.Add(ECurCubeFace.FIVE, true);
+            _curCubeSideStatus.Add(ECurCubeFace.SIX, true);
+            InitializeEnemyHP();
             StartCoroutine(GamePlaying());
         }
     }
     IEnumerator GamePlaying()
     {
-        //curMainGameTime.TotalSeconds <= musicClip.length &&
-        while ( (curGameStatus == EDivideGameStatus.PLAYING || curGameStatus == EDivideGameStatus.PAUSE))
+        _audioManager.AudioPlay(curMusicClip);
+        while (    curMainGameTime.TotalSeconds <= curMusicClip.length && curGameStatus == EDivideGameStatus.PLAYING || curGameStatus == EDivideGameStatus.PAUSE)
         {
             if (curGameStatus == EDivideGameStatus.PLAYING)
             {
                 curMainGameTime = curMainGameTime.Add(new TimeSpan(0, 0, 0, 0, (int)(_gameWait * 1000)));
+                _bgmSlider.GetComponent<Slider>().value = (float)curMainGameTime.TotalSeconds / curMusicClip.length;
                 _beatCount = (float)((curMainGameTime.TotalSeconds / _beatTime) - (int)(curMainGameTime.TotalSeconds / _beatTime));
                 BeatShow();
                 if(_beatCount<=0.95f&&_beatCount>=0.92f&&_isBeatMusicChecked)
@@ -491,7 +526,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
                     MoveNextBeat();
                     _isBeatChecked = true;
                     _isBeatMusicChecked = true;
-                }            
+                }  
             }
             yield return _GameWaitWFS;
         }
@@ -521,9 +556,20 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
             case EInGameStatus.PLAYERMOVE:
                 _IsPlayerMoveEnd = PlayerMoveEndCheck();
                 DoEnemyMode();
+                if (_curEnemyATKGauge >= _enemyAttackGaugeMax)
+                {
+                    UpdateEnemyATKGauge(_curEnemyATKGauge * -1);
+                }
                 if (_IsPlayerMoveEnd)
                 {
-                    GetRandomeRotate();
+                    if (_rotateQueue.Count != 0)
+                    {
+                        _rotateTarget = _rotateQueue.Dequeue();
+                    }
+                    else
+                    {
+                        GetRandomeRotate();
+                    }
                     StartCoroutine(RotateMode());
                 }
                 if (!_IsInput)
@@ -578,15 +624,18 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
     }
     private void GameEnd()
     {
-        _audioManager.AudioStop(musicClip);
         if (curGameStatus == EDivideGameStatus.PLAYING || curGameStatus == EDivideGameStatus.PAUSE)
         {
+            _audioManager.AudioStop(curMusicClip);
             curGameStatus = EDivideGameStatus.END;
-            curGameStatus = EDivideGameStatus.STARTWAITTING;
             _buttonsTsf.Find("GameStart").gameObject.SetActive(true);
-            _playerMovePathQueue.Clear();
-            _curMovePathShowObj.Clear();
-            UpdatePath();
+            _curInGameStatus = EInGameStatus.PLAYERMOVE;
+            _IsPlayerMoveEnd = true;
+            DoEnemyMode();
+            _curEnemyMods.Clear();
+            _curCubeSideStatus.Clear();
+            _gameCubeObj.transform.localEulerAngles= Vector3.zero;
+            curGameStatus = EDivideGameStatus.STARTWAITTING;
         }
     }
     private void GameOver()
@@ -689,32 +738,99 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         if(value<=0.15f)
         {
             //perfect
-            Debug.Log("perfect");
+            UpdateCombo(1);
+            UpdateScore(100);
         }
         else
         {
+            UpdateCombo(1);
+            UpdateScore(50);
             //good
-            Debug.Log("good");
+          
         }
     }
     public void UpdateCombo(int changevalue)
     {
         _combo += changevalue;
+        _comboTsf.GetComponent<TextMeshProUGUI>().text = _combo.ToString();
+        if(changevalue>0)
+        {
+            _EnemyATKGaugeCount++;
+            if(_EnemyATKGaugeCount==2)
+            {
+                UpdateEnemyATKGauge(1);
+                _EnemyATKGaugeCount = 0;
+            }
+        }
     }
     public void UpdateScore(int changevalue)
     {
         _score += changevalue;
+        _scoreTsf.GetComponent<TextMeshProUGUI>().text = _score.ToString();
     }
     public void UpdatePlayerHP(int changevalue)
     {
         _curPlayerHP+=changevalue;
-        _playerHPTsf.GetComponent<TextMeshProUGUI>().text = _curPlayerHP.ToString();
+        int count = 0;
+        foreach(Transform data in _playerHPTsf)
+        {
+            if (count < _curPlayerHP)
+            {
+                data.gameObject.SetActive(true);
+            }
+            else
+            {
+                data.gameObject.SetActive(false);
+            }
+            count++;
+        }
+        
     }
     public void UpdateEnemyHP(int changevalue)
     {
         _curEnemyHP += changevalue;
+        foreach(var data in _curCubeSideStatus)
+        {
+            if(!data.Value)
+            {
+                _enemyHPTsf.Find(data.Key.ToString()).GetComponent<Image>().color = new Vector4(0.2f, 0.2f, 0.2f, 1);
+            }
+        }    
+        if(_curEnemyHP<=0)
+        {
+            GameOver();
+        }
     }
-    private void HPDown(string message)
+    public void UpdateEnemyATKGauge(int chnagevalue)
+    {
+        _curEnemyATKGauge+= chnagevalue;
+        int count = 0;
+        foreach (Transform data in _enemyATKTsf)
+        {
+            if (count < _curEnemyATKGauge)
+            {
+                data.GetComponent<Image>().color = new Vector4(1, 0, 0, 1) ;
+            }
+            else
+            {
+                data.GetComponent<Image>().color = new Vector4(1,1,1,1);
+            }
+            count++;
+        }
+    }
+    private void InitializeEnemyHP()
+    {
+        foreach (var data in _curCubeSideStatus)
+        {
+                _enemyHPTsf.Find(data.Key.ToString()).GetComponent<Image>().color = new Vector4(1, 1, 1, 1);
+                _enemyHPTsf.Find(data.Key.ToString()).GetComponent<Image>().sprite = Resources.Load<Sprite>("ParkMyungGue\\CubeSideImage\\" + data.Key.ToString());
+        }
+    }
+    private void EnemyHPDown()
+    {
+        _curCubeSideStatus[_curSideName] = false;
+    }
+    private void PlayerHPDown(string message)
     {
         BeatCheck(message);
         UpdatePlayerHP(-1);
@@ -734,7 +850,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI // cube
         yield return new WaitForSeconds(_beatTime - 0.02f);
         if(_rotateTarget!=ERotatePosition.NONE)
         {
-            HPDown("Don't Rotate");
+            PlayerHPDown("Don't Rotate");
             RotateCube(GetERotatePositionToVec3(_rotateTarget));
         }
         StartCoroutine(WaitTime(_curAnimationTime));
@@ -788,6 +904,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI // cube
                 yield return Wait;
             }
             targetobj.transform.localEulerAngles = new Vector3(MathF.Round(targetobj.transform.localEulerAngles.x), MathF.Round(targetobj.transform.localEulerAngles.y), MathF.Round(targetobj.transform.localEulerAngles.z));
+            EnemyHPDown();
             GetCubeImage();
             _curCubeMode = ECubeMode.MAINTAIN;
         }
@@ -810,7 +927,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
             {
                 if (_playerMovePathQueue.Peek() != _playerPos + pos)
                 {
-                    HPDown("Move Miss!!");
+                    PlayerHPDown("Move Miss!!");
                     return false;
                 }
             }
@@ -834,7 +951,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
             }
             if (_cubeDatas[(int)_playerPos.x, (int)_playerPos.y].fire != null)
             {
-                HPDown("Fire!!!");
+                PlayerHPDown("Fire!!!");
             }
         }
         if(_curEnemyMods.Contains(EEnemyMode.PATH))
@@ -845,7 +962,14 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
         {
             if (_cubeDatas[(int)_playerPos.x, (int)_playerPos.y].lineAttack != null&&_curLineAttackMod==ELineAttackMode.ATTACK)
             {
-                HPDown("Line Attack!!!");
+                PlayerHPDown("Line Attack!!!");
+            }
+        }
+        if (_curEnemyMods.Contains(EEnemyMode.LINKLINEATTACK))
+        {
+            if (_cubeDatas[(int)_playerPos.x, (int)_playerPos.y].linkLineAttack != null && _curLinkLineAttackDic[_cubeDatas[(int)_playerPos.x, (int)_playerPos.y].linkLineAttack]==ELineAttackMode.ATTACK)
+            {
+                PlayerHPDown("Link Line Attack!!!");
             }
         }
     }
@@ -1110,6 +1234,10 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
     {
         GetRandomeObjs("coin", _coinSampleObj, true, _coinsTsf, 5);
     }
+    private void EndCoin()
+    {
+        RemoveAllTargetObj("coin");
+    }
     private void GetRandomeFire()
     {
         GetRandomeObjs("fire",_fireSampleObj, false, _fireTsf, 5);
@@ -1123,13 +1251,14 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
         if (_curInGameStatus == EInGameStatus.SHOWPATH)
         {
             GetRandomeCoin();
-            GetRandomeFire();
+            //GetRandomeFire();
         }
         else
         {
             if (_IsPlayerMoveEnd)
             {
-                EndFire();
+                EndCoin();
+                //EndFire();
             }
         }
     }
@@ -1161,7 +1290,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
         int count = UnityEngine.Random.Range(0, 2);
         if (count==0) // row attack
         {
-            int y = UnityEngine.Random.Range(0, _arrY);
+            int y = (int)_playerPos.y;
             for (int i=0;i<_arrX;i++)
             {
                 if (_cubeDatas[i, y].isCanMakeCheck(true, "lineAttack"))
@@ -1175,7 +1304,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
         }
         else // columns attack
         {
-            int x = UnityEngine.Random.Range(0, _arrX);
+            int x = (int)_playerPos.x;
             for (int i = 0; i < _arrY; i++)
             {
                 if (_cubeDatas[x,i].isCanMakeCheck(true, "lineAttack"))
@@ -1198,7 +1327,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
     {
         if (_curInGameStatus == EInGameStatus.SHOWPATH)
         {
-            GetRandomeLineAttack();
+            //GetRandomeLineAttack();
         }
         else
         {
@@ -1208,9 +1337,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
             }
             else
             {
-                if (_curEnemyMods.Contains(EEnemyMode.LINEATTACK))
-                {
-                    if (_curLineAttackMod == ELineAttackMode.NONE)
+                    if (_curEnemyATKGauge>=_enemyAttackGaugeMax)
                     {
                         GetRandomeLineAttack();
                     }
@@ -1231,6 +1358,161 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
                     {
                         EndRandomeLineAttack();
                     }
+            }
+        }
+    }
+    private void GetRandomeLinkLineAttack()
+    {
+        int count = UnityEngine.Random.Range(0, 2);
+        int secondcount = UnityEngine.Random.Range(0, 2);
+        if (count == 0) // row attack
+        {
+            int y = (int)_playerPos.y;
+            if (secondcount == 0)
+            {
+                for (int i = 0; i < _arrX; i++)
+                {
+                    if (_cubeDatas[i, y].isCanMakeCheck(true, "linkLineAttack"))
+                    {
+                        GameObject instObj = Instantiate(_lineAttackSampleObj, _linkLineAttackTsf);
+                        instObj.transform.Find("Attack").gameObject.SetActive(false);
+                        instObj.transform.localPosition = _cubeDatas[i, y].transform;
+                        _cubeDatas[i, y].linkLineAttack = instObj;
+                        _curLinkLineAttackDic.Add(instObj, ELineAttackMode.NONE);
+                        instObj.gameObject.SetActive(false);
+                    }
+                }
+            }
+            else
+            {
+                for (int i = _arrX-1; i >=0; i--)
+                {
+                    if (_cubeDatas[i, y].isCanMakeCheck(true, "linkLineAttack"))
+                    {
+                        GameObject instObj = Instantiate(_lineAttackSampleObj, _linkLineAttackTsf);
+                        instObj.transform.Find("Attack").gameObject.SetActive(false);
+                        instObj.transform.localPosition = _cubeDatas[i, y].transform;
+                        _cubeDatas[i, y].linkLineAttack = instObj;
+                        _curLinkLineAttackDic.Add(instObj, ELineAttackMode.NONE);
+                        instObj.gameObject.SetActive(false);
+                    }
+                }
+            }
+        }
+        else // columns attack
+        {
+            int x = (int)_playerPos.x;
+            if (secondcount == 0)
+            {
+                for (int i = 0; i < _arrY; i++)
+                {
+
+                    if (_cubeDatas[x, i].isCanMakeCheck(true, "linkLineAttack"))
+                    {
+                        GameObject instObj = Instantiate(_lineAttackSampleObj, _linkLineAttackTsf);
+                        instObj.transform.Find("Attack").gameObject.SetActive(false);
+                        instObj.transform.localPosition = _cubeDatas[x, i].transform;
+                        _cubeDatas[x, i].linkLineAttack = instObj;
+                        _curLinkLineAttackDic.Add(instObj, ELineAttackMode.NONE);
+                        instObj.gameObject.SetActive(false);
+                    }
+                }
+            }
+            else
+            {
+                for (int i = _arrY-1; i >= 0; i--)
+                {
+
+                    if (_cubeDatas[x, i].isCanMakeCheck(true, "linkLineAttack"))
+                    {
+                        GameObject instObj = Instantiate(_lineAttackSampleObj, _linkLineAttackTsf);
+                        instObj.transform.Find("Attack").gameObject.SetActive(false);
+                        instObj.transform.localPosition = _cubeDatas[x, i].transform;
+                        _cubeDatas[x, i].linkLineAttack = instObj;
+                        _curLinkLineAttackDic.Add(instObj, ELineAttackMode.NONE);
+                        instObj.gameObject.SetActive(false);
+                    }
+                }
+
+            }
+        }
+    }
+    private void EndRandomeLinkLineAttack()
+    {
+        RemoveAllTargetObj("linkLineAttack");
+        _curLinkLineAttackDic.Clear();
+        _curLinkLIneAttackQueue.Clear();
+    }
+    private void LinkLineAttackAction()
+    {
+        if (_curInGameStatus == EInGameStatus.SHOWPATH)
+        {
+            //GetRandomeLineAttack();
+        }
+        else
+        {
+            if (_IsPlayerMoveEnd)
+            {
+                EndRandomeLinkLineAttack();
+            }
+            else
+            {
+                if (_curEnemyATKGauge >= _enemyAttackGaugeMax && _curLinkLineAttackDic.Count == 0)
+                {
+                    GetRandomeLinkLineAttack();
+                }
+                else if(_curLinkLineAttackDic.Count!=0)
+                {
+                    for (int i = 0; i < _arrX; i++)
+                    {
+                        for (int j = 0; j < _arrY; j++)
+                        {
+                            if (_cubeDatas[i, j].linkLineAttack != null)
+                            {
+                                if (_curLinkLineAttackDic[_cubeDatas[i, j].linkLineAttack] == ELineAttackMode.ATTACK)
+                                {
+                                    GameObject removeTarget = _cubeDatas[i, j].linkLineAttack;
+                                    _cubeDatas[i, j].linkLineAttack = null;
+                                    _curLinkLIneAttackQueue.Dequeue();
+                                    _curLinkLineAttackDic.Remove(removeTarget);
+                                    Destroy(removeTarget);
+                                }
+                            }
+                        }
+                    }
+                    foreach (Transform data in _linkLineAttackTsf)
+                    {
+                        if(_curLinkLIneAttackQueue.Count>=2)
+                        {
+                            break;
+                        }
+                        if (_curLinkLineAttackDic.ContainsKey(data.gameObject))
+                        {
+                            switch (_curLinkLineAttackDic[data.gameObject])
+                            {
+                                case ELineAttackMode.NONE:
+                                    data.gameObject.SetActive(true);
+                                    _curLinkLineAttackDic[data.gameObject] = ELineAttackMode.SHOW;
+                                    if (_curLinkLIneAttackQueue.Count == 0)
+                                    {
+                                        _curLinkLIneAttackQueue.Enqueue(data.gameObject);
+                                        return;
+                                    }
+                                    else
+                                    {
+                                        _curLinkLIneAttackQueue.Enqueue(data.gameObject);
+                                    }
+                                    break;
+                                case ELineAttackMode.SHOW:
+                                    data.gameObject.transform.Find("Attack").gameObject.SetActive(true);
+                                    _curLinkLineAttackDic[data.gameObject] = ELineAttackMode.ATTACK;
+                                    break;
+                                case ELineAttackMode.ATTACK:
+                                    break;
+                            }
+                        }
+                    }
+         
                 }
             }
         }

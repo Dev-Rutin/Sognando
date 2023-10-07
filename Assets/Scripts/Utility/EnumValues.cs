@@ -7,5 +7,13 @@ public enum EFadeType
 public enum EGameObjectType
 {
     GameObject,
+    Skeleton,
     UI
+}
+
+public enum ECharacterType
+{
+    Player,
+    NPC,
+    Creature
 }

@@ -1,14 +1,15 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class TypingManager : Singleton<TypingManager>
+public class TypingUtility : Singleton<TypingUtility>
 {
     [SerializeField] private float _timeForCharacter;
     [SerializeField] private float _timeForCharacter_Fast; 
     private float _characterTime;
 
-    private string[] _dialogsSave;
+    private string _dialogsSave;
     private TextMeshProUGUI _tmpSave;
 
     private static bool _isDialogEnd;
@@ -23,15 +24,16 @@ public class TypingManager : Singleton<TypingManager>
         _characterTime = _timeForCharacter;
     }
 
-    public void Typing(string[] dialogs, TextMeshProUGUI textObj)
+    public void Typing(string dialogs, TextMeshProUGUI textObj)
     {
+        StorySceneManager.Instance.IsTyping = true;
         _isDialogEnd = false;
         _dialogsSave = dialogs;
         _tmpSave = textObj;
         if (_dialogNumber < dialogs.Length)
         {
             //받아온 다이얼 로그를 char로 변환.
-            char[] chars = dialogs[_dialogNumber].ToCharArray();
+            char[] chars = dialogs.ToCharArray();
             StartCoroutine(Typer(chars, textObj));
         }
         else
@@ -107,6 +109,7 @@ public class TypingManager : Singleton<TypingManager>
         {
             _isTypingEnd = true;
             _dialogNumber++;
+            StorySceneManager.Instance.IsTyping = false;
             yield break;
         }
     }

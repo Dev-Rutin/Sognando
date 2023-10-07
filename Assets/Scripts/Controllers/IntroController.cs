@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -14,7 +15,7 @@ public class IntroController : MonoBehaviour
     [SerializeField] private Sprite[] cutsceneSprites;
     [Header("TextDialogs")]
     [TextArea]
-    [SerializeField] private string[] dialogStrings;
+    private string dialogStrings;
     [SerializeField] private TextMeshProUGUI textOutput;
     [SerializeField] private float TextDelayTime;
     private int typingCount = 0;
@@ -50,7 +51,7 @@ public class IntroController : MonoBehaviour
         yield return new WaitForSeconds(FadeTime/5);
         while(typingCount < dialogStrings.Length)
         {
-            TypingManager.Instance.Typing(dialogStrings, textOutput);
+            TypingUtility.Instance.Typing(dialogStrings, textOutput);
             typingCount++;
             yield return new WaitForSeconds(TextDelayTime);
         }

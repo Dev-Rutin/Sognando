@@ -289,7 +289,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         _enemyMaxHP = _enemyMaxHP == 0 ? 6 : _enemyMaxHP;
         _arrX = _arrX == 0 ? 4 : _arrX;
         _arrY = _arrY == 0 ? 4 : _arrY;
-        _enemyAttackGaugeMax = _enemyAttackGaugeMax== 0 ? 5 : _enemyAttackGaugeMax;
+        _enemyAttackGaugeMax = _enemyAttackGaugeMax== 0 ? 3 : _enemyAttackGaugeMax;
         float xChange = _cubeSizeTsf.GetComponent<RectTransform>().rect.width / _arrX;
         float yChange = _cubeSizeTsf.GetComponent<RectTransform>().rect.height / _arrY;
         for (int i=0;i<_arrX;i++)
@@ -350,7 +350,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
                             }
                         }
                     }
-                    else
+                    else if(_curInGameStatus == EInGameStatus.PLAYERMOVE)
                     {
                         PlayerHPDown("beat miss");
                         _IsInput = true;
@@ -554,6 +554,12 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
                 }
                 break;
             case EInGameStatus.PLAYERMOVE:
+                _EnemyATKGaugeCount++;
+                if (_EnemyATKGaugeCount == 1)
+                {
+                    UpdateEnemyATKGauge(1);
+                    _EnemyATKGaugeCount = 0;
+                }
                 _IsPlayerMoveEnd = PlayerMoveEndCheck();
                 DoEnemyMode();
                 if (_curEnemyATKGauge >= _enemyAttackGaugeMax)
@@ -575,6 +581,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
                 if (!_IsInput)
                 {
                     PlayerPositionCheck();
+                    UpdateCombo(_combo * -1);
                 }
                 break;
             case EInGameStatus.TIMEWAIT:
@@ -589,11 +596,13 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         _curInGameStatus = EInGameStatus.TIMEWAIT;
         yield return new WaitForSeconds(time);
         UpdateEnemyHP(-1);
+        UpdatePlayerHP(1);
         _curInGameStatus = EInGameStatus.SHOWPATH;
     }
     private void DoEnemyMode()
     {
-        foreach(var data in _curEnemyMods)
+        var temp = new List<EEnemyMode>(_curEnemyMods);
+        foreach (var data in temp)
         {
             _enemyModBinds[data]();
         }
@@ -626,8 +635,9 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
     {
         if (curGameStatus == EDivideGameStatus.PLAYING || curGameStatus == EDivideGameStatus.PAUSE)
         {
-            _audioManager.AudioStop(curMusicClip);
             curGameStatus = EDivideGameStatus.END;
+            _audioManager.AudioStop(curMusicClip);
+            StopAllCoroutines();    
             _buttonsTsf.Find("GameStart").gameObject.SetActive(true);
             _curInGameStatus = EInGameStatus.PLAYERMOVE;
             _IsPlayerMoveEnd = true;
@@ -644,14 +654,19 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
     }
     private void BeatShow()
     {
-        _beatTsf.GetComponent<RectTransform>().localScale = Vector2.Lerp(new Vector2(1, 1), new Vector2(_beatEndScaleX, _beatEndScaleY), _beatCount);
-        if (_beatCount > 0.8f)
+        if (_curInGameStatus == EInGameStatus.PLAYERMOVE)
         {
-            _beatTsf.GetComponent<Image>().color = new Vector4(0.36f, 0, 1f, 1f);
-        }
-        else
-        {
-            _beatTsf.GetComponent<Image>().color = new Vector4(1f, 1f, 1f, 1f);
+
+
+            _beatTsf.GetComponent<RectTransform>().localScale = Vector2.Lerp(new Vector2(1, 1), new Vector2(_beatEndScaleX, _beatEndScaleY), _beatCount);
+            if (_beatCount > 0.8f)
+            {
+                _beatTsf.GetComponent<Image>().color = new Vector4(0.36f, 0, 1f, 1f);
+            }
+            else
+            {
+                _beatTsf.GetComponent<Image>().color = new Vector4(1f, 1f, 1f, 1f);
+            }
         }
     }
     private void BeatCheck(string data)
@@ -753,15 +768,6 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
     {
         _combo += changevalue;
         _comboTsf.GetComponent<TextMeshProUGUI>().text = _combo.ToString();
-        if(changevalue>0)
-        {
-            _EnemyATKGaugeCount++;
-            if(_EnemyATKGaugeCount==2)
-            {
-                UpdateEnemyATKGauge(1);
-                _EnemyATKGaugeCount = 0;
-            }
-        }
     }
     public void UpdateScore(int changevalue)
     {
@@ -845,37 +851,41 @@ public partial class DivideCube_s : MonoBehaviour, IUI // cube
 {
     IEnumerator RotateMode()
     {
-        _rotateImageTsf.Find(_rotateTarget.ToString()).gameObject.SetActive(true);
-        _curCubeMode = ECubeMode.ROTATE;
-        yield return new WaitForSeconds(_beatTime - 0.02f);
-        if(_rotateTarget!=ERotatePosition.NONE)
+        if (curGameStatus == EDivideGameStatus.PLAYING)
         {
-            PlayerHPDown("Don't Rotate");
-            RotateCube(GetERotatePositionToVec3(_rotateTarget));
+            _rotateImageTsf.Find(_rotateTarget.ToString()).gameObject.SetActive(true);
+            _curCubeMode = ECubeMode.ROTATE;
+            yield return new WaitForSeconds(_beatTime - 0.02f);
+            if (_rotateTarget != ERotatePosition.NONE)
+            {
+                PlayerHPDown("Don't Rotate");
+                RotateCube(GetERotatePositionToVec3(_rotateTarget));
+            }
+            StartCoroutine(WaitTime(_curAnimationTime));
         }
-        StartCoroutine(WaitTime(_curAnimationTime));
     }
     private void RotateCube(Vector3 rotateposition)
     {
-            /*switch(_rotateTarget)
-            {
-                case ERotatePosition.LEFT:
-                    MovePlayer(new Vector2(GetERotatePositionToVec2(_rotateTarget).x* GetERotatePositionToVec2(_rotateTarget).y,0));
-                    break;
-                case ERotatePosition.RIGHT:
-                    MovePlayer(new Vector2(GetERotatePositionToVec2(_rotateTarget).x * GetERotatePositionToVec2(_rotateTarget).y, 0));
-                    break;
-                case ERotatePosition.UP:
-                    MovePlayer(new Vector2(0, GetERotatePositionToVec2(_rotateTarget).x * GetERotatePositionToVec2(_rotateTarget).y));
-                    break;
-                case ERotatePosition.DOWN:
-                    MovePlayer(new Vector2(0,GetERotatePositionToVec2(_rotateTarget).x * GetERotatePositionToVec2(_rotateTarget).y));
-                    break;
-                default:
-                    break;
-            }*/
+        /*switch(_rotateTarget)
+        {
+            case ERotatePosition.LEFT:
+                MovePlayer(new Vector2(GetERotatePositionToVec2(_rotateTarget).x* GetERotatePositionToVec2(_rotateTarget).y,0));
+                break;
+            case ERotatePosition.RIGHT:
+                MovePlayer(new Vector2(GetERotatePositionToVec2(_rotateTarget).x * GetERotatePositionToVec2(_rotateTarget).y, 0));
+                break;
+            case ERotatePosition.UP:
+                MovePlayer(new Vector2(0, GetERotatePositionToVec2(_rotateTarget).x * GetERotatePositionToVec2(_rotateTarget).y));
+                break;
+            case ERotatePosition.DOWN:
+                MovePlayer(new Vector2(0,GetERotatePositionToVec2(_rotateTarget).x * GetERotatePositionToVec2(_rotateTarget).y));
+                break;
+            default:
+                break;
+        }*/
+       
             StartCoroutine(RotateTimeLock(rotateposition, _gameCubeObj, _defaultMovingTime));
-            MovePlayer(new Vector2(_playerPos.x * -1, _playerPos.y * -1));
+            MovePlayer(new Vector2(_playerPos.x * -1, _playerPos.y * -1));       
     }
     IEnumerator RotateTimeLock(Vector3 rotateposition, GameObject targetobj, int rotatetime)
     {

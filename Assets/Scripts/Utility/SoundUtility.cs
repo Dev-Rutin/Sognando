@@ -1,40 +1,32 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Regist로 오디오 클립에 사용할 소스 저장
-// PlaySound로 사운드 종류와 Regist로 저장한 키 값을 전달하여 사운드 재생
-public class SceneSoundManager : Singleton<SceneSoundManager>
+public class SoundUtility : MonoBehaviour
 {
-    // 오디오 클립 저장용 Dictionary
     private readonly Dictionary<string, AudioClip> _bgmClips = new Dictionary<string, AudioClip>();
     private readonly Dictionary<string, AudioClip> _seClips = new Dictionary<string, AudioClip>();
-
+    
     // 용도별 오디오 소스
     [Header("SFX Sound Sources")]
     // 배경음 오디오 소스
     [SerializeField] private AudioSource _bgmSource;
-    // 박자 오디오 소스
+    // 박자 재생용 오디오 소스
     [SerializeField] private AudioSource _bitSeSource;
     // 플레이어 상호작용 오디오 소스
     [SerializeField] private AudioSource _interactionSeSource;
     // UI 상호작용 오디오 소스
     [SerializeField] private AudioSource _interfaceSeSource;
 
-    /*private void Start()
+    private void Start()
     {
-        UpdateValue();
-    }*/
+        
+    }
 
-    // 오디오 값 갱신
-    /*public void UpdateValue()
+    public void PlaySound(ESoundTypes types, string soundKey)
     {
-        SettingsValueManager.ApplyPlayerPrefsValues(_bgmSource, _transitionSeSource, _interactionSeSource, _interfaceSeSource);
-    }*/
-
-    // 오디오 재생
-    public void PlaySound(ESoundTypes Etypes, string soundKey)
-    {
-        switch(Etypes)
+        switch(types)
         {
             case ESoundTypes.Bgm:
                 if(_bgmClips.ContainsKey(soundKey))
@@ -43,10 +35,22 @@ public class SceneSoundManager : Singleton<SceneSoundManager>
                     _bgmSource.Play();
                 }
                 break;
-            case ESoundTypes.Se:
+            case ESoundTypes.Interaction:
                 if (_seClips.ContainsKey(soundKey))
                 {
                     _interactionSeSource.PlayOneShot(_seClips[soundKey]);
+                }
+                break;
+            case ESoundTypes.Interface:
+                if (_seClips.ContainsKey(soundKey))
+                {
+                    _interfaceSeSource.PlayOneShot(_seClips[soundKey]);
+                }
+                break;
+            case ESoundTypes.Bit:
+                if (_seClips.ContainsKey(soundKey) && !_bitSeSource.isPlaying)
+                {
+                    _bitSeSource.PlayOneShot(_seClips[soundKey]);
                 }
                 break;
             default:
@@ -54,7 +58,7 @@ public class SceneSoundManager : Singleton<SceneSoundManager>
                 break;
         }
     }
-
+    
     // 오디오 클립 저장
     public void RegistBgm(string sceneBgmName, AudioClip bgm)
     {

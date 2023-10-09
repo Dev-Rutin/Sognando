@@ -1,9 +1,9 @@
 using System.Collections;
+using System.Collections.Generic;
 using Spine.Unity;
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 public class IntroManager : MonoBehaviour
 {
@@ -17,7 +17,7 @@ public class IntroManager : MonoBehaviour
     [SerializeField] private GameObject _fadePanel;
     [Header("TextDialogs")]
     [TextArea]
-    [SerializeField] private string[] _dialogStrings;
+    [SerializeField] private string _dialogStrings;
     [SerializeField] private TextMeshProUGUI _textOutput;
     [SerializeField] private float _textDelayTime;
     private int _typingCount = 0;
@@ -41,13 +41,14 @@ public class IntroManager : MonoBehaviour
         
     }
     
+    
     // 문자 타이핑 코루틴
     private IEnumerator TypingCoroutine()
     {
         yield return new WaitForSeconds(_fadeTime/5);
         while(_typingCount < _dialogStrings.Length)
         {
-            TypingManager.Instance.Typing(_dialogStrings, _textOutput);
+            TypingUtility.Instance.Typing(_dialogStrings, _textOutput);
             _typingCount++;
             yield return new WaitForSeconds(_textDelayTime);
         }

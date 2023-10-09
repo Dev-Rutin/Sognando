@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class AudioManager_s : MonoBehaviour,IAudio
 {
-    private Dictionary<AudioClip, AudioSource> _audioDic;
+    public Dictionary<AudioClip, AudioSource> _audioDic;
     void Start()
     {
         _audioDic = new Dictionary<AudioClip, AudioSource>(); 
@@ -19,7 +19,7 @@ public class AudioManager_s : MonoBehaviour,IAudio
             _audioDic.Add(clip, this.GetComponents<AudioSource>()[_audioDic.Count]);
             _audioDic[clip].clip = clip;
         }
-        _audioDic[clip].Play();
+        _audioDic[clip].PlayDelayed(0.6f);
 
     }
     public void AudioStop(AudioClip clip) 

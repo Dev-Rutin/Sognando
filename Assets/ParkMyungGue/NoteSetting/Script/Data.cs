@@ -1,16 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
-using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEditor;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using UnityEngine.Rendering;
 public enum ENoteType
 {
     DEFAULT,
@@ -275,7 +269,7 @@ public class Data
             }
         }
         //Debug.Log(AssetDatabase.GetAssetPath((TextAsset)pathstring));
-        xdocPath.Save(AssetDatabase.GetAssetPath((TextAsset)pathstring));
+        //xdocPath.Save(AssetDatabase.GetAssetPath((TextAsset)pathstring));
 
     }
     /*private void Start()

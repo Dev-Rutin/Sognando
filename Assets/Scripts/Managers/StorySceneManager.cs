@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class StorySceneManager : Singleton<StorySceneManager>
@@ -25,6 +26,7 @@ public class StorySceneManager : Singleton<StorySceneManager>
     [Header("Dialog")]
     [SerializeField] private TextMeshProUGUI _textOutput;
     [SerializeField] private float _textDelayTime;
+    [SerializeField] private GameObject _icon;
     private int _typingCount = 0;
     public bool IsTyping { get; set; }
 
@@ -54,7 +56,10 @@ public class StorySceneManager : Singleton<StorySceneManager>
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Time.timeScale = 0;
+        }
     }
 
     private IEnumerator StartScene()
@@ -72,17 +77,24 @@ public class StorySceneManager : Singleton<StorySceneManager>
         _typingCount++;
         while (_dialogQueue.Count != 0)
         {
-            if (!IsTyping && Input.GetKeyDown(KeyCode.Space))
+            if (!IsTyping)
             {
-                Debug.Log($"character : {_characterQueue.Peek()}, state : {_stateQueue.Peek()}, dialog : {_dialogQueue.Peek()}");
-                Debug.Log($"dialogCount : {_dialogQueue.Count}, charCount : {_characterQueue.Count}, stateCount : {_stateQueue.Count}");
-                yield return StartCoroutine(ChangeCharacter(_characterQueue.Dequeue(), _stateQueue.Dequeue()));
-                TypingUtility.Instance.Typing(_dialogQueue.Dequeue(), _textOutput);
-                _typingCount++;
-                //yield return new WaitForSeconds(_textDelayTime);
+                _icon.SetActive(true);
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    yield return StartCoroutine(ChangeCharacter(_characterQueue.Dequeue(), _stateQueue.Dequeue()));
+                    TypingUtility.Instance.Typing(_dialogQueue.Dequeue(), _textOutput);
+                    _typingCount++;
+                }
+            }
+            else
+            {
+                _icon.SetActive(false);
             }
             yield return null;
         }
+
+        StartCoroutine(ChangeScene());
     }
 
     private IEnumerator ChangeCharacter(string characterType, string characterState)
@@ -100,7 +112,7 @@ public class StorySceneManager : Singleton<StorySceneManager>
                     FadeUtlity.Instance.CallFade(0.5f, _player, EGameObjectType.UI, EFadeType.FadeOut);
                 }
                 playerSprite.color = _dialogCharacterColor;
-                //playerSprite.sprite = _playerSprites[0];
+                //playerSprite.sprite = _playerSprites[ChangeState(characterState)];
                 npcSprite.color = _grayColor;
                 creatureSprite.color = _grayColor;
                 break;
@@ -136,5 +148,38 @@ public class StorySceneManager : Singleton<StorySceneManager>
                 break;
         }
         yield return null;
+    }
+
+    private int ChangeState(string state)
+    {
+        switch (state)
+        {
+            case "IDLE":
+                return 0;
+            case "SAD":
+                return 1;
+            case "SMILE":
+                return 2;
+            case "PAIN":
+                return 3;
+        }
+
+        return -1;
+    }
+
+    private IEnumerator ChangeScene()
+    {
+        while (true)
+        {
+            if (!IsTyping)
+            {
+                _icon.SetActive(true);
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    SceneManager.LoadScene("GameScene");
+                }
+            }
+            yield return null;
+        }
     }
 }

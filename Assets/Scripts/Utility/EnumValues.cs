@@ -17,3 +17,19 @@ public enum ECharacterType
     NPC,
     Creature
 }
+
+public enum ESoundTypes
+{
+    Master,
+    Bgm,
+    Bit,
+    Interaction,
+    Interface,
+    Se
+}
+
+public enum ESettingsValue
+{
+    Off,
+    On
+}

@@ -1,10 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
+using Unity.Mathematics;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -55,10 +58,56 @@ public class Note
         rnote.position= position;   
         return rnote;  
     }
+    public static bool operator==(Note a, Note b)
+    {
+        if(a is null&& b is null)
+        {
+            return true;
+        }
+        if(a is null || b is null)
+        {
+            return false;
+        }
+        bool isSameCheck = true;
+
+            isSameCheck &= a.time == b.time;
+            isSameCheck &= a.time2 == b.time2;
+        isSameCheck &= a.image == b.image;
+        isSameCheck &= a.type == b.type;
+        return isSameCheck;
+    }
+    public static bool operator !=(Note a, Note b)
+    {  
+        if (a == b)
+        { 
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+
+    }
+    public override bool Equals(object o)
+    {
+        if(o is Note)
+        {   
+            if(this==(Note)o)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    public override int GetHashCode()
+    {
+        return time.Milliseconds;
+    }
 }
 public class Data
 {
     public XmlDocument xdocPath;
+    object pathstring;
     public Data() { }
     public Data(object path)
     {
@@ -66,8 +115,6 @@ public class Data
     }
     public void SetPath(object path)
     {
-        try
-        {
             if (xdocPath == null)
             {
                 xdocPath = new XmlDocument();
@@ -83,28 +130,26 @@ public class Data
             else if (path.GetType() == typeof(XmlReader))
             {
                 SetPath((XmlReader)path);
+               
             }
-        }
-        catch
-        {
-            xdocPath = null;
-        }
+       
     }
     public void SetPath(TextAsset path)
     {
         xdocPath.LoadXml(path.text);
-
+        pathstring = path;
     }
     public void SetPath(string path)
     {
         xdocPath.Load(path);
-        
+        pathstring = path;
     }
     public void SetPath(XmlReader reader)
     {
         xdocPath.Load(reader);
+        pathstring = reader;
     }
-    public void StringConverter(ref Note note,FieldInfo p,List<string>val)
+    public static void StringConverter(ref Note note,FieldInfo p,List<string>val)
     {
         if (val.Count > 0 && val.Count <= 3)
         {
@@ -117,17 +162,18 @@ public class Data
                 p.SetValue(note, Enum.Parse(p.FieldType, val[0]));
             }
             if (p.FieldType == typeof(Vector2))
-            {               
-                p.SetValue(note, new Vector2(float.Parse(val[0]), float.Parse(val[1])));
+            {
+                p.SetValue(note,new Vector2(float.Parse(val[0].Split(',')[0].Split('(')[1]),
+                    float.Parse(val[0].Split(',')[1].Split(')')[0])));
             }
-            if (p.FieldType == typeof(Vector3))
+            /*if (p.FieldType == typeof(Vector3))
             {
                 p.SetValue(note,new Vector3(float.Parse(val[0]), float.Parse(val[1]), float.Parse(val[2])));
-            }
-            /*if (p.FieldType == typeof(TimeSpan))
+            }*/
+            if (p.FieldType == typeof(TimeSpan))
             {
                 p.SetValue(note, TimeSpan.Parse(val[0]));
-            }*/
+            }
         }
     }
     public Note GetNote(XmlNode notetime)
@@ -141,7 +187,6 @@ public class Data
             {
                 if (notedata.Name == data.Name)
                 {
-                    object point = data.GetValue(rValue);
                     List<string> sendvalues = new List<string>();
                     if (notedata.ChildNodes.Count == 0)
                     {
@@ -197,7 +242,42 @@ public class Data
         }
             return rList;
     }
- 
+    public void ChangeNoteData(Note basenote,Note target)
+    {
+        XmlNodeList nodes = xdocPath.SelectNodes("/Note/text/time");
+        Debug.Log(target.time.ToString());
+        foreach (XmlNode notetime in nodes)
+        {
+            if(basenote==GetNote(notetime))
+            {
+                notetime.Attributes["value"].Value = target.time.ToString();
+                notetime.Attributes["value2"].Value = target.time2.ToString();
+                foreach (XmlNode notedata in notetime.ChildNodes)
+                {
+                    foreach (var data in typeof(Note).GetFields().ToList())
+                    {
+                        if (notedata.Name == data.Name)
+                        {
+                            if (notedata.ChildNodes.Count == 0)
+                            {
+                                notedata.InnerText = data.GetValue(target).ToString();
+                            }
+                            else
+                            {
+                                foreach (XmlNode childvalue in notedata.ChildNodes)
+                                {
+                                    childvalue.InnerText =(data.GetValue(target)).ToString();
+                                }
+                            }                        
+                        }
+                    }
+                }
+            }
+        }
+        //Debug.Log(AssetDatabase.GetAssetPath((TextAsset)pathstring));
+        xdocPath.Save(AssetDatabase.GetAssetPath((TextAsset)pathstring));
+
+    }
     /*private void Start()
     {
         /*foreach (var data in typeof(Note).GetFields().ToList())

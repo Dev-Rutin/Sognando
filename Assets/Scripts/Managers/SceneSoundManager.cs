@@ -13,23 +13,23 @@ public class SceneSoundManager : Singleton<SceneSoundManager>
     [Header("SFX Sound Sources")]
     // 배경음 오디오 소스
     [SerializeField] private AudioSource _bgmSource;
-    // 상태,상황 변화 알림 오디오 소스
-    [SerializeField] private AudioSource _transitionSeSource;
+    // 박자 오디오 소스
+    [SerializeField] private AudioSource _bitSeSource;
     // 플레이어 상호작용 오디오 소스
     [SerializeField] private AudioSource _interactionSeSource;
     // UI 상호작용 오디오 소스
     [SerializeField] private AudioSource _interfaceSeSource;
 
-    private void Start()
+    /*private void Start()
     {
         UpdateValue();
-    }
+    }*/
 
     // 오디오 값 갱신
-    public void UpdateValue()
+    /*public void UpdateValue()
     {
         SettingsValueManager.ApplyPlayerPrefsValues(_bgmSource, _transitionSeSource, _interactionSeSource, _interfaceSeSource);
-    }
+    }*/
 
     // 오디오 재생
     public void PlaySound(ESoundTypes Etypes, string soundKey)
@@ -43,22 +43,10 @@ public class SceneSoundManager : Singleton<SceneSoundManager>
                     _bgmSource.Play();
                 }
                 break;
-            case ESoundTypes.Interaction:
+            case ESoundTypes.Se:
                 if (_seClips.ContainsKey(soundKey))
                 {
                     _interactionSeSource.PlayOneShot(_seClips[soundKey]);
-                }
-                break;
-            case ESoundTypes.Interface:
-                if (_seClips.ContainsKey(soundKey))
-                {
-                    _interfaceSeSource.PlayOneShot(_seClips[soundKey]);
-                }
-                break;
-            case ESoundTypes.Transition:
-                if (_seClips.ContainsKey(soundKey) && !_transitionSeSource.isPlaying)
-                {
-                    _transitionSeSource.PlayOneShot(_seClips[soundKey]);
                 }
                 break;
             default:
@@ -98,7 +86,7 @@ public class SceneSoundManager : Singleton<SceneSoundManager>
                 _bgmSource.mute = false;
                 break;
             case ESoundTypes.Se:
-                _transitionSeSource.mute = false;
+                _bitSeSource.mute = false;
                 _interfaceSeSource.mute = false;
                 _interactionSeSource.mute = false;
                 break;
@@ -115,7 +103,7 @@ public class SceneSoundManager : Singleton<SceneSoundManager>
                 _bgmSource.mute = true;
                 break;
             case ESoundTypes.Se:
-                _transitionSeSource.mute = true;
+                _bitSeSource.mute = true;
                 _interfaceSeSource.mute = true;
                 _interactionSeSource.mute = true;
                 break;
@@ -127,14 +115,14 @@ public class SceneSoundManager : Singleton<SceneSoundManager>
 
     public void UnPauseSeSound()
     {
-        _transitionSeSource.UnPause();
+        _bitSeSource.UnPause();
         _interfaceSeSource.UnPause();
         _interactionSeSource.UnPause();
     }
 
     public void PauseSeSound()
     {
-        _transitionSeSource.Pause();
+        _bitSeSource.Pause();
         _interfaceSeSource.Pause();
         _interactionSeSource.Pause();
     }

@@ -1,22 +1,6 @@
 using UnityEngine;
 
 
-public enum ESoundTypes
-{
-    Master,
-    Bgm,
-    Transition,
-    Interaction,
-    Interface,
-    Se
-}
-
-public enum ESettingsValue
-{
-    Off,
-    On
-}
-
 public static class SettingsValueManager
 {
     public static void ApplyPlayerPrefsValues(AudioSource _bgm, AudioSource _transition, AudioSource _interaction, AudioSource _interface)

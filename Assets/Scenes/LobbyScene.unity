@@ -802,7 +802,7 @@ MonoBehaviour:
   _fadePenal: {fileID: 978140405}
   _fadeTime: 3
   _sceneName: StoryScene
-  _dataObject: {fileID: 0}
+  _dataObject: {fileID: 2028302534}
 --- !u!1 &202944708
 GameObject:
   m_ObjectHideFlags: 0

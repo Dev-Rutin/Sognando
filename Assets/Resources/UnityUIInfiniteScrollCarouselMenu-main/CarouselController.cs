@@ -180,6 +180,7 @@ public class CarouselController : MonoBehaviour/*, IInitializePotentialDragHandl
                     break;
                 case (int)EButtonName.Start:
                     Debug.Log("Start Button");
+                    LobbyManager.Instance.StartGame();
                     break;
                 case (int)EButtonName.Archive:
                     // enable Archive UI

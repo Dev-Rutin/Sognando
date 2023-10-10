@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.U2D;
@@ -49,7 +50,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
 
     [Header("Required Value")]
     //main system
-    [SerializeField] private Transform _buttonsTsf;
+    //[SerializeField] private Transform _buttonsTsf;
     [SerializeField] private AudioManager_s _audioManager;
     [SerializeField] private Transform _bgmSlider;
     [SerializeField] private Transform _ShowTextTsf;
@@ -65,6 +66,9 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
     [SerializeField] private GameObject _audioManagerObj;
     [SerializeField] private GameObject _enemyImageObj;
     [SerializeField] private GameObject _playerImageObj;
+    [SerializeField] private GameObject _cubeEffectObj;
+    [SerializeField] private GameObject _enemyHitEffectObj;
+    [SerializeField] private GameObject _playerAttackEffectObj;
     //cube
     [SerializeField] private GameObject _gameCubeObj;
     [SerializeField] private Transform _cubeSizeTsf;
@@ -96,7 +100,6 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
     [SerializeField] private int _curPlayerHP;
     [SerializeField] private int _curEnemyHP;
     [SerializeField] private int _curEnemyATKGauge;
-    [SerializeField] private int _curEnemyATKGaugeCount;
     [SerializeField] private int _EnemyATKGaugeCount;
     [SerializeField] private EInGameStatus _curInGameStatus;
     [SerializeField] private int _beatTimeCount;
@@ -154,9 +157,11 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         DefaultValueSetting();
         TimeSetting();
         BindSetting();
-        ButtonBind();
+        curGameStatus = EDivideGameStatus.STARTWAITTING;
+        _playerImageObj.GetComponent<SkeletonAnimation>().AnimationState.SetAnimation(0, "ready", true);
+        //ButtonBind();
         //only Test
-        UIOpen();
+        //UIOpen();
     }
     private void DefaultDataSetting()
     {
@@ -173,7 +178,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         _enemyMaxHP = _enemyMaxHP == 0 ? 6 : _enemyMaxHP;
         _arrX = _arrX == 0 ? 4 : _arrX;
         _arrY = _arrY == 0 ? 4 : _arrY;
-        _enemyAttackGaugeMax = _enemyAttackGaugeMax== 0 ? 5 : _enemyAttackGaugeMax;
+        _enemyAttackGaugeMax = _enemyAttackGaugeMax== 0 ? 3 : _enemyAttackGaugeMax;
         float xChange = _cubeSizeTsf.GetComponent<RectTransform>().rect.width / _arrX;
         float yChange = _cubeSizeTsf.GetComponent<RectTransform>().rect.height / _arrY;
         for (int i=0;i<_arrX;i++)
@@ -222,13 +227,13 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
             binddic.Add(mod, action);
         }
     }
-    private void ButtonBind()
+    /*private void ButtonBind()
     {
         foreach (Transform child in _buttonsTsf)
         {
             child.GetComponent<Button>().onClick.AddListener((UnityAction)Delegate.CreateDelegate(typeof(UnityAction), this, child.name));
         }
-    }
+    }*/
     public void MusicSetting(string name)
     {
 
@@ -379,22 +384,34 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
             //perfect
             UpdateCombo(1);
             UpdateScore(100);
+            StageDataController.Instance.perfectCount++;
         }
         else
         {
             UpdateCombo(1);
             UpdateScore(50);
             //good
-
+            StageDataController.Instance.goodCount++;
         }
     }
     private void GameStart()
     {
         if (curGameStatus == EDivideGameStatus.STARTWAITTING)
         {
+            //stage data controller
+            StageDataController.Instance.isClear = false;
+            StageDataController.Instance.maxCombo = 0;
+            StageDataController.Instance.score = 0;
+            StageDataController.Instance.perfectCount = 0;
+            StageDataController.Instance.goodCount = 0;
+            StageDataController.Instance.missCount = 0;
             //main system
+            _cubeEffectObj.GetComponent<ParticleSystem>().Stop();
+            _playerObj.transform.Find("Effect").GetComponent<ParticleSystem>().Stop();
+            _enemyHitEffectObj.GetComponent<ParticleSystem>().Stop();
+            _playerAttackEffectObj.GetComponent<ParticleSystem>().Stop();
             _gameCubeObj.GetComponent<MeshRenderer>().material = _cubeSliceMaterial;
-            _buttonsTsf.Find("GameStart").gameObject.SetActive(false);
+            //_buttonsTsf.Find("GameStart").gameObject.SetActive(false);
             MusicSetting(_curStage.ToString());
             curMainGameTime = new TimeSpan(0, 0, 0);
             curGameStatus = EDivideGameStatus.PLAYING;
@@ -452,6 +469,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         ShowText("");
         _isHPDown = false;
         _playerObj.GetComponent<Image>().color = new Vector4(0, 0, 0, 1f);
+        _playerObj.transform.Find("Effect").GetComponent<ParticleSystem>().Stop();
         switch (_curInGameStatus)
         {
             case EInGameStatus.SHOWPATH:
@@ -473,7 +491,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
                 break;
             case EInGameStatus.PLAYERMOVE:
                 _EnemyATKGaugeCount++;
-                if (_EnemyATKGaugeCount == 1)
+                if (_EnemyATKGaugeCount == 2)
                 {
                     UpdateEnemyATKGauge(1);
                     _EnemyATKGaugeCount = 0;
@@ -498,7 +516,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
                 }
                 if (!_IsInput)
                 {
-                    PlayerPositionCheck();
+                    PlayerPositionCheck(false);
                     UpdateCombo(_combo * -1);
                 }
                 break;
@@ -515,8 +533,12 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         MovePlayer(new Vector2(_playerPos.x * -1, _playerPos.y * -1));
         _curInGameStatus = EInGameStatus.TIMEWAIT;
         yield return new WaitForSeconds(time - 0.2f);
+        _cubeEffectObj.GetComponent<ParticleSystem>().Stop();
+        _cubeEffectObj.transform.Find(_curSideName.ToString()).gameObject.SetActive(false);
         EnemyHPDown();
         UpdateEnemyHP(-1);
+   
+        _enemyHitEffectObj.GetComponent<ParticleSystem>().Play();
         if (_curEnemyHP > 0)
         {
             StartCoroutine(RotateTimeLock(GetERotatePositionToVec3(_rotateTarget), _gameCubeObj));
@@ -529,9 +551,13 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
     }
     private void GameEnd()
     {
-            _audioManager.AudioStop(curMusicClip);
+        if (curGameStatus != EDivideGameStatus.END)
+        {
+            curGameStatus = EDivideGameStatus.END;
+        }
+        _audioManager.AudioStop(curMusicClip);
             StopAllCoroutines();    
-            _buttonsTsf.Find("GameStart").gameObject.SetActive(true);
+            //_buttonsTsf.Find("GameStart").gameObject.SetActive(true);
             _curInGameStatus = EInGameStatus.PLAYERMOVE;
             _IsPlayerMoveEnd = true;
             DoEnemyMode();
@@ -547,6 +573,10 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
             _rotateTarget = ERotatePosition.NONE;
             _rotateQueue.Clear();
             _curCubeMode = ECubeMode.MAINTAIN;
+        _cubeEffectObj.GetComponent<ParticleSystem>().Stop();
+        _playerObj.transform.Find("Effect").GetComponent<ParticleSystem>().Stop();
+        _enemyHitEffectObj.GetComponent<ParticleSystem>().Stop();
+        _playerAttackEffectObj.GetComponent<ParticleSystem>().Stop();
         _playerImageObj.GetComponent<SkeletonAnimation>().AnimationState.SetAnimation(0, "ready", true);
     }
     IEnumerator GameOver()
@@ -660,11 +690,16 @@ public partial class DivideCube_s : MonoBehaviour, IUI //UI
     {
         _combo += changevalue;
         _comboTsf.GetComponent<TextMeshProUGUI>().text = _combo.ToString();
+        if (StageDataController.Instance.maxCombo<_combo)
+        {
+            StageDataController.Instance.maxCombo = _combo;
+        }
     }
     public void UpdateScore(int changevalue)
     {
         _score += changevalue;
         _scoreTsf.GetComponent<TextMeshProUGUI>().text = _score.ToString();
+        StageDataController.Instance.score = _score;
     }
     public void UpdatePlayerHP(int changevalue)
     {
@@ -696,7 +731,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //UI
             UpdateCombo(_combo * -1);
             if (_curPlayerHP == 0)
             {
-                GameOver();
+                StartCoroutine(GameOver());
             }
             _isHPDown = true;
             _playerObj.GetComponent<Image>().color = new Vector4(0, 0, 0, 0.7f);
@@ -712,6 +747,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //UI
     }
     public void UpdateEnemyHP(int changevalue)
     {
+        _playerAttackEffectObj.GetComponent<ParticleSystem>().Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
         _enemyImageObj.GetComponent<SkeletonAnimation>().AnimationState.SetAnimation(0, "hit", false);
         _curEnemyHP += changevalue;
         foreach (var data in _curCubeSideStatus)
@@ -724,6 +760,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //UI
         if (_curEnemyHP <= 0)
         {
             _enemyImageObj.GetComponent<SkeletonAnimation>().AnimationState.AddAnimation(0, "death", false,0f);
+            StageDataController.Instance.isClear = true;
             StartCoroutine(GameOver());
         }
         else
@@ -734,6 +771,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //UI
     private void EnemyHPDown()
     {
         _curCubeSideStatus[_curSideName] = false;
+        StageDataController.Instance.missCount++;
     }
     public void UpdateEnemyATKGauge(int changevalue)
     {
@@ -787,6 +825,9 @@ public partial class DivideCube_s : MonoBehaviour, IUI // cube
             _rotateImageTsf.Find(_rotateTarget.ToString()).gameObject.SetActive(false);
             _playerImageObj.GetComponent<SkeletonAnimation>().AnimationState.SetAnimation(0, "attack", false);
             _playerImageObj.GetComponent<SkeletonAnimation>().AnimationState.AddAnimation(0, "idle", true, 0f);
+            _playerAttackEffectObj.GetComponent<ParticleSystem>().Play();
+            _cubeEffectObj.transform.Find(_curSideName.ToString()).gameObject.SetActive(true);
+            _cubeEffectObj.GetComponent<ParticleSystem>().Play();
             StartCoroutine(WaitTime(_curAnimationTime));
         }
     }
@@ -830,9 +871,9 @@ public partial class DivideCube_s : MonoBehaviour, IUI // cube
             IsCubeRotate = false;
             targetobj.transform.RotateAround(_gameCubeObj.transform.position, rotatedivide, Mathf.Abs(rotatedivide.x + rotatedivide.y + rotatedivide.z)-rotateIncrease);
             targetobj.transform.localEulerAngles = new Vector3(MathF.Round(targetobj.transform.localEulerAngles.x), Mathf.Round(targetobj.transform.localEulerAngles.y), Mathf.Round(targetobj.transform.localEulerAngles.z));
-            Debug.Log(targetobj.transform.eulerAngles);
             GetCubeImage();
-            _curCubeMode = ECubeMode.MAINTAIN;     
+            _curCubeMode = ECubeMode.MAINTAIN;
+            _enemyHitEffectObj.GetComponent<ParticleSystem>().Stop();
         }
     }
     void GetCubeImage()
@@ -863,7 +904,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
                     BeatJudgement();
                 }
             }
-            PlayerPositionCheck();
+            PlayerPositionCheck(true);
         }
     }
     private float playerMoveStartTime;
@@ -879,6 +920,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
         yield return new WaitForSeconds(_defaultMovingTime);
         IsPlayerMove = false;
         _playerObj.transform.localPosition = playerMoveEndPos;
+        _playerObj.transform.Find("Effect").GetComponent<ParticleSystem>().Play();
     }
     private bool PlayerMoveCheck(Vector2 pos)
     {
@@ -902,13 +944,21 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
         }
         return true;
     }
-    private void PlayerPositionCheck()
+    private void PlayerPositionCheck(bool isMoving)
     {
         if (_curEnemyMods.Contains(EEnemyMode.COIN))
         {
-            if (_cubeDatas[(int)_playerPos.x, (int)_playerPos.y].coin != null)
+            if (_cubeDatas[(int)_playerPos.x, (int)_playerPos.y].coin != null&&isMoving)
             {
-                RemoveTargetObj("coin", (int)_playerPos.x, (int)_playerPos.y);
+                _cubeDatas[(int)_playerPos.x, (int)_playerPos.y].coincount--;
+                if (_cubeDatas[(int)_playerPos.x, (int)_playerPos.y].coincount == 0)
+                {
+                    RemoveTargetObj("coin", (int)_playerPos.x, (int)_playerPos.y);
+                }
+                else
+                {
+                    _cubeDatas[(int)_playerPos.x, (int)_playerPos.y].coin.GetComponent<Image>().color = new Vector4(_cubeDatas[(int)_playerPos.x, (int)_playerPos.y].coin.GetComponent<Image>().color.r, _cubeDatas[(int)_playerPos.x, (int)_playerPos.y].coin.GetComponent<Image>().color.g, _cubeDatas[(int)_playerPos.x, (int)_playerPos.y].coin.GetComponent<Image>().color.b, 0.7f);
+                }
             }
             if (_cubeDatas[(int)_playerPos.x, (int)_playerPos.y].fire != null)
             {
@@ -989,7 +1039,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //ingame pattern
         {
             foreach (Transform data in _coinsTsf)
             {
-                data.GetComponent<Image>().color = new Vector4(data.GetComponent<Image>().color.r, data.GetComponent<Image>().color.g, data.GetComponent<Image>().color.b, 0.8f);
+                data.GetComponent<Image>().color = new Vector4(data.GetComponent<Image>().color.r, data.GetComponent<Image>().color.g, data.GetComponent<Image>().color.b, 0.9f);
             }
         }
         if (_curEnemyMods.Contains(EEnemyMode.PATH))
@@ -1024,6 +1074,10 @@ public partial class DivideCube_s : MonoBehaviour, IUI //ingame pattern
                     instObj.transform.localPosition = _cubeDatas[x, y].transform;
                     TypedReference tr = __makeref(_cubeDatas[x, y]);
                     _cubeDatas[x, y].GetType().GetField(dataName).SetValueDirect(tr, instObj);
+                    if(dataName=="coin")
+                    {
+                        _cubeDatas[x, y].coincount = 2;
+                    }
                     isCreate = true;
                 }
                 block++;
@@ -1040,6 +1094,10 @@ public partial class DivideCube_s : MonoBehaviour, IUI //ingame pattern
             {
                 Destroy((GameObject)target);
                 _cubeDatas[xpos, ypos].GetType().GetField(dataName).SetValueDirect(tr, null);
+                if (dataName == "coin")
+                {
+                    _cubeDatas[xpos, ypos].coincount = 0;
+                }
             }
         }
     }
@@ -1301,7 +1359,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //ingame pattern
                     }
                     if (_IsInput)
                     {
-                        PlayerPositionCheck();
+                        PlayerPositionCheck(false);
                     }
                 }
                 else if (_curLineAttackMod == ELineAttackMode.ATTACK)

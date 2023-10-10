@@ -52,7 +52,8 @@ public enum EEnemyMode
     COIN,
     LINEATTACK,
     LINKLINEATTACK,
-    BLOCK
+    BLOCK,
+    NEEDLEATTACK
 }
 public enum ELineAttackMode
 {

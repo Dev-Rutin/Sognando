@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+
 interface IUI
 {
     public void UIOpen();
@@ -21,7 +22,6 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
 {
     //main system
     private Dictionary<KeyCode, Action> _otherKeyBinds;
-    private bool _isBeatChecked;
     private bool _isBeatMusicChecked;
     private List<EEnemyMode> _curEnemyMods;
     private Dictionary<EEnemyMode, Action> _enemyModBinds;
@@ -99,6 +99,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
     [SerializeField] private int _score;
     [SerializeField] private int _combo;
     [SerializeField] public AudioClip curMusicClip;
+    [SerializeField] private bool _isBeatChecked;
     //cube
     [SerializeField] private ECurCubeFace _curSideName;
     [SerializeField] private ERotatePosition _rotateTarget;
@@ -115,12 +116,12 @@ public partial class DivideCube_s : MonoBehaviour, IUI  //Display
     [SerializeField] private float _beatJudgeMin;
     [SerializeField] private int _enemyAttackGaugeMax;
     //cube
-    [SerializeField] private int _defaultMovingTime;
+    [SerializeField] private float _defaultMovingTime;
     [SerializeField] private int _arrX;
     [SerializeField] private int _arrY;
     //time
     [SerializeField] private float _gameWait;
-    [SerializeField] private float _beatTime;
+    [SerializeField] private float _bpm;
 }
 public partial class DivideCube_s : MonoBehaviour, IUI //main system
 {
@@ -156,12 +157,12 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
     }
     private void DefaultValueSetting()
     {
-        _beatJudgeMax = _beatJudgeMax == 0 ? 0.95f : _beatJudgeMax;
-        _beatJudgeMin = _beatJudgeMin == 0 ? 0.70f : _beatJudgeMin;
-        _defaultMovingTime = _defaultMovingTime == 0 ? 100 : _defaultMovingTime;
+        _beatJudgeMax = _beatJudgeMax == 0 ? 0.99f : _beatJudgeMax;
+        _beatJudgeMin = _beatJudgeMin == 0 ? 0.60f : _beatJudgeMin;
+        _defaultMovingTime = _defaultMovingTime == 0 ? 0.1f : _defaultMovingTime;
         _gameWait = _gameWait == 0 ? 0.05f : _gameWait;
         _speedLoader = _speedLoader == 0 ? 1 : _speedLoader;
-        _beatTime = _beatTime == 0 ? 0.6f : _beatTime;
+        _bpm = _bpm == 0 ? 0.6f : _bpm;
         _playerMaxHP = _playerMaxHP == 0 ? 6 : _playerMaxHP;
         _enemyMaxHP = _enemyMaxHP == 0 ? 6 : _enemyMaxHP;
         _arrX = _arrX == 0 ? 4 : _arrX;
@@ -254,8 +255,49 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
     {
         curGameStatus = EDivideGameStatus.NONE;
     }
+    float lastbeat;
+    float beatIncrease;
     private void Update()
     {
+        if (curMusicClip != null)
+        {
+            if (_audioManager.curMainMusicPosition <= curMusicClip.length && curGameStatus == EDivideGameStatus.PLAYING || curGameStatus == EDivideGameStatus.PAUSE)
+            {
+                _beatCount = (float)(_audioManager.curMainMusicPosition/_bpm) - (int)(_audioManager.curMainMusicPosition/_bpm);
+                _bgmSlider.GetComponent<Slider>().value = (float)_audioManager.curMainMusicPosition / curMusicClip.length;
+                BeatShow();
+                /*if(_beatCount<=0.95f&&_beatCount>=0.92f&&_isBeatMusicChecked)
+                {
+                    //_audioManager.AudioPlay(beatClip);
+                    _isBeatMusicChecked = false;
+                }*/
+                if (_beatCount <= 0.99f && _beatCount >= 0.70f && _isBeatChecked)
+                {
+                    _isBeatChecked = false;
+                }
+                if (_beatCount >= 0.05f && _beatCount <= 0.2f && !_isBeatChecked)
+                {
+                    MoveNextBeat();
+                    _isBeatChecked = true;
+                    //_isBeatMusicChecked = true;
+                }
+            }
+            if (IsPlayerMove)
+            {
+                _playerObj.transform.localPosition = Vector2.Lerp(playerMoveStartPos, playerMoveEndPos, (_audioManager.curMainMusicPosition - playerMoveStartTime)*1/_defaultMovingTime);
+                if (_curEnemyMods.Contains(EEnemyMode.PATH) && _curMovePathShowObj.Count != 0)
+                {
+                    _movePathTsf.GetComponent<LineRenderer>().SetPosition(0, _playerObj.transform.position);
+                }
+            }
+            if (IsCubeRotate)
+            {
+                float curRotateValue = Mathf.Abs(rotatedivide.x + rotatedivide.y + rotatedivide.z) / (1 / Time.deltaTime * _defaultMovingTime);
+                    _gameCubeObj.transform.RotateAround(_gameCubeObj.transform.position, rotatedivide, curRotateValue);
+                rotateIncrease += curRotateValue;
+          
+            }
+        }
         if (curGameStatus == EDivideGameStatus.PLAYING)
         {
             if (Input.anyKeyDown)
@@ -283,7 +325,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
                                 {
                                     _cubeKeyBinds[dic.Key]();
                                     _IsInput = true;
-                                    BeatJudgement(MathF.Abs(1 - _beatCount));
+                                    BeatJudgement();
                                 }
                             }
                         }
@@ -293,9 +335,9 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
                             {
                                 if (Input.GetKey(dic.Key))
                                 {
-                                    _playerKeyBinds[dic.Key]();
                                     _IsInput = true;
-                                    BeatJudgement(MathF.Abs(1 - _beatCount));
+                                    _playerKeyBinds[dic.Key]();
+                                    BeatJudgement();
                                 }
                             }
                         }
@@ -322,9 +364,9 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
             }
         }
     }
-    public void BeatJudgement(float value)
+    public void BeatJudgement()
     {
-        if (value <= 0.15f)
+        if (_beatCount <= _beatJudgeMax - 0.05f && _beatCount >= _beatJudgeMin + 0.05f)
         {
             //perfect
             UpdateCombo(1);
@@ -388,38 +430,9 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
             _curCubeSideStatus.Add(ECurCubeFace.FIVE, true);
             _curCubeSideStatus.Add(ECurCubeFace.SIX, true);
             InitializeEnemyHP();
-            StartCoroutine(GamePlaying());
-        }
-    }
-    IEnumerator GamePlaying()
-    {
-        _audioManager.AudioPlay(curMusicClip);
-        while (curMainGameTime.TotalSeconds <= curMusicClip.length && curGameStatus == EDivideGameStatus.PLAYING || curGameStatus == EDivideGameStatus.PAUSE)
-        {
-            if (curGameStatus == EDivideGameStatus.PLAYING)
-            {
-                curMainGameTime = curMainGameTime.Add(new TimeSpan(0, 0, 0, 0, (int)(_gameWait * 1000)));
-                _bgmSlider.GetComponent<Slider>().value = (float)curMainGameTime.TotalSeconds / curMusicClip.length;
-                float curMusicTime = _audioManagerObj.GetComponent<AudioSource>().time;
-                _beatCount = (float)(curMusicTime / _beatTime) - (int)(curMusicTime / _beatTime);
-                BeatShow();
-                /*if(_beatCount<=0.95f&&_beatCount>=0.92f&&_isBeatMusicChecked)
-                {
-                    //_audioManager.AudioPlay(beatClip);
-                    _isBeatMusicChecked = false;
-                }*/
-                if(_beatCount <= 0.95f && _beatCount >= 0.70f && _isBeatChecked)
-                {
-                    _isBeatChecked = false;
-                }
-                if (_beatCount<=0.22f&&_beatCount>=0.12f&&!_isBeatChecked)
-                {
-                    MoveNextBeat();
-                    _isBeatChecked = true;
-                    //_isBeatMusicChecked = true;
-                }  
-            }
-            yield return _GameWaitWFS;
+            lastbeat = 0;
+            beatIncrease = 60/_bpm;
+            _audioManager.AudioPlay(curMusicClip);
         }
     }
     private void MoveNextBeat()
@@ -453,10 +466,6 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
                 }
                 _IsPlayerMoveEnd = PlayerMoveEndCheck();
                 DoEnemyMode();
-                if (_curEnemyATKGauge >= _enemyAttackGaugeMax)
-                {
-                    UpdateEnemyATKGauge(_curEnemyATKGauge * -1);
-                }
                 if (_IsPlayerMoveEnd&&_rotateTarget==ERotatePosition.NONE)
                 {
                     if (_rotateQueue.Count != 0)
@@ -468,6 +477,10 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
                         GetRandomeRotate();
                     }
                     StartCoroutine(RotateMode());
+                }
+                if (_curEnemyATKGauge >= _enemyAttackGaugeMax)
+                {
+                    UpdateEnemyATKGauge(_curEnemyATKGauge * -1);
                 }
                 if (!_IsInput)
                 {
@@ -487,13 +500,18 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
         _gameCubeObj.GetComponent<MeshRenderer>().material = _cubeMaterial;
         MovePlayer(new Vector2(_playerPos.x * -1, _playerPos.y * -1));
         _curInGameStatus = EInGameStatus.TIMEWAIT;
-        yield return new WaitForSeconds(time-0.2f);
-        StartCoroutine(RotateTimeLock(GetERotatePositionToVec3(_rotateTarget), _gameCubeObj, _defaultMovingTime));
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(time - 0.2f);
+        EnemyHPDown();
         UpdateEnemyHP(-1);
-        UpdatePlayerHP(1);
-        _curInGameStatus = EInGameStatus.SHOWPATH;
-        _gameCubeObj.GetComponent<MeshRenderer>().material = _cubeSliceMaterial;
+        if (_curEnemyHP > 0)
+        {
+            StartCoroutine(RotateTimeLock(GetERotatePositionToVec3(_rotateTarget), _gameCubeObj));
+            yield return new WaitForSeconds(0.2f);
+            UpdatePlayerHP(1);
+            _curInGameStatus = EInGameStatus.SHOWPATH;
+            _gameCubeObj.GetComponent<MeshRenderer>().material = _cubeSliceMaterial;
+        }
+    
     }
     private void GameEnd()
     {
@@ -508,8 +526,16 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
             DoEnemyMode();
             _curEnemyMods.Clear();
             _curCubeSideStatus.Clear();
+            _curInGameStatus = EInGameStatus.SHOWPATH;
             _gameCubeObj.transform.localEulerAngles= Vector3.zero;
             curGameStatus = EDivideGameStatus.STARTWAITTING;
+            if (_rotateTarget != ERotatePosition.NONE)
+            {
+                _rotateImageTsf.Find(_rotateTarget.ToString()).gameObject.SetActive(false);
+            }
+            _rotateTarget = ERotatePosition.NONE;
+            _rotateQueue.Clear();
+            _curCubeMode = ECubeMode.MAINTAIN;
         }
     }
     private void GameOver()
@@ -712,11 +738,12 @@ public partial class DivideCube_s : MonoBehaviour, IUI // cube
         {
             _curCubeMode = ECubeMode.ROTATE;
             _rotateImageTsf.Find(_rotateTarget.ToString()).gameObject.SetActive(true);
-            yield return new WaitForSeconds(_beatTime - 0.02f);
+            yield return new WaitForSeconds(_bpm - 0.02f);
             if (!_IsInput)
             {
                 PlayerHPDown("Don't Rotate");
             }
+            _rotateImageTsf.Find(_rotateTarget.ToString()).gameObject.SetActive(false);
             StartCoroutine(WaitTime(_curAnimationTime));
         }
     }
@@ -744,36 +771,25 @@ public partial class DivideCube_s : MonoBehaviour, IUI // cube
             PlayerHPDown("RotateMiss");
         }
     }
-    IEnumerator RotateTimeLock(Vector3 rotateposition, GameObject targetobj, int rotatetime)
+    private bool IsCubeRotate;
+    private Vector3 rotatedivide;
+    private Vector3 endRotatePos;
+    private float rotateIncrease;
+    IEnumerator RotateTimeLock(Vector3 rotateposition, GameObject targetobj)
     {
         if (_rotateTarget == GetVec3ToERotatePosition(rotateposition))
         {
-            _rotateImageTsf.Find(_rotateTarget.ToString()).gameObject.SetActive(false);
             _rotateTarget = ERotatePosition.NONE;
-            Vector3 rotatedivide = rotateposition / rotatetime;
-            WaitForSeconds Wait = new WaitForSeconds(0.1f / rotatetime);
-            float rotatevalue = 145f / rotatetime;
-            for (int i = 0; i < rotatetime; i++)
-            {
-                if (i < rotatetime / 2)
-                {
-                    _playerObj.transform.localPosition = new Vector2(_playerObj.transform.localPosition.x, _playerObj.transform.localPosition.y + rotatevalue);
-                }
-                else
-                {
-                    _playerObj.transform.localPosition = new Vector2(_playerObj.transform.localPosition.x, _playerObj.transform.localPosition.y - rotatevalue);
-                }
-                while (curGameStatus == EDivideGameStatus.PAUSE)
-                {
-                    yield return _GameWaitWFS;
-                }
-                targetobj.transform.RotateAround(targetobj.transform.position, rotatedivide, Mathf.Abs(rotatedivide.x + rotatedivide.y + rotatedivide.z));
-                yield return Wait;
-            }
-            targetobj.transform.localEulerAngles = new Vector3(MathF.Round(targetobj.transform.localEulerAngles.x), MathF.Round(targetobj.transform.localEulerAngles.y), MathF.Round(targetobj.transform.localEulerAngles.z));
-            EnemyHPDown();
+            rotatedivide =  rotateposition;
+            rotateIncrease = 0;
+            IsCubeRotate = true;
+            yield return new WaitForSeconds(_defaultMovingTime); 
+            IsCubeRotate = false;
+            targetobj.transform.RotateAround(_gameCubeObj.transform.position, rotatedivide, Mathf.Abs(rotatedivide.x + rotatedivide.y + rotatedivide.z)-rotateIncrease);
+            targetobj.transform.localEulerAngles = new Vector3(MathF.Round(targetobj.transform.localEulerAngles.x), Mathf.Round(targetobj.transform.localEulerAngles.y), Mathf.Round(targetobj.transform.localEulerAngles.z));
+            Debug.Log(targetobj.transform.eulerAngles);
             GetCubeImage();
-            _curCubeMode = ECubeMode.MAINTAIN;
+            _curCubeMode = ECubeMode.MAINTAIN;     
         }
     }
     void GetCubeImage()
@@ -798,32 +814,24 @@ public partial class DivideCube_s : MonoBehaviour, IUI //player
             _playerPos.y = _playerPos.y > _arrY - 1 ? _arrY - 1 : _playerPos.y;
             if (_playerPos != previouspos)
             {
-                StartCoroutine(MoveTimeLock(_cubeDatas[(int)_playerPos.x, (int)_playerPos.y].transform, _playerObj, _defaultMovingTime));
+                StartCoroutine(MoveTimeLock(_cubeDatas[(int)_playerPos.x, (int)_playerPos.y].transform, _playerObj));
             }
             PlayerPositionCheck();
         }
     }
-    IEnumerator MoveTimeLock(Vector2 moveposition, GameObject targetobj, int rotatetime)
+    private float playerMoveStartTime;
+    private Vector2 playerMoveStartPos;
+    private Vector2 playerMoveEndPos;
+    private bool IsPlayerMove;
+    IEnumerator MoveTimeLock(Vector2 moveposition, GameObject targetobj)
     {
-        Vector2 movedividepos = new Vector2(
-        (moveposition.x - targetobj.transform.localPosition.x) / rotatetime,
-        (moveposition.y - targetobj.transform.localPosition.y) / rotatetime
-        );
-        WaitForSeconds Wait = new WaitForSeconds(0.1f / rotatetime);
-        for (int i = 0; i < rotatetime; i++)
-        {
-            while (curGameStatus == EDivideGameStatus.PAUSE)
-            {
-                yield return _GameWaitWFS;
-            }
-            targetobj.transform.localPosition = new Vector2(targetobj.transform.localPosition.x + movedividepos.x, targetobj.transform.localPosition.y + movedividepos.y);
-            if (_curEnemyMods.Contains(EEnemyMode.PATH)&&_curMovePathShowObj.Count!=0)
-            {
-                _movePathTsf.GetComponent<LineRenderer>().SetPosition(0, targetobj.transform.position);
-            }
-            yield return Wait;
-        }
-        targetobj.transform.localPosition = moveposition;
+        playerMoveStartTime = _audioManager.curMainMusicPosition;
+        playerMoveStartPos = targetobj.transform.localPosition;
+        playerMoveEndPos = moveposition;
+        IsPlayerMove = true;    
+        yield return new WaitForSeconds(_defaultMovingTime);
+        IsPlayerMove = false;
+        _playerObj.transform.localPosition = playerMoveEndPos;
     }
     private bool PlayerMoveCheck(Vector2 pos)
     {

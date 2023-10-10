@@ -1359,8 +1359,8 @@ Transform:
   m_GameObject: {fileID: 576613781}
   serializedVersion: 2
   m_LocalRotation: {x: 1, y: -0, z: -0, w: -0.00000008940697}
-  m_LocalPosition: {x: 0, y: 0, z: 2}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalPosition: {x: 0, y: 0, z: 0.519}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 464304351}
@@ -2620,8 +2620,8 @@ Transform:
   m_GameObject: {fileID: 1195887783}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071067, z: 0.7071068, w: 0}
-  m_LocalPosition: {x: 0, y: -2, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalPosition: {x: 0, y: -0.524, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 464304351}
@@ -2703,13 +2703,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1255585616}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071067}
-  m_LocalPosition: {x: 0, y: 2, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0.564, z: -0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 464304351}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!65 &1255585618
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2889,8 +2889,8 @@ Transform:
   m_GameObject: {fileID: 1481191804}
   serializedVersion: 2
   m_LocalRotation: {x: 0.50000006, y: 0.49999997, z: 0.50000006, w: 0.49999997}
-  m_LocalPosition: {x: 2, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalPosition: {x: 0.504, y: 0, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 464304351}
@@ -2942,8 +2942,8 @@ Transform:
   m_GameObject: {fileID: 1535487885}
   serializedVersion: 2
   m_LocalRotation: {x: 0.00000008940697, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -2}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalPosition: {x: 0, y: 0, z: -0.535}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 464304351}
@@ -2995,8 +2995,8 @@ Transform:
   m_GameObject: {fileID: 1548371096}
   serializedVersion: 2
   m_LocalRotation: {x: 0.50000006, y: -0.49999997, z: -0.50000006, w: 0.49999997}
-  m_LocalPosition: {x: -2, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalPosition: {x: -0.507, y: 0, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 464304351}
@@ -4611,6 +4611,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 940c4c68b3cab114c939b3fd3808bacc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  curMainMusicPosition: 0
+  mainMusicStartPosition: 0
+  musicSpeed: 0
 --- !u!222 &3901302379072071557
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5438,11 +5441,12 @@ MonoBehaviour:
   _score: 0
   _combo: 0
   curMusicClip: {fileID: 0}
+  _isBeatChecked: 0
   _curSideName: 0
   _rotateTarget: 0
   _playerPos: {x: 0, y: 0}
   _curLineAttackMod: 0
-  _playerMaxHP: 1000
+  _playerMaxHP: 6
   _enemyMaxHP: 0
   _beatJudgeMax: 0
   _beatJudgeMin: 0
@@ -5451,7 +5455,7 @@ MonoBehaviour:
   _arrX: 4
   _arrY: 4
   _gameWait: 0.03
-  _beatTime: 0.6
+  _bpm: 0.6
 --- !u!1 &7556858528087196369
 GameObject:
   m_ObjectHideFlags: 0

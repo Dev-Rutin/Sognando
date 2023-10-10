@@ -6,6 +6,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 
@@ -394,7 +395,7 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
             StageDataController.Instance.goodCount++;
         }
     }
-    private void GameStart()
+    public void GameStart()
     {
         if (curGameStatus == EDivideGameStatus.STARTWAITTING)
         {
@@ -556,28 +557,29 @@ public partial class DivideCube_s : MonoBehaviour, IUI //main system
             curGameStatus = EDivideGameStatus.END;
         }
         _audioManager.AudioStop(curMusicClip);
-            StopAllCoroutines();    
-            //_buttonsTsf.Find("GameStart").gameObject.SetActive(true);
-            _curInGameStatus = EInGameStatus.PLAYERMOVE;
-            _IsPlayerMoveEnd = true;
-            DoEnemyMode();
-            _curEnemyMods.Clear();
-            _curCubeSideStatus.Clear();
-            _curInGameStatus = EInGameStatus.SHOWPATH;
-            _gameCubeObj.transform.localEulerAngles= Vector3.zero;
-            curGameStatus = EDivideGameStatus.STARTWAITTING;
-            if (_rotateTarget != ERotatePosition.NONE)
-            {
-                _rotateImageTsf.Find(_rotateTarget.ToString()).gameObject.SetActive(false);
-            }
-            _rotateTarget = ERotatePosition.NONE;
-            _rotateQueue.Clear();
-            _curCubeMode = ECubeMode.MAINTAIN;
+        StopAllCoroutines();    
+        //_buttonsTsf.Find("GameStart").gameObject.SetActive(true);
+        _curInGameStatus = EInGameStatus.PLAYERMOVE;
+        _IsPlayerMoveEnd = true;
+        DoEnemyMode();
+        _curEnemyMods.Clear();
+        _curCubeSideStatus.Clear();
+        _curInGameStatus = EInGameStatus.SHOWPATH;
+        _gameCubeObj.transform.localEulerAngles= Vector3.zero;
+        curGameStatus = EDivideGameStatus.STARTWAITTING;
+        if (_rotateTarget != ERotatePosition.NONE)
+        {
+            _rotateImageTsf.Find(_rotateTarget.ToString()).gameObject.SetActive(false);
+        }
+        _rotateTarget = ERotatePosition.NONE;
+        _rotateQueue.Clear();
+        _curCubeMode = ECubeMode.MAINTAIN;
         _cubeEffectObj.GetComponent<ParticleSystem>().Stop();
         _playerObj.transform.Find("Effect").GetComponent<ParticleSystem>().Stop();
         _enemyHitEffectObj.GetComponent<ParticleSystem>().Stop();
         _playerAttackEffectObj.GetComponent<ParticleSystem>().Stop();
         _playerImageObj.GetComponent<SkeletonAnimation>().AnimationState.SetAnimation(0, "ready", true);
+        SceneManager.LoadScene("ResultScene");
     }
     IEnumerator GameOver()
     {

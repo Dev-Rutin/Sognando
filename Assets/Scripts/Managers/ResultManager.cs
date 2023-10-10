@@ -2,18 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ResultManager : MonoBehaviour
 {
     [Header("Score")] 
     [SerializeField] private float _textFadeTime;
-    [SerializeField] private TextMeshPro _clearText;
-    [SerializeField] private TextMeshPro _rankText;
-    [SerializeField] private TextMeshPro _scoreText;
-    [SerializeField] private TextMeshPro _maxComboText;
-    [SerializeField] private TextMeshPro _perfectText;
-    [SerializeField] private TextMeshPro _goodText;
-    [SerializeField] private TextMeshPro _missText;
+    [SerializeField] private TextMeshProUGUI _clearText;
+    [SerializeField] private TextMeshProUGUI _rankText;
+    [SerializeField] private TextMeshProUGUI _scoreText;
+    [SerializeField] private TextMeshProUGUI _maxComboText;
+    [SerializeField] private TextMeshProUGUI _perfectText;
+    [SerializeField] private TextMeshProUGUI _goodText;
+    [SerializeField] private TextMeshProUGUI _missText;
     
     [Header("SceneFade")]
     [SerializeField] private float _fadeTime;
@@ -35,8 +36,9 @@ public class ResultManager : MonoBehaviour
         _perfectText.text = StageDataController.Instance.perfectCount.ToString();
         _goodText.text = StageDataController.Instance.goodCount.ToString();
         _missText.text = StageDataController.Instance.missCount.ToString();
-        
+        _isPenalFading = true;
         FadeUtlity.Instance.CallFade(_fadeTime, _fadePenal, EGameObjectType.UI, EFadeType.FadeIn);
+        
     }
 
     // Update is called once per frame
@@ -44,7 +46,8 @@ public class ResultManager : MonoBehaviour
     {
         if (_isPenalFading && !_isTextFading && Input.GetKeyDown(KeyCode.Return))
         {
-            
+            SceneManager.LoadScene("GameScene");
         }
     }
+    
 }

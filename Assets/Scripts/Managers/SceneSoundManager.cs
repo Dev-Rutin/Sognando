@@ -54,6 +54,25 @@ public class SceneSoundManager : Singleton<SceneSoundManager>
                 break;
         }
     }
+    
+    public void StopSound(ESoundTypes Etypes)
+    {
+        switch(Etypes)
+        {
+            case ESoundTypes.Bgm:
+                _bgmSource.Stop();
+                break;
+            case ESoundTypes.Se:
+                /*if (_seClips.ContainsKey(soundKey))
+                {
+                    _interactionSeSource.PlayOneShot(_seClips[soundKey]);
+                }*/
+                break;
+            default:
+                Debug.LogError("Check Select AudioSource is Null or " + Etypes + " Has Sound Clips");
+                break;
+        }
+    }
 
     // 오디오 클립 저장
     public void RegistBgm(string sceneBgmName, AudioClip bgm)

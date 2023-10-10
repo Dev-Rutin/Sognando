@@ -21,7 +21,7 @@ public class SoundUtility : Singleton<SoundUtility>
 
     private void Start()
     {
-        
+        DontDestroyOnLoad(gameObject);
     }
 
     public void PlaySound(ESoundTypes types, string soundKey)
@@ -55,6 +55,25 @@ public class SoundUtility : Singleton<SoundUtility>
                 break;
             default:
                 Debug.LogError("Check Select AudioSource is Null or " + soundKey + " Has Sound Clips");
+                break;
+        }
+    }
+    
+    public void StopSound(ESoundTypes Etypes)
+    {
+        switch(Etypes)
+        {
+            case ESoundTypes.Bgm:
+                _bgmSource.Stop();
+                break;
+            case ESoundTypes.Se:
+                /*if (_seClips.ContainsKey(soundKey))
+                {
+                    _interactionSeSource.PlayOneShot(_seClips[soundKey]);
+                }*/
+                break;
+            default:
+                Debug.LogError("Check Select AudioSource is Null or " + Etypes + " Has Sound Clips");
                 break;
         }
     }

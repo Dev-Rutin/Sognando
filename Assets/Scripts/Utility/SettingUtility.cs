@@ -23,6 +23,8 @@ public class SettingUtility : Singleton<SettingUtility>
             Debug.Log(group.name);
         }
         Debug.Log(_mixerGroupList.Count);*/
+        
+        
         _closeButton.onClick.AddListener(() => CloseSetting(gameObject));
         _sliders = _soundMenu.GetComponentsInChildren<Slider>();
         int i = 0;

@@ -20,14 +20,6 @@ public enum ECubeObjStatus
     ROTATION,
     PRESS
 }
-public interface IAudio
-{
-    public void AudioPlay(AudioClip clip);
-    public void AudioStop(AudioClip clip);
-    public void AudioPause();
-    public void AudioUnPause(TimeSpan time);
-    public void ChangeVolume(float volume);
-}
 public partial class MainGame_s : MonoBehaviour  //Display
 {
     //main system

@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="NoteBase"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+>
+<xs:element name="Note">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element name="text">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="time" maxOccurs ="unbounded">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="image">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:enumeration value ="DEFAULT"/>
+                       <xs:enumeration value ="UP"/>
+                       <xs:enumeration value ="DOWN"/>
+                        <xs:enumeration value ="LEFT"/>
+                        <xs:enumeration value ="RIGHT"/>
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="type">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:enumeration value ="DEFAULT"/>
+                        <xs:enumeration value ="LONG"/>
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="position">
+                    <xs:simpleType>
+                      <xs:restriction base = "xs:string">
+                        <xs:pattern value ="\(-?\d{1,},-?\d{1,}\)" >
+                        </xs:pattern>
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  </xs:sequence>
+                <xs:attribute name="value" type="xs:time"/>
+                <xs:attribute name="value2" type="xs:time"/>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+</xs:schema>

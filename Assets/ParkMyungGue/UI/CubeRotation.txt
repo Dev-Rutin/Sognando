@@ -1,0 +1,78 @@
+ void Update()
+ {
+     if (Input.anyKeyDown)
+     {
+         foreach (var dic in KeyBinds)
+         {
+             if (Input.GetKey(dic.Key) && !KeyPressCheck.Contains(dic.Key))
+             {
+
+                 if (KeyPressCheck.Count != 0)
+                 {
+                     GameCube.transform.localEulerAngles = new Vector3(0, 0, 0);
+                 }
+                 KeyBinds[dic.Key]();
+                 KeyPressCheck.Add(dic.Key);
+                 CenterCheck = false;
+             }
+         }
+     }
+     if (!CenterCheck)
+         PressCheck();
+ }
+ bool CenterCheck;
+ IEnumerator previousCoroutine;
+ void RotateCube(Vector3 rotateposition, Cube_Note_Status setstatus)
+ {
+     if (previousCoroutine != RotateTimeLock(rotateposition, GameCube, setstatus))
+     {
+
+         if (IsMoving)
+         {
+             StopCoroutine(previousCoroutine);
+             if (rotateposition != Vector3.zero)
+                 GameCube.transform.localEulerAngles = new Vector3(0, 0, 0);
+         }
+
+         previousCoroutine = RotateTimeLock(rotateposition, GameCube, setstatus);
+         StartCoroutine(previousCoroutine);
+     }
+ }
+ IEnumerator RotateTimeLock(Vector3 rotateposition, GameObject targetobj, Cube_Note_Status setstatus)
+ {
+     IsMoving = true;
+     CurCubeStatus = Cube_Note_Status.NONE;
+     Vector3 rotatepos = new Vector3((rotateposition.x - targetobj.transform.eulerAngles.x) / 100, (rotateposition.y - targetobj.transform.eulerAngles.y) / 100, (rotateposition.z - targetobj.transform.eulerAngles.z) / 100);
+     if ((targetobj.transform.rotation.w < 0 && KeyPressCheck.Count == 0) || targetobj.transform.rotation.x < 0 || targetobj.transform.rotation.y < 0 || targetobj.transform.rotation.z < 0)
+     {
+         rotatepos = new Vector3(targetobj.transform.eulerAngles.x > 0 ? (360 - rotateposition.x - targetobj.transform.eulerAngles.x) / 100 : rotateposition.x - targetobj.transform.eulerAngles.x,
+             targetobj.transform.eulerAngles.y > 0 ? (360 - rotateposition.y - targetobj.transform.eulerAngles.y) / 100 : rotateposition.y - targetobj.transform.eulerAngles.y,
+             targetobj.transform.eulerAngles.z > 0 ? (360 - rotateposition.z - targetobj.transform.eulerAngles.z) / 100 : rotateposition.z - targetobj.transform.eulerAngles.z
+             );
+
+     }
+     for (int i = 0; i < 100; i++)
+     {
+         targetobj.transform.Rotate(rotatepos);
+         yield return Wait;
+     }
+     targetobj.transform.localEulerAngles = new Vector3(MathF.Round(targetobj.transform.localEulerAngles.x), MathF.Round(targetobj.transform.localEulerAngles.y), MathF.Round(targetobj.transform.localEulerAngles.z));
+     IsMoving = false;
+     CurCubeStatus = setstatus;
+ }
+ void PressCheck()
+ {
+     var checktemp = new List<KeyCode>(KeyPressCheck);
+     foreach (var keylist in checktemp)
+     {
+         if (!Input.GetKey(keylist))
+         {
+             KeyPressCheck.Remove(keylist);
+         }
+     }
+     if (KeyPressCheck.Count == 0)
+     {
+         RotateCube(Vector3.zero, Cube_Note_Status.DEFAULT);
+         CenterCheck = true;
+     }
+ }

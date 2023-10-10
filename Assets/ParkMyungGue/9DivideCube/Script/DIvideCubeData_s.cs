@@ -6,6 +6,7 @@ public struct CubeData
     public Vector2 position;
     public Vector2 transform;
     public GameObject coin;
+    public int coincount;
     public GameObject fire;
     public GameObject path;
     public GameObject wall;
@@ -21,6 +22,7 @@ public struct CubeData
         wall = null;
         lineAttack = null;
         linkLineAttack = null;
+        coincount = 0;
     }
     public bool isCanMakeCheck(bool isStack, string dataName)
     {

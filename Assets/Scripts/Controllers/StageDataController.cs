@@ -1,7 +1,8 @@
 using UnityEngine;
 
-public class StageDataController : MonoBehaviour
+public class StageDataController : Singleton<StageDataController>
 {
+    public bool isClear;
     public int stage;
     public int score;
     public int maxCombo;

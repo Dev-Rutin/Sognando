@@ -88,6 +88,7 @@ public class StorySceneManager : Singleton<StorySceneManager>
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
                     _icon.SetActive(false);
+                    _textOutput.text = "";
                     yield return StartCoroutine(ChangeCharacter(_characterQueue.Dequeue(), _stateQueue.Dequeue()));
                     TypingUtility.Instance.Typing(_dialogQueue.Dequeue(), _textOutput);
                     _typingCount++;

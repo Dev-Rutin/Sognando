@@ -1,9 +1,0 @@
-Stage,Character,State,Dialog
-1,Player,IDLE,"""플레이어 대사1"""
-1,Player,PAIN,"""플레이어 대사2"""
-1,NPC,SAD,"""NPC대사 1"""
-1,NPC,SMILE,"""NPC대사 2"""
-1,Player,SMILE,"""플레이어 대사3"""
-1,NPC,SMILE,"""NPC대사 3"""
-1,Creature,IDLE,"""몬스터 대사1"""
-1,Narrator,IDLE,"""내레이션 대사1"""

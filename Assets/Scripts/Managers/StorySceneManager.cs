@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -13,9 +14,10 @@ public class StorySceneManager : Singleton<StorySceneManager>
     [SerializeField] private GameObject _player;
     [SerializeField] private GameObject _npc;
     [SerializeField] private GameObject _creature;
-    [SerializeField] private Sprite[] _playerSprites;
-    [SerializeField] private Sprite[] _npcSprites;
-    [SerializeField] private Sprite[] _creatureSprites;
+    [SerializeField] private GameObject _background;
+    [SerializeField] private GameObject _backgroundWithCharacter;
+    [SerializeField] private GameObject _backgroundZoomIn;
+    [SerializeField] private GameObject _storyDataObject;
     private Queue<string> _dialogQueue;
     private Queue<string> _characterQueue;
     private Queue<string> _stateQueue;
@@ -27,15 +29,18 @@ public class StorySceneManager : Singleton<StorySceneManager>
     [SerializeField] private TextMeshProUGUI _textOutput;
     [SerializeField] private float _textDelayTime;
     [SerializeField] private GameObject _icon;
+    [SerializeField] private float _backgroundFadeTime;
     private int _typingCount = 0;
     public bool IsTyping { get; set; }
 
     private bool _isStoryStart;
+
+    private bool _isFading;
     // Start is called before the first frame update
     void Start()
     {
         IsTyping = false;
-        List<Dictionary<string, object>> csvRead = CSVReader.Read("Stage1Story");
+        List<Dictionary<string, object>> csvRead = CSVReader.Read("StoryStage1");
         _dialogQueue = new Queue<string>();
         _characterQueue = new Queue<string>();
         _stateQueue = new Queue<string>();
@@ -82,14 +87,31 @@ public class StorySceneManager : Singleton<StorySceneManager>
                 _icon.SetActive(true);
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
+                    _icon.SetActive(false);
+                    _textOutput.text = "";
                     yield return StartCoroutine(ChangeCharacter(_characterQueue.Dequeue(), _stateQueue.Dequeue()));
                     TypingUtility.Instance.Typing(_dialogQueue.Dequeue(), _textOutput);
                     _typingCount++;
+                    switch (_typingCount)
+                    {
+                        case 3:
+                            FadeUtlity.Instance.CallFade(_backgroundFadeTime, _backgroundWithCharacter, EGameObjectType.UI, EFadeType.FadeOut);
+                            yield return new WaitWhile(() => Math.Abs(_backgroundWithCharacter.GetComponent<CanvasGroup>().alpha - 1) > 0);
+                            break;
+                        case 5:
+                            FadeUtlity.Instance.CallFade(_backgroundFadeTime, _backgroundZoomIn, EGameObjectType.UI, EFadeType.FadeOut);
+                            yield return new WaitWhile(() => Math.Abs(_backgroundZoomIn.GetComponent<CanvasGroup>().alpha - 1) > 0);
+                            break;
+                        case 8:
+                            FadeUtlity.Instance.CallFade(_backgroundFadeTime, _backgroundZoomIn, EGameObjectType.UI, EFadeType.FadeIn);
+                            yield return new WaitWhile(() => _backgroundZoomIn.GetComponent<CanvasGroup>().alpha != 0);
+                            break;
+                        case 10:
+                            FadeUtlity.Instance.CallFade(_backgroundFadeTime, _backgroundWithCharacter, EGameObjectType.UI, EFadeType.FadeIn);
+                            yield return new WaitWhile(() => _backgroundWithCharacter.GetComponent<CanvasGroup>().alpha != 0);
+                            break;
+                    }
                 }
-            }
-            else
-            {
-                _icon.SetActive(false);
             }
             yield return null;
         }
@@ -111,6 +133,8 @@ public class StorySceneManager : Singleton<StorySceneManager>
                     _player.SetActive(true);
                     FadeUtlity.Instance.CallFade(0.5f, _player, EGameObjectType.UI, EFadeType.FadeOut);
                 }
+                _textOutput.horizontalAlignment = HorizontalAlignmentOptions.Left;
+                _textOutput.verticalAlignment = VerticalAlignmentOptions.Top;
                 playerSprite.color = _dialogCharacterColor;
                 //playerSprite.sprite = _playerSprites[ChangeState(characterState)];
                 npcSprite.color = _grayColor;
@@ -122,6 +146,8 @@ public class StorySceneManager : Singleton<StorySceneManager>
                     _npc.SetActive(true);
                     FadeUtlity.Instance.CallFade(0.5f, _npc, EGameObjectType.UI, EFadeType.FadeOut);
                 }
+                _textOutput.horizontalAlignment = HorizontalAlignmentOptions.Left;
+                _textOutput.verticalAlignment = VerticalAlignmentOptions.Top;
                 playerSprite.color = _grayColor;
                 npcSprite.color = _dialogCharacterColor;
                 //npcSprite.sprite = _npcSprites[0];
@@ -133,13 +159,16 @@ public class StorySceneManager : Singleton<StorySceneManager>
                     _creature.SetActive(true);
                     FadeUtlity.Instance.CallFade(0.5f, _creature, EGameObjectType.UI, EFadeType.FadeOut);
                 }
+                _textOutput.horizontalAlignment = HorizontalAlignmentOptions.Right;
+                _textOutput.verticalAlignment = VerticalAlignmentOptions.Top;
                 playerSprite.color = _grayColor;
                 npcSprite.color = _grayColor;
                 creatureSprite.color = _dialogCharacterColor;
                 //creatureSprite.sprite = _creatureSprites[0];
                 break;
             case "Narrator":
-                
+                _textOutput.horizontalAlignment = HorizontalAlignmentOptions.Center;
+                _textOutput.verticalAlignment = VerticalAlignmentOptions.Middle;
                 playerSprite.color = _grayColor;
                 npcSprite.color = _grayColor;
                 creatureSprite.color = _grayColor;

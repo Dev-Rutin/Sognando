@@ -17,6 +17,7 @@ public class StartSceneManager : MonoBehaviour
     {
         FadeUtlity.Instance.CallFade(_fadeTime, _fade, EGameObjectType.UI, EFadeType.FadeIn);
         FadeUtlity.Instance.BlinkUI(_fadeTime, _startText);
+        SoundUtility.Instance.PlaySound(ESoundTypes.Bgm, SceneSoundNames.INTRO_BGM);
     }
 
     private void Update()

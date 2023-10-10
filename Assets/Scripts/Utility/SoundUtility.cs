@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoundUtility : MonoBehaviour
+public class SoundUtility : Singleton<SoundUtility>
 {
     private readonly Dictionary<string, AudioClip> _bgmClips = new Dictionary<string, AudioClip>();
     private readonly Dictionary<string, AudioClip> _seClips = new Dictionary<string, AudioClip>();

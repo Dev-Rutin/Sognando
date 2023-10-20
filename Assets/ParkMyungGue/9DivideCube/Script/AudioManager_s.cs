@@ -4,20 +4,21 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Unity.VisualScripting;
 using UnityEngine;
-public interface IAudio
+/*public interface IAudio
 {
     public void AudioPlay(AudioClip clip);
     public void AudioStop(AudioClip clip);
     public void AudioPause();
     public void AudioUnPause(TimeSpan time);
     public void ChangeVolume(float volume);
-}
+}*/
 public partial class AudioManager_s : MonoBehaviour,IAudio
 {
     public Dictionary<AudioClip, AudioSource> _audioDic;
     void Start()
     {
-        _audioDic = new Dictionary<AudioClip, AudioSource>(); 
+        _audioDic = new Dictionary<AudioClip, AudioSource>();
+        inputDelay = 0;
     }
     public void AudioPlay(AudioClip clip)
     {
@@ -66,11 +67,12 @@ public partial class AudioManager_s : MonoBehaviour, IAudio //audio system
     public float curMainMusicPosition;
     public float mainMusicStartPosition;
     public float musicSpeed;
+    public float inputDelay;
     private void Update()
     {
         if (_audioDic.Count != 0)
         {
-            curMainMusicPosition= (float)(AudioSettings.dspTime-mainMusicStartPosition);
+            curMainMusicPosition= (float)(AudioSettings.dspTime-mainMusicStartPosition)+inputDelay;
         }
     }
 }

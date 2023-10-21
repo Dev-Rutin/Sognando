@@ -68,8 +68,8 @@ Material:
     - _EnableExternalAlpha: 0
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _alpha_tex01_power: 0.25
-    - _alpha_tex02_power: 0.05
+    - _alpha_tex01_power: 2
+    - _alpha_tex02_power: 0.2
     m_Colors:
     - _Color: {r: 4.275707, g: 2.7643976, b: 7.999999, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}

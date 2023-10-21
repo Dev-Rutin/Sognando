@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_001
+  m_Name: M_007
   m_Shader: {fileID: -6465566751694194690, guid: 3fefd707e310dab45a60f9b0c65158dd, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -68,8 +68,8 @@ Material:
     - _EnableExternalAlpha: 0
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _alpha_tex01_power: 0.25
-    - _alpha_tex02_power: 0.05
+    - _alpha_tex01_power: 0.8
+    - _alpha_tex02_power: 0.1
     m_Colors:
     - _Color: {r: 4.275707, g: 2.7643976, b: 7.999999, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}

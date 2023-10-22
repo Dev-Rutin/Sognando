@@ -33,6 +33,7 @@ using UnityEngine.UI;
     public float lastBeatStartScaleX;
     public bool IsBeatObjCreate;
     public bool IsSecondBeatObjCreate;
+    public bool IsGameRestart;
     //cube
     private Queue<ERotatePosition> _rotateQueue;
     public ECubeFace curFace; 
@@ -78,6 +79,7 @@ public partial class InGameManager_s //data
 {
     private void Awake()
     {
+        //Application.targetFrameRate=20;
         _inGameData_s.DefaultDataSetting();
         _inGameMusicManager_s.ScriptBind(this);
         _inGameMusicManager_s.DefaultDataSetting();
@@ -112,6 +114,7 @@ public partial class InGameManager_s //data
         lastBeatStartScaleX = 0f;
         IsBeatObjCreate = false;
         IsSecondBeatObjCreate = false;
+        IsGameRestart = false;
         //cube
         _rotateQueue = new Queue<ERotatePosition>();
         _rotateTarget = ERotatePosition.NONE;
@@ -267,6 +270,7 @@ public partial class InGameManager_s //main system
     }
     private void GameEnd()
     {
+        IsGameRestart = true;
         _inGameMusicManager_s.GameEnd();
         curGameStatus = EGameStatus.END;
         StopAllCoroutines();

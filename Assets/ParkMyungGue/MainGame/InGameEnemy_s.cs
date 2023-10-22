@@ -26,6 +26,7 @@ public partial class InGameEnemy_s : MonoBehaviour,IInGame,IDataSetting,IScript 
     private Dictionary<GameObject, ELineAttackMode> _curLinkLineAttackDic;
     private Queue<GameObject> _curLinkLIneAttackQueue;
     private ELineAttackMode _curLineAttackMod;
+    public bool isEnemyPhase;
     public void ScriptBind(InGameManager_s gameManager)
     {
         _inGameManager_s = gameManager;
@@ -45,6 +46,7 @@ public partial class InGameEnemy_s : MonoBehaviour,IInGame,IDataSetting,IScript 
         _curEnemyATKGauge = 0;
         _enemyATKGaugeCount = 0;
         //attack pattern
+        isEnemyPhase = false;
         isEnemyPhaseEnd = false;
         _enemyModBinds = new Dictionary<EEnemyMode, Action>();
         BindSetting();
@@ -86,12 +88,13 @@ public partial class InGameEnemy_s //game system
         _curLinkLineAttackDic.Clear();
         _curLinkLIneAttackQueue.Clear();
         _curLineAttackMod = ELineAttackMode.NONE;
+        isEnemyPhase = false;
         isEnemyPhaseEnd = false;
         //enemy pattern test
         curEnemyMods.Clear();
         curEnemyMods.Add(EEnemyMode.COIN);
         curEnemyMods.Add(EEnemyMode.LINKLINEATTACK);
-        //curEnemyMods.Add(EEnemyMode.LINEATTACK);
+        curEnemyMods.Add(EEnemyMode.LINEATTACK);
         //_curEnemyMods.Add(EEnemyMode.BLOCK);
         //_curEnemyMods.Add(EEnemyMode.PATH);
 
@@ -117,7 +120,8 @@ public partial class InGameEnemy_s //game system
             case EInGameStatus.PLAYERMOVE:
                 isEnemyPhaseEnd = EnemyPhaseEndCheck();
                 PlayerPositionCheck(_inGameManager_s.GetPlayerPos(),false);
-                if (!isEnemyPhaseEnd)
+                isEnemyPhase = EnemyPhaseCheck();
+                if (!isEnemyPhaseEnd&&!isEnemyPhase)
                 {
                     _enemyATKGaugeCount++;
                     if (_enemyATKGaugeCount == 2)
@@ -149,6 +153,28 @@ public partial class InGameEnemy_s //game system
             default:
                 break;
         }
+    }
+    public bool EnemyPhaseCheck()
+    {
+        foreach(var data in curEnemyMods)
+        {
+            switch(data)
+            {
+                case EEnemyMode.LINEATTACK:
+                    if (_inGameData_s.lineAttackTsf.childCount != 0)
+                    {
+                        return true;
+                    }
+                    break;
+                case EEnemyMode.LINKLINEATTACK:
+                    if (_inGameData_s.linkLineAttackTsf.childCount != 0)
+                    {
+                        return true;
+                    }
+                    break;
+            }
+        }
+        return false;
     }
     public bool EnemyPhaseEndCheck()
     {

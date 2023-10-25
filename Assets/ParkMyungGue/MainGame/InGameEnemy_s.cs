@@ -2,7 +2,7 @@ using Spine.Unity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Burst.Intrinsics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,10 +23,17 @@ public partial class InGameEnemy_s : MonoBehaviour,IInGame,IDataSetting,IScript 
     private List<Vector2> _movePathCheckList;
     public Queue<Vector2> playerMovePathQueue;
     public Queue<GameObject> curMovePathShowObj;
-    private Dictionary<GameObject, ELineAttackMode> _curLinkLineAttackDic;
-    private Queue<GameObject> _curLinkLIneAttackQueue;
+    private Vector2Int _curLinkLineAttackPos;
+    private Vector2Int _curLinkLineAttackEndPos;
+    private Vector2 _curLinkLineAttackDirection;
+    private int _curLinkLineAttackCount;
+    private ELinkLineAttackMode _curLinkLineAttackMode;
     private ELineAttackMode _curLineAttackMod;
     public bool isEnemyPhase;
+    public EEnemyPhase curEnemyPhase;
+    private GameObject _curGhost;
+    private int _curGhostPos;
+    IEnumerator curGhostI;
     public void ScriptBind(InGameManager_s gameManager)
     {
         _inGameManager_s = gameManager;
@@ -53,9 +60,9 @@ public partial class InGameEnemy_s : MonoBehaviour,IInGame,IDataSetting,IScript 
         _movePathCheckList = new List<Vector2>();
         playerMovePathQueue = new Queue<Vector2>();
         curMovePathShowObj = new Queue<GameObject>();
-        _curLinkLineAttackDic = new Dictionary<GameObject, ELineAttackMode>();
-        _curLinkLIneAttackQueue = new Queue<GameObject>();
-        _curLineAttackMod = ELineAttackMode.NONE;   
+        _curLineAttackMod = ELineAttackMode.NONE;
+        _curLinkLineAttackMode = ELinkLineAttackMode.NONE;
+        curEnemyPhase = EEnemyPhase.None;
     }
     private void BindSetting()
     {
@@ -64,6 +71,7 @@ public partial class InGameEnemy_s : MonoBehaviour,IInGame,IDataSetting,IScript 
         EnemyModBind(ref _enemyModBinds, EEnemyMode.BLOCK, BlockAction);
         EnemyModBind(ref _enemyModBinds, EEnemyMode.LINEATTACK, LineAttackAction);
         EnemyModBind(ref _enemyModBinds, EEnemyMode.LINKLINEATTACK, LinkLineAttackAction);
+        EnemyModBind(ref _enemyModBinds, EEnemyMode.GHOST, GhostAction);
     }
     public void EnemyModBind<T>(ref Dictionary<T, Action> binddic, T mod, Action action)
     {
@@ -85,16 +93,16 @@ public partial class InGameEnemy_s //game system
         _movePathCheckList.Clear();
         playerMovePathQueue.Clear();
         curMovePathShowObj.Clear();
-        _curLinkLineAttackDic.Clear();
-        _curLinkLIneAttackQueue.Clear();
         _curLineAttackMod = ELineAttackMode.NONE;
+        _curLinkLineAttackMode = ELinkLineAttackMode.NONE;
         isEnemyPhase = false;
         isEnemyPhaseEnd = false;
+        curEnemyPhase = EEnemyPhase.None;
         //enemy pattern test
         curEnemyMods.Clear();
-        curEnemyMods.Add(EEnemyMode.COIN);
-        curEnemyMods.Add(EEnemyMode.LINKLINEATTACK);
-        curEnemyMods.Add(EEnemyMode.LINEATTACK);
+        //curEnemyMods.Add(EEnemyMode.COIN);
+        //curEnemyMods.Add(EEnemyMode.LINKLINEATTACK);
+        //curEnemyMods.Add(EEnemyMode.LINEATTACK);
         //_curEnemyMods.Add(EEnemyMode.BLOCK);
         //_curEnemyMods.Add(EEnemyMode.PATH);
 
@@ -119,18 +127,22 @@ public partial class InGameEnemy_s //game system
                 break;
             case EInGameStatus.PLAYERMOVE:
                 isEnemyPhaseEnd = EnemyPhaseEndCheck();
-                PlayerPositionCheck(_inGameManager_s.GetPlayerPos(),false);
-                isEnemyPhase = EnemyPhaseCheck();
-                if (!isEnemyPhaseEnd&&!isEnemyPhase)
+                if (curEnemyPhase != EEnemyPhase.Ghost&&curEnemyPhase!=EEnemyPhase.Phase1)
                 {
-                    _enemyATKGaugeCount++;
-                    if (_enemyATKGaugeCount == 2)
+                    DoEnemyMode();
+                    PlayerPositionCheck(_inGameManager_s.GetPlayerPos(), false);
+                    isEnemyPhase = EnemyPhaseCheck();
+                    if (!isEnemyPhaseEnd && !isEnemyPhase)
                     {
-                        UpdateEnemyATKGauge(1);
-                        _enemyATKGaugeCount = 0;
+                        _enemyATKGaugeCount++;
+                        if (_enemyATKGaugeCount == 2)
+                        {
+                            UpdateEnemyATKGauge(1);
+                            _enemyATKGaugeCount = 0;
+                        }
                     }
+   
                 }
-                DoEnemyMode();
                 break;
             case EInGameStatus.TIMEWAIT:
                 break;
@@ -210,6 +222,38 @@ public partial class InGameEnemy_s //game system
         {
             UpdateEnemyATKGauge(_curEnemyATKGauge * -1);
         }
+    }
+    public void EnemyPhaseChange(EEnemyPhase target)
+    {
+        switch(target)
+        {
+            case EEnemyPhase.Ghost:
+                if(!curEnemyMods.Contains(EEnemyMode.GHOST))
+                {            
+                    curEnemyMods.Add(EEnemyMode.GHOST);
+                }
+                if (!curEnemyMods.Contains(EEnemyMode.COIN))
+                {
+                    curEnemyMods.Add(EEnemyMode.COIN);
+                }
+                break;
+            case EEnemyPhase.Phase1:
+                EndGhost();
+                curEnemyMods.Remove(EEnemyMode.GHOST);
+                break;
+            case EEnemyPhase.Phase2:
+                if (curEnemyMods.Contains(EEnemyMode.LINKLINEATTACK))
+                {
+                    curEnemyMods.Remove(EEnemyMode.LINKLINEATTACK);
+                }
+                curEnemyMods.Add(EEnemyMode.LINEATTACK);
+                break;
+            case EEnemyPhase.Phase3:
+                curEnemyMods.Remove(EEnemyMode.LINEATTACK);
+                curEnemyMods.Add(EEnemyMode.LINKLINEATTACK);
+                break;
+        }
+        curEnemyPhase = target;
     }
 }
 public partial class InGameEnemy_s //ui,data change
@@ -325,14 +369,14 @@ public partial class InGameEnemy_s //pattern
             }
             if (curEnemyMods.Contains(EEnemyMode.LINEATTACK))
             {
-                if (_inGameData_s.sideDatas[playerPos.x, playerPos.y].lineAttack != null && _curLineAttackMod == ELineAttackMode.SHOW)
+                if (_inGameData_s.sideDatas[playerPos.x, playerPos.y].lineAttack != null && _curLineAttackMod == ELineAttackMode.SHOW2)
                 {
                     _inGameManager_s.PlayerHPDown(-1, "Line Attack!!!");
                 }
             }
             if (curEnemyMods.Contains(EEnemyMode.LINKLINEATTACK))
             {
-                if (_inGameData_s.sideDatas[playerPos.x, playerPos.y].linkLineAttack != null && _curLinkLineAttackDic[_inGameData_s.sideDatas[playerPos.x, playerPos.y].linkLineAttack] == ELineAttackMode.SHOW)
+                if (_inGameData_s.sideDatas[playerPos.x, playerPos.y].linkLineAttack != null && _curLinkLineAttackMode==ELinkLineAttackMode.ATTACK)
                 {
                     _inGameManager_s.PlayerHPDown(-1, "Link Line Attack!!!");
                 }
@@ -360,6 +404,20 @@ public partial class InGameEnemy_s //pattern
     {
         for (int i = 0; i < makeCount; i++)
         {
+            if(curEnemyPhase==EEnemyPhase.Ghost&&i ==0&&dataName=="coin")
+            {
+                int x = 2;
+                int y = 1;
+                GameObject instObj = Instantiate(instTarget, parent);
+                instObj.transform.localPosition = _inGameData_s.sideDatas[x, y].transform;
+                TypedReference tr = __makeref(_inGameData_s.sideDatas[x, y]);
+                _inGameData_s.sideDatas[x, y].GetType().GetField(dataName).SetValueDirect(tr, instObj);
+                if (dataName == "coin")
+                {
+                    _inGameData_s.sideDatas[x, y].coincount = 2;
+                }
+                continue;
+            }
             bool isCreate = false;
             int block = 0;
             while (!isCreate)
@@ -630,7 +688,12 @@ public partial class InGameEnemy_s //pattern
                 }
             }
         }
-        _curLineAttackMod = ELineAttackMode.SHOW;
+        _curLineAttackMod = ELineAttackMode.SHOW1;
+        foreach (Transform data in _inGameData_s.lineAttackTsf)
+        {
+            data.Find("WarningTile").gameObject.SetActive(true);
+            data.Find("WarningTile").Find("Effect").GetComponent<ParticleSystem>().Play();
+        }
     }
     private void EndRandomeLineAttack()
     {
@@ -655,13 +718,37 @@ public partial class InGameEnemy_s //pattern
                 {
                     GetRandomeLineAttack();
                 }
-                else if (_curLineAttackMod == ELineAttackMode.SHOW)
+                else if(_curLineAttackMod == ELineAttackMode.SHOW1)
+                {
+                    _curLineAttackMod = ELineAttackMode.SHOW2;
+                    foreach (Transform data in _inGameData_s.lineAttackTsf)
+                    {
+                        data.Find("1").gameObject.SetActive(false);
+                    }
+                    foreach (Transform data in _inGameData_s.lineAttackTsf)
+                    {
+                        data.Find("2").gameObject.SetActive(true);
+                    }
+                    foreach (Transform data in _inGameData_s.lineAttackTsf)
+                    {
+                        data.Find("WarningTile").Find("Effect").GetComponent<ParticleSystem>().Play();
+                    }
+                }
+                else if (_curLineAttackMod == ELineAttackMode.SHOW2)
                 {
                     _curLineAttackMod = ELineAttackMode.ATTACK;
                     foreach (Transform data in _inGameData_s.lineAttackTsf)
                     {
+                        data.Find("2").gameObject.SetActive(false);
+                    }
+                    foreach (Transform data in _inGameData_s.lineAttackTsf)
+                    {
                         data.Find("Attack").gameObject.SetActive(true);
-
+                        StartCoroutine(LineAttackMove(data.Find("Attack").gameObject));
+                    }
+                    foreach (Transform data in _inGameData_s.lineAttackTsf)
+                    {
+                        data.Find("WarningTile").gameObject.SetActive(false);
                     }
                 }
                 else if (_curLineAttackMod == ELineAttackMode.ATTACK)
@@ -671,6 +758,30 @@ public partial class InGameEnemy_s //pattern
             }
         }
     }
+    IEnumerator LineAttackMove(GameObject target)
+    {
+        float lerpValue = 0;
+        float NiddleMoveStartTime = _inGameManager_s.GetMusicPosition();
+        Vector2 NiddleStartPos = new Vector2(0, 35); 
+        Vector2 NiddleEndPos = new Vector2(0, -10);
+        while (lerpValue <= 1)
+        {
+            lerpValue = (_inGameManager_s.GetMusicPosition() - NiddleMoveStartTime) * 1 / _inGameData_s.movingTime;
+            target.transform.localPosition = Vector2.Lerp(NiddleStartPos, NiddleEndPos, lerpValue);
+            yield return null;
+        }
+        target.transform.localPosition = NiddleEndPos;
+        float alpha = 1f;
+        Debug.Log(_inGameManager_s.GetMusicPosition() - NiddleMoveStartTime);
+        Debug.Log((60f / _inGameData_s.bpm) - 0.1f);
+        while (_inGameManager_s.GetMusicPosition()- NiddleMoveStartTime<(60f/_inGameData_s.bpm)-0.1f)
+        {
+            target.GetComponent<Image>().color = new Vector4(1, 1, 1,alpha);
+            alpha -= 0.05f;
+            yield return null;
+        }
+        target.GetComponent<Image>().color = new Vector4(1, 1, 1, 0);
+    }
     private void GetRandomeLinkLineAttack()
     {
         int count = UnityEngine.Random.Range(0, 2);
@@ -678,35 +789,17 @@ public partial class InGameEnemy_s //pattern
         if (count == 0) // row attack
         {
             int y = _inGameManager_s.GetPlayerPos().y;
-            if (secondcount == 0)
+            if (secondcount == 0)// left
             {
-                for (int i = 0; i < _inGameData_s.divideSize.x; i++)
-                {
-                    if (_inGameData_s.sideDatas[i, y].isCanMakeCheck(true, "linkLineAttack"))
-                    {
-                        GameObject instObj = Instantiate(_inGameData_s.lineAttackSampleObj, _inGameData_s.linkLineAttackTsf);
-                        instObj.transform.Find("Attack").gameObject.SetActive(false);
-                        instObj.transform.localPosition = _inGameData_s.sideDatas[i, y].transform;
-                        _inGameData_s.sideDatas[i, y].linkLineAttack = instObj;
-                        _curLinkLineAttackDic.Add(instObj, ELineAttackMode.NONE);
-                        instObj.gameObject.SetActive(false);
-                    }
-                }
+                _curLinkLineAttackPos = new Vector2Int(0, y);
+                _curLinkLineAttackEndPos = new Vector2Int(_inGameData_s.divideSize.x - 1, y);
+         
             }
             else
             {
-                for (int i = _inGameData_s.divideSize.x - 1; i >= 0; i--)
-                {
-                    if (_inGameData_s.sideDatas[i, y].isCanMakeCheck(true, "linkLineAttack"))
-                    {
-                        GameObject instObj = Instantiate(_inGameData_s.lineAttackSampleObj, _inGameData_s.linkLineAttackTsf);
-                        instObj.transform.Find("Attack").gameObject.SetActive(false);
-                        instObj.transform.localPosition = _inGameData_s.sideDatas[i, y].transform;
-                        _inGameData_s.sideDatas[i, y].linkLineAttack = instObj;
-                        _curLinkLineAttackDic.Add(instObj, ELineAttackMode.NONE);
-                        instObj.gameObject.SetActive(false);
-                    }
-                }
+                _curLinkLineAttackPos = new Vector2Int(_inGameData_s.divideSize.x - 1, y);
+                _curLinkLineAttackEndPos = new Vector2Int(0, y);
+             
             }
         }
         else // columns attack
@@ -714,44 +807,51 @@ public partial class InGameEnemy_s //pattern
             int x = _inGameManager_s.GetPlayerPos().x;
             if (secondcount == 0)
             {
-                for (int i = 0; i < _inGameData_s.divideSize.y; i++)
-                {
-
-                    if (_inGameData_s.sideDatas[x, i].isCanMakeCheck(true, "linkLineAttack"))
-                    {
-                        GameObject instObj = Instantiate(_inGameData_s.lineAttackSampleObj, _inGameData_s.linkLineAttackTsf);
-                        instObj.transform.Find("Attack").gameObject.SetActive(false);
-                        instObj.transform.localPosition = _inGameData_s.sideDatas[x, i].transform;
-                        _inGameData_s.sideDatas[x, i].linkLineAttack = instObj;
-                        _curLinkLineAttackDic.Add(instObj, ELineAttackMode.NONE);
-                        instObj.gameObject.SetActive(false);
-                    }
-                }
+                _curLinkLineAttackPos = new Vector2Int(x, 0);
+                _curLinkLineAttackEndPos = new Vector2Int(x, _inGameData_s.divideSize.y-1);
             }
             else
             {
-                for (int i = _inGameData_s.divideSize.y - 1; i >= 0; i--)
-                {
-
-                    if (_inGameData_s.sideDatas[x, i].isCanMakeCheck(true, "linkLineAttack"))
-                    {
-                        GameObject instObj = Instantiate(_inGameData_s.lineAttackSampleObj, _inGameData_s.linkLineAttackTsf);
-                        instObj.transform.Find("Attack").gameObject.SetActive(false);
-                        instObj.transform.localPosition = _inGameData_s.sideDatas[x, i].transform;
-                        _inGameData_s.sideDatas[x, i].linkLineAttack = instObj;
-                        _curLinkLineAttackDic.Add(instObj, ELineAttackMode.NONE);
-                        instObj.gameObject.SetActive(false);
-                    }
-                }
-
+                _curLinkLineAttackPos = new Vector2Int(x, _inGameData_s.divideSize.y - 1);
+                _curLinkLineAttackEndPos = new Vector2Int(x, 0);
             }
         }
+        GameObject instObj= Instantiate(_inGameData_s.linkLineAttackSampleObj, _inGameData_s.linkLineAttackTsf);
+        instObj.transform.localPosition = Vector2.zero;
+        _curLinkLineAttackDirection = new Vector2(_curLinkLineAttackEndPos.x - _curLinkLineAttackPos.x, _curLinkLineAttackEndPos.y - _curLinkLineAttackPos.y).normalized;
+        Vector2 direction = Vector2.zero;
+        if(_curLinkLineAttackDirection == Vector2.down)
+        {
+            direction = new Vector2(0, -150f);
+            instObj.transform.Find("Warning").transform.localEulerAngles = new Vector3(0, 0, 90);
+        }
+        else if(_curLinkLineAttackDirection == Vector2.up)
+        {
+            direction = new Vector2(0, 150f);
+            instObj.transform.Find("Warning").transform.localEulerAngles = new Vector3(0, 0, -90);
+        }
+        else if (_curLinkLineAttackDirection == Vector2.left)
+        {
+            direction = new Vector2(150f,0);
+            instObj.transform.Find("Warning").transform.localEulerAngles = new Vector3(0, 0, 180);
+        }
+        else if (_curLinkLineAttackDirection == Vector2.right)
+        {
+            direction = new Vector2(-150f, 0);
+        }
+        instObj.transform.Find("Warning").transform.localPosition = _inGameData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform+ direction;
+        instObj.transform.Find("Attack").transform.localPosition = _inGameData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform;
+        instObj.transform.Find("Attack").gameObject.SetActive(false);
+        _inGameData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack = instObj;
+        _inGameData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack.transform.Find("WarningTile").localPosition =
+    _inGameData_s.sideDatas[_curLinkLineAttackPos.x , _curLinkLineAttackPos.y ].transform;
+        instObj.transform.Find("WarningTile").gameObject.SetActive(true);
+        _curLinkLineAttackMode = ELinkLineAttackMode.SHOW1;
     }
     private void EndRandomeLinkLineAttack()
     {
+        _curLinkLineAttackMode = ELinkLineAttackMode.NONE;
         RemoveAllTargetObj("linkLineAttack");
-        _curLinkLineAttackDic.Clear();
-        _curLinkLIneAttackQueue.Clear();
     }
     private void LinkLineAttackAction()
     {
@@ -767,67 +867,129 @@ public partial class InGameEnemy_s //pattern
             }
             else
             {
-                if (_curEnemyATKGauge >= _inGameData_s.enemyAttackGaugeMax && _curLinkLineAttackDic.Count == 0)
+                if (_curEnemyATKGauge >= _inGameData_s.enemyAttackGaugeMax && _curLinkLineAttackMode == ELinkLineAttackMode.NONE)
                 {
                     GetRandomeLinkLineAttack();
                 }
-                else if (_curLinkLineAttackDic.Count != 0)
+                else
                 {
-                    for (int i = 0; i < _inGameData_s.divideSize.x; i++)
+                    switch (_curLinkLineAttackMode)
                     {
-                        for (int j = 0; j < _inGameData_s.divideSize.y; j++)
-                        {
-                            if (_inGameData_s.sideDatas[i, j].linkLineAttack != null)
+                        case ELinkLineAttackMode.SHOW1:
+                            _curLinkLineAttackMode = ELinkLineAttackMode.SHOW2;
+                            _inGameData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack.transform.Find("WarningTile").gameObject.SetActive(true);
+                            _inGameData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack.transform.Find("WarningTile").Find("Effect").GetComponent<ParticleSystem>().Play();
+                            break;
+                        case ELinkLineAttackMode.SHOW2:
+                            _curLinkLineAttackMode = ELinkLineAttackMode.ATTACK;
+                            _inGameData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack.transform.Find("Attack").gameObject.SetActive(true);
+                            _curLinkLineAttackCount = 1;                     
+                            _inGameData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack.transform.Find("WarningTile").localPosition =
+                                _inGameData_s.sideDatas[_curLinkLineAttackPos.x + (int)_curLinkLineAttackDirection.x, _curLinkLineAttackPos.y + (int)_curLinkLineAttackDirection.y].transform;
+                            _inGameData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack.transform.Find("WarningTile").Find("Effect").GetComponent<ParticleSystem>().Play();
+                            break;
+                        case ELinkLineAttackMode.ATTACK:
+                            if (_curLinkLineAttackPos == _curLinkLineAttackEndPos)
                             {
-                                if (_curLinkLineAttackDic[_inGameData_s.sideDatas[i, j].linkLineAttack] == ELineAttackMode.ATTACK)
+                                EndRandomeLinkLineAttack();
+                            }
+                            else
+                            {                           
+                                GameObject temp = _inGameData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack;
+                                if (_curLinkLineAttackCount == 2)
                                 {
-                                    GameObject removeTarget = _inGameData_s.sideDatas[i, j].linkLineAttack;
-                                    _inGameData_s.sideDatas[i, j].linkLineAttack = null;
-                                    _curLinkLIneAttackQueue.Dequeue();
-                                    _curLinkLineAttackDic.Remove(removeTarget);
-                                    Destroy(removeTarget);
+                                    _inGameData_s.sideDatas[_curLinkLineAttackPos.x - (int)_curLinkLineAttackDirection.x, _curLinkLineAttackPos.y - (int)_curLinkLineAttackDirection.y].linkLineAttack = null;
+                                }
+                                else
+                                {
+                                    _curLinkLineAttackCount++;
+                                }
+                                _curLinkLineAttackPos += new Vector2Int((int)_curLinkLineAttackDirection.x, (int)_curLinkLineAttackDirection.y);
+                                _inGameData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack = temp;
+                                temp.transform.Find("Attack").transform.localPosition = _inGameData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform;
+                                if (_curLinkLineAttackPos != _curLinkLineAttackEndPos)
+                                {
+                                    _inGameData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack.transform.Find("WarningTile").localPosition =
+                                    _inGameData_s.sideDatas[_curLinkLineAttackPos.x + (int)_curLinkLineAttackDirection.x, _curLinkLineAttackPos.y + (int)_curLinkLineAttackDirection.y].transform;
+                                    _inGameData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack.transform.Find("WarningTile").Find("Effect").GetComponent<ParticleSystem>().Play();
+                                }
+                                else
+                                {
+                                    _inGameData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack.transform.Find("WarningTile").gameObject.SetActive(false);
                                 }
                             }
-                        }
-                    }
-                    foreach (Transform data in _inGameData_s.linkLineAttackTsf)
-                    {
-                        if (_curLinkLIneAttackQueue.Count >= 2)
-                        {
                             break;
-                        }
-                        if (_curLinkLineAttackDic.ContainsKey(data.gameObject))
-                        {
-                            switch (_curLinkLineAttackDic[data.gameObject])
-                            {
-                                case ELineAttackMode.NONE:
-                                    data.gameObject.SetActive(true);
-                                    _curLinkLineAttackDic[data.gameObject] = ELineAttackMode.SHOW;
-                                    if (_curLinkLIneAttackQueue.Count == 0)
-                                    {
-                                        _curLinkLIneAttackQueue.Enqueue(data.gameObject);
-                                        return;
-                                    }
-                                    else
-                                    {
-                                        _curLinkLIneAttackQueue.Enqueue(data.gameObject);
-                                    }
-                                    break;
-                                case ELineAttackMode.SHOW:
-                                    data.gameObject.transform.Find("Attack").gameObject.SetActive(true);
-                                    _curLinkLineAttackDic[data.gameObject] = ELineAttackMode.ATTACK;
-                                    break;
-                                case ELineAttackMode.ATTACK:
-                                    break;
-                            }
-                        }
                     }
+
 
                 }
             }
         }
     }
-
+    public void SetGhost() //1,3
+    {
+      _curGhost=  Instantiate(_inGameData_s.ghostSampleObj, _inGameData_s.ghostTsf);
+        _curGhost.transform.localPosition = _inGameData_s.sideDatas[0, 0].transform;
+        _curGhostPos = 0;
+    }
+    public void EndGhost()
+    {
+        if (curGhostI != null)
+        {
+            StopCoroutine(curGhostI);
+        }
+        Destroy(_curGhost);
+    }
+    public void GhostAction()
+    {
+        if (_inGameManager_s.curInGameStatus == EInGameStatus.SHOWPATH)
+        {
+            SetGhost();
+        }
+        else
+        {
+            Vector2 moveTarget = Vector2.zero;
+            switch (_curGhostPos)
+            {
+                case 0:
+                    moveTarget = _inGameData_s.sideDatas[1, 0].transform;
+                    break;
+                case 1:
+                    moveTarget = _inGameData_s.sideDatas[2, 0].transform;
+                    break;
+                case 2:
+                    moveTarget = _inGameData_s.sideDatas[2, 1].transform;
+                    break;
+                default:
+                    break;
+            }
+            _curGhostPos++;
+            if (_curGhostPos == 3)
+            {
+                _curGhostPos = 0;
+            }
+           curGhostI=MoveGhost(moveTarget);
+            StartCoroutine(curGhostI);
+        }
+    }
+    public IEnumerator MoveGhost(Vector2 targetPos)
+    {
+        float lerpValue = 0;
+        float GhostMoveStartTime = _inGameManager_s.GetMusicPosition();
+        Vector2 GhostStartPos = _curGhost.transform.localPosition;
+        Vector2 GhostEndPos = targetPos;
+        while (lerpValue <= 1)
+        {
+            lerpValue = (_inGameManager_s.GetMusicPosition() - GhostMoveStartTime) * 1 / _inGameData_s.movingTime;
+            _curGhost.transform.localPosition= Vector2.Lerp(GhostStartPos,GhostEndPos, lerpValue);
+            yield return null;
+        }
+        _curGhost.transform.localPosition = GhostEndPos;
+        if (_curGhostPos == 0)
+        {
+            _curGhost.transform.localPosition = _inGameData_s.sideDatas[0, 0].transform;
+        }
+    }
     /*private void GetRandomeNeedleAttack()
     {
         int count = UnityEngine.Random.Range(0, 2);

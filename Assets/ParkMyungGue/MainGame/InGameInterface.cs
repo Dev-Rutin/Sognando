@@ -27,6 +27,12 @@ interface IScript
 {
     public void ScriptBind(InGameManager_s gameManager);
 }
+interface IEnemyPattern
+{
+    public void GetRandomePattern();
+    public void EndPattern();
+    public void ActionPattern();
+}
 public class InGameInterface
 {
 

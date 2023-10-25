@@ -198,6 +198,41 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3092586}
   m_CullTransparentMesh: 1
+--- !u!1 &16942700
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 16942701}
+  m_Layer: 5
+  m_Name: Ghost
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &16942701
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 16942700}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2325592638602069923}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &18519851
 GameObject:
   m_ObjectHideFlags: 0
@@ -7697,6 +7732,8 @@ MonoBehaviour:
   _curEnemyATKGauge: 0
   _enemyATKGaugeCount: 0
   isEnemyPhaseEnd: 0
+  isEnemyPhase: 0
+  curEnemyPhase: 0
 --- !u!1 &785085765
 GameObject:
   m_ObjectHideFlags: 0
@@ -31047,7 +31084,7 @@ MonoBehaviour:
   beatJudgeMax: 0
   beatJudgeMin: 0
   beatJudgeExtra: 0
-  bpm: 0
+  bpm: 100
   movingTime: 0
   animationTime: 0
   beatObj: {fileID: 3132110195659578560, guid: 8f457c51c0984814c829959edea2bd3a, type: 3}
@@ -31078,8 +31115,11 @@ MonoBehaviour:
   lineAttackTsf: {fileID: 5044818844753353345}
   lineAttackSampleObj: {fileID: 4632828099348867800, guid: add65419816b3334eb29b5424e8e395d, type: 3}
   linkLineAttackTsf: {fileID: 986979821}
+  linkLineAttackSampleObj: {fileID: 4632828099348867800, guid: 390b94f754ef047498279c991a487267, type: 3}
   needleAttackSampleObj: {fileID: 0}
   needleAttackTsf: {fileID: 1131874480}
+  ghostSampleObj: {fileID: 8748312558404695860, guid: 71d44ba5a9a1c1e449cca4f5bc931af2, type: 3}
+  ghostTsf: {fileID: 16942701}
   musicClip: {fileID: 8300000, guid: d6455b9902ec12849a993969cc0c6b0a, type: 3}
 --- !u!4 &2047818801
 Transform:
@@ -31228,6 +31268,8 @@ MonoBehaviour:
   lastBeatStartScaleX: 0
   IsBeatObjCreate: 0
   IsSecondBeatObjCreate: 0
+  IsGameRestart: 0
+  isFirstInput: 0
   curFace: 0
   _inGameData_s: {fileID: 2047818800}
   _inGameEnemy_s: {fileID: 775166351}
@@ -41489,6 +41531,7 @@ RectTransform:
   m_Children:
   - {fileID: 4533131016073506223}
   - {fileID: 8534391240272109285}
+  - {fileID: 16942701}
   - {fileID: 3665451774117618295}
   - {fileID: 8531335859570585582}
   - {fileID: 2771859739250719790}

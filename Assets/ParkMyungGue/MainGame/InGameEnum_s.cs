@@ -49,6 +49,7 @@ public enum ECubeFace
 
 public enum EEnemyMode
 {
+    GHOST,
     PATH,
     COIN,
     LINEATTACK,
@@ -59,8 +60,24 @@ public enum EEnemyMode
 public enum ELineAttackMode
 {
     NONE,
-    SHOW,
+    SHOW1,
+    SHOW2,
     ATTACK
+}
+public enum ELinkLineAttackMode
+{
+    NONE,
+    SHOW1,
+    SHOW2,
+    ATTACK
+}
+public enum EEnemyPhase
+{
+    None,
+    Ghost,
+    Phase1,
+    Phase2,
+    Phase3
 }
 public class InGameEnum_s
 {

@@ -18,7 +18,7 @@ public partial class InGameCube_s : MonoBehaviour,IInGame,IScript //data
     {
         _inGameManager_s = gameManager;
         _inGameData_s = gameManager.GetInGameDataScript();
-    }
+    } 
     public void DefaultDataSetting()
     {
         gameCubeObj = _inGameData_s.gameCubeObj;

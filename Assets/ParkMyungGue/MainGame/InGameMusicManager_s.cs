@@ -61,11 +61,11 @@ public partial class InGameMusicManager_s //main system
         dspMusicStartPosition = 0;
         if(!_inGameManager_s.IsGameRestart)
         {
-            firstBeatOffset = 0.75f;
+            firstBeatOffset = 0.25f;
         }
         else
         {
-            firstBeatOffset = -0.1f;
+            firstBeatOffset = 0f;
         }
        
         completedLoops = 0;

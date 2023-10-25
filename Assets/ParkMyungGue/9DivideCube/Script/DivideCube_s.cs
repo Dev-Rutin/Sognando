@@ -1363,7 +1363,7 @@ public partial class DivideCube_s : MonoBehaviour //ingame pattern
                 }
             }
         }
-        _curLineAttackMod = ELineAttackMode.SHOW;
+        _curLineAttackMod = ELineAttackMode.SHOW1;
     }
     private void EndRandomeLineAttack()
     {
@@ -1388,7 +1388,7 @@ public partial class DivideCube_s : MonoBehaviour //ingame pattern
                 {
                     GetRandomeLineAttack();
                 }
-                else if (_curLineAttackMod == ELineAttackMode.SHOW)
+                else if (_curLineAttackMod == ELineAttackMode.SHOW2)
                 {
                     _curLineAttackMod = ELineAttackMode.ATTACK;
                     foreach (Transform data in _lineAttackTsf)
@@ -1539,7 +1539,7 @@ public partial class DivideCube_s : MonoBehaviour //ingame pattern
                             {
                                 case ELineAttackMode.NONE:
                                     data.gameObject.SetActive(true);
-                                    _curLinkLineAttackDic[data.gameObject] = ELineAttackMode.SHOW;
+                                    _curLinkLineAttackDic[data.gameObject] = ELineAttackMode.SHOW2;
                                     if (_curLinkLIneAttackQueue.Count == 0)
                                     {
                                         _curLinkLIneAttackQueue.Enqueue(data.gameObject);
@@ -1550,7 +1550,7 @@ public partial class DivideCube_s : MonoBehaviour //ingame pattern
                                         _curLinkLIneAttackQueue.Enqueue(data.gameObject);
                                     }
                                     break;
-                                case ELineAttackMode.SHOW:
+                                case ELineAttackMode.SHOW2:
                                     data.gameObject.transform.Find("Attack").gameObject.SetActive(true);
                                     _curLinkLineAttackDic[data.gameObject] = ELineAttackMode.ATTACK;
                                     break;

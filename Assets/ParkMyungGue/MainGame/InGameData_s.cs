@@ -126,8 +126,11 @@ public partial class InGameData_s:MonoBehaviour,IDataSetting // data는 게임이 실
     public Transform lineAttackTsf;
     public GameObject lineAttackSampleObj;
     public Transform linkLineAttackTsf;
+    public GameObject linkLineAttackSampleObj;
     public GameObject needleAttackSampleObj;
     public Transform needleAttackTsf;
+    public GameObject ghostSampleObj;
+    public Transform ghostTsf;
     [Header("music reference data")]
     public AudioClip musicClip;
     public void DefaultDataSetting()

@@ -34,6 +34,7 @@ using UnityEngine.UI;
     public bool IsBeatObjCreate;
     public bool IsSecondBeatObjCreate;
     public bool IsGameRestart;
+    public bool isFirstInput;
     //cube
     private Queue<ERotatePosition> _rotateQueue;
     public ECubeFace curFace; 
@@ -115,6 +116,7 @@ public partial class InGameManager_s //data
         IsBeatObjCreate = false;
         IsSecondBeatObjCreate = false;
         IsGameRestart = false;
+        isFirstInput = false;
         //cube
         _rotateQueue = new Queue<ERotatePosition>();
         _rotateTarget = ERotatePosition.NONE;
@@ -229,6 +231,7 @@ public partial class InGameManager_s //main system
         _inGamePlayer_s.GameStart();
         _inGameEnemy_s.GameStart();
         _inGameCube_s.GameStart();
+        _inGameEnemy_s.EnemyPhaseChange(EEnemyPhase.Ghost);
         //stage data controller
         StageDataController.Instance.isClear = false;
         StageDataController.Instance.maxCombo = 0;
@@ -237,6 +240,7 @@ public partial class InGameManager_s //main system
         StageDataController.Instance.goodCount = 0;
         StageDataController.Instance.missCount = 0;
         //key
+        isFirstInput = false;
         IsInput = false;
         InputQueue.Clear();
         //main system;
@@ -320,6 +324,10 @@ public partial class InGameManager_s //main system
         if (beatObj != null)
         {
             Destroy(beatObj);
+            if(_inGameEnemy_s.curEnemyPhase==EEnemyPhase.Ghost)
+            {
+                _inGameEnemy_s.GhostAction();
+            }
         }
     }
 }
@@ -341,23 +349,22 @@ public partial class InGameManager_s //update
                     lastInputSec = 0f;
                     IsInput = false;
                 }
-                if (lastBeatObj == null)
+                /*if (lastBeatObj == null)
                 {
                     GameObject beatObj = Instantiate(_inGameData_s.beatObj, _inGameData_s.beatTsf);
                     beatObj.GetComponent<RectTransform>().localScale = Vector2.Lerp(beatObj.transform.localScale , new Vector2(_inGameData_s.beatEndScaleX, _inGameData_s.beatEndScaleY),_inGameMusicManager_s.loopPositionInBeats);
                     StartCoroutine(BeatShow(beatObj,1f));
                     IsBeatObjCreate = true;
                 }
-                else
-                {
+                else*/          
                     if (!IsBeatObjCreate && _inGameMusicManager_s.loopPositionInBeats >= 0.5f)
                     {
                         GameObject beatObj = Instantiate(_inGameData_s.beatObj, _inGameData_s.beatTsf);
-                        beatObj.GetComponent<RectTransform>().localScale = Vector2.Lerp(beatObj.transform.localScale * 1.5f, new Vector2(_inGameData_s.beatEndScaleX, _inGameData_s.beatEndScaleY), _inGameMusicManager_s.loopPositionInBeats - 0.7f);
+                        beatObj.GetComponent<RectTransform>().localScale = Vector2.Lerp(beatObj.transform.localScale * 1.5f, new Vector2(_inGameData_s.beatEndScaleX, _inGameData_s.beatEndScaleY),0);
                         StartCoroutine(BeatShow(beatObj,1.5f));
                         IsBeatObjCreate = true;
                     }
-                }
+                
             }
             if (Input.anyKeyDown)
             {
@@ -397,6 +404,11 @@ public partial class InGameManager_s //update
                             if (Input.GetKey(dic.Key))
                             {
                                 IsInput = true;
+                                if(!isFirstInput)
+                                {
+                                    isFirstInput = true;
+                                    _inGameEnemy_s.EnemyPhaseChange(EEnemyPhase.Phase1);
+                                }
                                 if (BeatJudgement())
                                 {
                                     if (_playerKeyBinds[dic.Key]())
@@ -515,7 +527,7 @@ public partial class InGameManager_s //update
                 _inGamePlayer_s.MoveNextBit(curInGameStatus);
                 _inGameCube_s.MoveNextBit(curInGameStatus);
                 _inGameEnemy_s.MoveNextBit(curInGameStatus);
-                if (_inGameEnemy_s.isEnemyPhaseEnd && _rotateTarget == ERotatePosition.NONE)
+                if (_inGameEnemy_s.isEnemyPhaseEnd && _rotateTarget == ERotatePosition.NONE&&isFirstInput)
                 {
                     if (_rotateQueue.Count != 0)
                     {
@@ -552,6 +564,18 @@ public partial class InGameManager_s //update
         _inGameEnemy_s.UpdateEnemyHP(-1);
         if (curGameStatus==EGameStatus.PLAYING)
         {
+            if(_inGameEnemy_s.curEnemyPhase==EEnemyPhase.Phase1)
+            {
+                _inGameEnemy_s.EnemyPhaseChange(EEnemyPhase.Phase2);
+            }
+            else if(_inGameEnemy_s.curEnemyPhase == EEnemyPhase.Phase2)
+            {
+                _inGameEnemy_s.EnemyPhaseChange(EEnemyPhase.Phase3);
+            }
+            else if (_inGameEnemy_s.curEnemyPhase == EEnemyPhase.Phase3)
+            {
+                _inGameEnemy_s.EnemyPhaseChange(EEnemyPhase.Phase2);
+            }
             _inGameCube_s.RotateCube(InGameData_s.GetERotatePositionToVec3(_rotateTarget));
             _rotateTarget = ERotatePosition.NONE;
             yield return new WaitForSeconds(0.2f);

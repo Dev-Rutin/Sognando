@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 public interface IAudio
@@ -32,6 +33,7 @@ public partial class InGameMusicManager_s : MonoBehaviour, IDataSetting,IScript 
     //public float inputDelay;
     public AudioClip mainMusicClip;
     public bool IsMoveNextBit;
+    public float lastNextBeatLoopPosition;
     public void ScriptBind(InGameManager_s gameManager)
     {
         _inGameManager_s = gameManager;
@@ -50,6 +52,7 @@ public partial class InGameMusicManager_s : MonoBehaviour, IDataSetting,IScript 
         loopPositionInBeats = 0;
         mainMusicClip = _inGameData_s.musicClip;
         IsMoveNextBit = false;
+        lastNextBeatLoopPosition = 0f; //비트가 정상적으로 넘어갔을 경우의 현재 비트의 위치
     }
 }
 public partial class InGameMusicManager_s //main system
@@ -59,7 +62,7 @@ public partial class InGameMusicManager_s //main system
         musicPosition = 0;
         musicPositionInBeats = 0;
         dspMusicStartPosition = 0;
-        if(!_inGameManager_s.IsGameRestart)
+        if (!_inGameManager_s.IsGameRestart)
         {
             firstBeatOffset = 0.25f;
         }
@@ -71,6 +74,7 @@ public partial class InGameMusicManager_s //main system
         completedLoops = 0;
         loopPositionInBeats = 0;
         IsMoveNextBit = false;
+        lastNextBeatLoopPosition = 0f;
         AudioPlay(mainMusicClip); //need last
     }
     public void GameEnd()
@@ -99,11 +103,21 @@ public partial class InGameMusicManager_s //game system
                     IsMoveNextBit = false;
                 }
                 _inGameManager_s.IsBeatObjCreate = false;
-                Debug.Log("move next bit" + "+ msicposition :" + musicPosition+"looppostion : "+ (musicPositionInBeats - completedLoops));
+                lastNextBeatLoopPosition = loopPositionInBeats;
+                //Debug.Log("move next bit" + "+ msicposition :" + musicPosition+"looppostion : "+ (musicPositionInBeats - completedLoops));
                 debugLogTsf.GetComponent<TextMeshProUGUI>().text =  "move next bit" + "+ msicposition :" + musicPosition+" completedloop : " +completedLoops;
             }
             loopPositionInBeats = musicPositionInBeats - completedLoops;
             InGameUI.ShowBGMSlider(_inGameData_s.bgmSlider, musicPosition / mainMusicClip.length);
+            /*float value = UnityEngine.Random.Range(0, 0.1f);
+            if(loopPositionInBeats >=0.65f+value && loopPositionInBeats <= 0.67f+value&& _inGameManager_s.InputQueue.Count==0)
+            {
+                if (_inGameManager_s.BeatJudgement())
+                {
+                    _inGameManager_s.InputQueue.Enqueue(KeyCode.S);
+                    _inGameManager_s.lastInputTsf.GetComponent<TextMeshProUGUI>().text = musicPosition + " and loop position : " + loopPositionInBeats + " and completeLoop : " + completedLoops;
+                }
+            }*/
         }
     }
 }

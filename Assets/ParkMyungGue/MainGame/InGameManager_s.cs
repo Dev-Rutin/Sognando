@@ -9,10 +9,22 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.U2D;
 using UnityEngine.UI;
-    public partial class InGameManager_s : MonoBehaviour, IUI  //Data
+public partial class InGameManager_s : MonoBehaviour, IUI  //Data
 {
     //only Test
     public Transform lastInputTsf;
+    public Transform autoTsf;
+    public Transform beatJudgeValue;
+    public void BeatMaxChange()
+    {
+        _inGameData_s.beatJudgeMax = beatJudgeValue.Find("Max").GetComponent<Slider>().value;
+        beatJudgeValue.Find("MaxText").GetComponent<TextMeshProUGUI>().text = _inGameData_s.beatJudgeMax.ToString();
+    }
+    public void BeatMinChange()
+    {
+        _inGameData_s.beatJudgeMin = beatJudgeValue.Find("Min").GetComponent<Slider>().value;
+        beatJudgeValue.Find("MinText").GetComponent<TextMeshProUGUI>().text = _inGameData_s.beatJudgeMin.ToString();
+    }
     //
     //key
     private Dictionary<KeyCode, Action> _otherKeyBinds;
@@ -35,6 +47,10 @@ using UnityEngine.UI;
     public bool IsSecondBeatObjCreate;
     public bool IsGameRestart;
     public bool isFirstInput;
+    //auto calibration
+    private bool _isAutoCalibrationOn;
+    private float _autoCalibrationValue;
+    private int _trueCount;
     //cube
     private Queue<ERotatePosition> _rotateQueue;
     public ECubeFace curFace; 
@@ -117,6 +133,10 @@ public partial class InGameManager_s //data
         IsSecondBeatObjCreate = false;
         IsGameRestart = false;
         isFirstInput = false;
+        //auto calibration
+        _isAutoCalibrationOn = false;
+        _autoCalibrationValue = 0f;
+        _trueCount = 0;
         //cube
         _rotateQueue = new Queue<ERotatePosition>();
         _rotateTarget = ERotatePosition.NONE;
@@ -145,10 +165,10 @@ public partial class InGameManager_s //data
         PlayerKeyBind(ref _playerKeyBinds, KeyCode.UpArrow, Vector2Int.down, _inGameData_s.divideSize);
         PlayerKeyBind(ref _playerKeyBinds, KeyCode.DownArrow, Vector2Int.up, _inGameData_s.divideSize);
 
-        PlayerKeyBind(ref _playerKeyBinds, KeyCode.LeftArrow, Vector2Int.left, _inGameData_s.divideSize);
-        PlayerKeyBind(ref _playerKeyBinds, KeyCode.RightArrow, Vector2Int.right, _inGameData_s.divideSize);
-        PlayerKeyBind(ref _playerKeyBinds, KeyCode.UpArrow, Vector2Int.down, _inGameData_s.divideSize);
-        PlayerKeyBind(ref _playerKeyBinds, KeyCode.DownArrow, Vector2Int.up, _inGameData_s.divideSize);
+        PlayerKeyBind(ref _playerKeyBinds, KeyCode.A, Vector2Int.left, _inGameData_s.divideSize);
+        PlayerKeyBind(ref _playerKeyBinds, KeyCode.D, Vector2Int.right, _inGameData_s.divideSize);
+        PlayerKeyBind(ref _playerKeyBinds, KeyCode.W, Vector2Int.down, _inGameData_s.divideSize);
+        PlayerKeyBind(ref _playerKeyBinds, KeyCode.S, Vector2Int.up, _inGameData_s.divideSize);
 
         KeyBind(ref _otherKeyBinds, KeyCode.Space, () => GamePause());
     }
@@ -254,6 +274,10 @@ public partial class InGameManager_s //main system
         lastBeatStartScaleX = 0f;
         IsBeatObjCreate = false;
         IsSecondBeatObjCreate = false;
+        //auto calibration
+        _isAutoCalibrationOn = false;
+        _autoCalibrationValue = 0f;
+        _trueCount = 0;
         _rotateQueue.Clear();
         _rotateQueue.Enqueue(ERotatePosition.RIGHT); //need fun
         _rotateQueue.Enqueue(ERotatePosition.UP);
@@ -348,15 +372,7 @@ public partial class InGameManager_s //update
                     }
                     lastInputSec = 0f;
                     IsInput = false;
-                }
-                /*if (lastBeatObj == null)
-                {
-                    GameObject beatObj = Instantiate(_inGameData_s.beatObj, _inGameData_s.beatTsf);
-                    beatObj.GetComponent<RectTransform>().localScale = Vector2.Lerp(beatObj.transform.localScale , new Vector2(_inGameData_s.beatEndScaleX, _inGameData_s.beatEndScaleY),_inGameMusicManager_s.loopPositionInBeats);
-                    StartCoroutine(BeatShow(beatObj,1f));
-                    IsBeatObjCreate = true;
-                }
-                else*/          
+                }       
                     if (!IsBeatObjCreate && _inGameMusicManager_s.loopPositionInBeats >= 0.5f)
                     {
                         GameObject beatObj = Instantiate(_inGameData_s.beatObj, _inGameData_s.beatTsf);
@@ -471,21 +487,96 @@ public partial class InGameManager_s //update
     }
     public bool BeatJudgement()
     {
-        if(_inGameMusicManager_s.musicPosition-lastInputSec<=0.4f)
+   
+        if(_inGameMusicManager_s.musicPosition-lastInputSec<=0.25f) //연속으로 입력하는것을 막기 위함
         {
             return false;
         }
-        if (_inGameMusicManager_s.loopPositionInBeats <=_inGameData_s.beatJudgeMax||_inGameMusicManager_s.loopPositionInBeats>= _inGameData_s.beatJudgeMin)
+        if (_inGameMusicManager_s.loopPositionInBeats <=_inGameData_s.beatJudgeMax||_inGameMusicManager_s.loopPositionInBeats >= _inGameData_s.beatJudgeMin)
         {
+            AutoCalibration(true,false);
             return true;
         }
         else
         {
-            return false;
+            if (_inGameMusicManager_s.loopPositionInBeats + _autoCalibrationValue <= _inGameData_s.beatJudgeMax || _inGameMusicManager_s.loopPositionInBeats + _autoCalibrationValue >= _inGameData_s.beatJudgeMin)
+            {
+                AutoCalibration(true,true);
+                return true;
+            }
+            else
+            {
+                AutoCalibration(false, true) ;
+                return false;
+            }
         }
+    }
+    public void AutoCalibration(bool check,bool isAuto) 
+    {
+        float distance = _inGameMusicManager_s.loopPositionInBeats>_inGameData_s.beatJudgeMax+0.1f ? _inGameData_s.beatJudgeMin -_inGameMusicManager_s.loopPositionInBeats: _inGameData_s.beatJudgeMax-_inGameMusicManager_s.loopPositionInBeats ;
+   
+        if(!check) //miss
+        {
+            if (MathF.Abs(distance) <= 0.3f)
+            {
+                if (!_isAutoCalibrationOn)
+                {
+                    _isAutoCalibrationOn = true;
+                    _trueCount = 0;
+                    if (distance < 0)
+                    {
+                        _autoCalibrationValue = distance - 0.15f;
+                    }
+                    else
+                    {
+                        _autoCalibrationValue = distance + 0.15f;
+                    }
+                }
+                else
+                {
+                    _isAutoCalibrationOn = false;
+                    _autoCalibrationValue = 0f;
+                }
+            }
+            else
+            {
+                _isAutoCalibrationOn = false;
+                _autoCalibrationValue = 0f;
+            }
+        }
+        else //not miss
+        {
+            if (isAuto)
+            {
+                if (_isAutoCalibrationOn)
+                {
+                    distance = Mathf.Lerp(_autoCalibrationValue, 0f, 1f - (distance / 0.2f));
+                    if (MathF.Abs(distance) ==0)
+                    {
+                        _isAutoCalibrationOn = false;
+                        _autoCalibrationValue = 0f;
+                    }
+                    else
+                    {
+                        Debug.Log("aa");
+                        if (distance < 0)
+                        {
+                            _autoCalibrationValue = distance - 0.08f;
+                        }
+                        else
+                        {
+                            _autoCalibrationValue = distance + 0.08f;
+                        }
+                    }
+                }
+             
+            }
+        }
+        autoTsf.GetComponent<TextMeshProUGUI>().text = "is auto calibration :" + _isAutoCalibrationOn + " value : " + _autoCalibrationValue;
     }
     public void BeatScoreCount() //조정필요
     {
+     
         /*if (_beatCountValue <= _inGameData_s.beatJudgeMax - 0.1f && _beatCountValue >= _inGameData_s.beatJudgeMin + 0.1f)
         {
             //perfect
@@ -557,7 +648,9 @@ public partial class InGameManager_s //update
         {
             Destroy(target.gameObject);
         }
-        _inGamePlayer_s.MovePlayer(new Vector2Int(_inGamePlayer_s.playerPos.x * -1, _inGamePlayer_s.playerPos.y * -1),_inGameData_s.divideSize);    
+        _inGamePlayer_s.MovePlayer(new Vector2Int(_inGamePlayer_s.playerPos.x * -1, _inGamePlayer_s.playerPos.y * -1),_inGameData_s.divideSize);
+        _isAutoCalibrationOn = false;
+        _autoCalibrationValue = 0f;
         yield return new WaitForSeconds(time - 0.2f);
         ChangeInGameState(EInGameStatus.TIMEWAIT);
         _inGameData_s.cubeEffectObj.transform.Find(curFace.ToString()).gameObject.SetActive(false);

@@ -148,8 +148,8 @@ public partial class InGameData_s:MonoBehaviour,IDataSetting // data는 게임이 실
         }
         beatEndScaleX = beatEndScaleX==0?0.95f:beatEndScaleX;
         beatEndScaleY = beatEndScaleY ==0?0.95f:beatEndScaleY;
-        beatJudgeMax = beatJudgeMax == 0 ? 0.3f : beatJudgeMax;
-        beatJudgeMin = beatJudgeMin == 0 ? 0.8f : beatJudgeMin;
+        beatJudgeMax = beatJudgeMax == 0 ? 0.15f : beatJudgeMax;
+        beatJudgeMin = beatJudgeMin == 0 ? 0.85f : beatJudgeMin;
         beatJudgeExtra = beatJudgeExtra == 0 ? 0.3f : beatJudgeExtra;
         bpm = bpm == 0 ? 100 : bpm;
         movingTime = movingTime == 0 ? 0.1f : movingTime;

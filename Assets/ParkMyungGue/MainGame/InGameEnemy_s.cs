@@ -369,7 +369,7 @@ public partial class InGameEnemy_s //pattern
             }
             if (curEnemyMods.Contains(EEnemyMode.LINEATTACK))
             {
-                if (_inGameData_s.sideDatas[playerPos.x, playerPos.y].lineAttack != null && _curLineAttackMod == ELineAttackMode.SHOW2)
+                if (_inGameData_s.sideDatas[playerPos.x, playerPos.y].lineAttack != null && _curLineAttackMod == ELineAttackMode.ATTACK)
                 {
                     _inGameManager_s.PlayerHPDown(-1, "Line Attack!!!");
                 }

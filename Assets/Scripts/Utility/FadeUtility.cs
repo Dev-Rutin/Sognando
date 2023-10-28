@@ -85,6 +85,20 @@ public class FadeUtlity : Singleton<FadeUtlity>
         }
     }
     
+    private IEnumerator FadeOutGameObject(float fadeTime, GameObject gObject)
+    {
+        Color color = gObject.GetComponent<SpriteRenderer>().color;
+        float time = 0f;
+        
+        while (gObject.GetComponent<SpriteRenderer>().color.a < 1f)
+        {
+            time += Time.deltaTime;
+            color.a = math.lerp(0f, 1f, time / fadeTime);
+            gObject.GetComponent<SpriteRenderer>().color = color;
+            yield return null;
+        }
+    }
+    
     private IEnumerator FadeOutSkeleton(float fadeTime, GameObject gObject)
     {
         Color color = gObject.GetComponent<SpriteRenderer>().color;
@@ -108,21 +122,6 @@ public class FadeUtlity : Singleton<FadeUtlity>
         {
             time += Time.deltaTime;
             color = math.lerp(1f, 0f, time / fadeTime);
-            playerSkeleton.A = color;
-            yield return null;
-        }
-    }
-    
-    private IEnumerator FadeOutGameObject(float fadeTime, GameObject gObject)
-    {
-        Spine.Skeleton playerSkeleton = gObject.GetComponent<SkeletonAnimation>().Skeleton;
-        float color = playerSkeleton.A;
-        float time = 0f;
-        
-        while (playerSkeleton.A < 1f)
-        {
-            time += Time.deltaTime;
-            color = math.lerp(0f, 1f, time / fadeTime);
             playerSkeleton.A = color;
             yield return null;
         }

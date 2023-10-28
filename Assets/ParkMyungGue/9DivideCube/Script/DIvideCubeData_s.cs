@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-public struct CubeData
+/*public struct CubeData
 {
     public Vector2 position;
     public Vector2 transform;
@@ -70,7 +70,7 @@ public struct CubeData
         }
         return true;
     }
-}
+}*/
 public class DIvideCubeData_s 
 {
 

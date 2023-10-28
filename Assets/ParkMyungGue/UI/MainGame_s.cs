@@ -6,14 +6,14 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public enum EGameStatus
+/*public enum EGameStatus
 {
     NONE,
     STARTWAITTING,
     PLAYING,
     END,
     PAUSE
-}
+}*/
 public enum ECubeObjStatus
 {
     STOP,

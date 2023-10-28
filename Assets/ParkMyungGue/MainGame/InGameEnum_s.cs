@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-/*public enum EStage
+public enum EStage
 {
     STAGE_ONE,
     STAGE_TWO,
@@ -9,7 +9,7 @@ using UnityEngine;
     STAGE_FOUR,
     STAGE_FIVE
 }
-public enum ECubeMode
+public enum EInputMode
 {
     ROTATE,
     MAINTAIN
@@ -22,11 +22,12 @@ public enum ERotatePosition
     UP,
     DOWN
 }
-public enum EDivideGameStatus
+public enum EGameStatus
 {
     NONE,
     STARTWAITTING,
     PLAYING,
+    ENDWAIT,
     END,
     PAUSE
 }
@@ -36,7 +37,7 @@ public enum EInGameStatus
     PLAYERMOVE,
     TIMEWAIT
 }
-public enum ECurCubeFace
+public enum ECubeFace
 {
     ONE,
     TWO,
@@ -48,6 +49,7 @@ public enum ECurCubeFace
 
 public enum EEnemyMode
 {
+    GHOST,
     PATH,
     COIN,
     LINEATTACK,
@@ -58,11 +60,26 @@ public enum EEnemyMode
 public enum ELineAttackMode
 {
     NONE,
-    SHOW,
+    SHOW1,
+    SHOW2,
     ATTACK
 }
-
-public class DivideCubeEnum_s
+public enum ELinkLineAttackMode
+{
+    NONE,
+    SHOW1,
+    SHOW2,
+    ATTACK
+}
+public enum EEnemyPhase
+{
+    None,
+    Ghost,
+    Phase1,
+    Phase2,
+    Phase3
+}
+public class InGameEnum_s
 {
    
-}*/
+}

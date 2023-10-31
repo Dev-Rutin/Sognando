@@ -37,10 +37,4 @@ public class LobbyManager : Singleton<LobbyManager>
         //SoundUtility.Instance.StopSound(ESoundTypes.Bgm);
     }
 
-    public void Continue()
-    {
-        FadeUtlity.Instance.CallFade(_fadeTime, _fadePenal, EGameObjectType.UI, EFadeType.FadeOut);
-        _dataObject.GetComponent<StageDataController>().stage = _continueStage;
-        _isFade = true;
-    }
 }

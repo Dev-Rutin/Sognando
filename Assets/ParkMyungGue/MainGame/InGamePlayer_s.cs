@@ -73,7 +73,9 @@ public partial class InGamePlayer_s//game system
                     if (_isHPDown && _playerHitBlock == 0)
                     {
                         _isHPDown = false;
-                        inGamePlayerObj.GetComponent<Image>().color = new Vector4(0, 0, 0, 1f);
+                        Color playerColor = inGamePlayerObj.GetComponent<Image>().color;
+                        playerColor.a = 1f;
+                        inGamePlayerObj.GetComponent<Image>().color = playerColor;
                     }
                     else if (_playerHitBlock > 0)
                     {
@@ -117,7 +119,7 @@ public partial class InGamePlayer_s  //move
         playerMoveStartTime = _inGameManager_s.GetMusicPosition();
         playerMoveStartPos = inGamePlayerObj.transform.localPosition;
         playerMoveEndPos = _inGameData_s.sideDatas[playerPos.x, playerPos.y].transform;
-        while(lerpValue<=1)
+        while(lerpValue<=1&&_inGameManager_s.curGameStatus==EGameStatus.PLAYING)
         {
             lerpValue = (_inGameManager_s.GetMusicPosition() - playerMoveStartTime) * 1 / _inGameData_s.movingTime;
             PlayerPostionChange(Vector2.Lerp(playerMoveStartPos, playerMoveEndPos, lerpValue));
@@ -125,6 +127,7 @@ public partial class InGamePlayer_s  //move
         }
         PlayerPostionChange(playerMoveEndPos);
         inGamePlayerObj.transform.Find("Effect").GetComponent<ParticleSystem>().Play(); //player move end effect
+        _inGameManager_s.PlayerPostionCheck_InGame(playerPos, true);
         moveFun = null;
     }
     private void PlayerPostionChange(Vector2 position)
@@ -196,6 +199,7 @@ public partial class InGamePlayer_s  //ui,data change
     }
     private void PlayerHPUp(int changeValue)
     {
+        _inGameData_s.playerHealEffect.GetComponent<ParticleSystem>().Play();
         _curPlayerHP += changeValue;
         _curPlayerHP = _curPlayerHP > _inGameData_s.playerMaxHP ? _inGameData_s.playerMaxHP : _curPlayerHP;
     }
@@ -203,16 +207,39 @@ public partial class InGamePlayer_s  //ui,data change
     {
         if (!_isHPDown)
         {
+            Color playerColor = inGamePlayerObj.GetComponent<Image>().color;
+            playerColor.a = 0.7f;
+            inGamePlayerObj.GetComponent<Image>().color = playerColor;
+            _inGameData_s.playerHurtEffect.GetComponent<ParticleSystem>().Play();
             _curPlayerHP += changeValue;
-            InGameUI.ShowCharacterAnimation(new List<string>() { "hit" },_inGameData_s.playerImageObj);
+            //InGameUI.ShowCharacterAnimation(new List<string>() { "hit" },_inGameData_s.playerImageObj);
             if (_curPlayerHP <= 0)
             {
                 _inGameManager_s.GameOverByPlayer();
             }
             _isHPDown = true;
             _playerHitBlock = 1;
-            inGamePlayerObj.GetComponent<Image>().color = new Vector4(0, 0, 0, 0.7f);
             _inGameManager_s.UpdateCombo(_inGameManager_s.combo * -1);
         }
+    }
+    
+    public IEnumerator PlayerAttack()
+    {
+        float count = 0;
+        Transform AttackTsf = _inGameData_s.playerAttackEffectObj.transform;
+        WaitForSeconds wait = new WaitForSeconds(0.03f);
+        while (count <=0.5f)
+        {
+            AttackTsf.transform.localPosition = 
+                Vector2.Lerp(_inGameData_s.playerAttackEffectObj.transform.parent.Find("HitStartPos").transform.localPosition, _inGameData_s.playerAttackEffectObj.transform.parent.Find("HitEndPos").transform.localPosition,count/0.5f);
+            yield return wait;
+            count += 0.03f;
+        }
+        _inGameManager_s.EnemyHPChange(-1);
+        yield return new WaitForSeconds(0.1f);
+        AttackTsf.transform.gameObject.SetActive(false);
+        AttackTsf.transform.localPosition = _inGameData_s.playerAttackEffectObj.transform.parent.Find("HitStartPos").transform.localPosition;
+        yield return new WaitForSeconds(1.8f - 0.02f - 0.1f - 0.5f);
+        AttackTsf.transform.gameObject.SetActive(true);
     }
 }

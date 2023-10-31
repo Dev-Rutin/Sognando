@@ -9,10 +9,6 @@ using UnityEngine.UI;
 
 public static partial class InGameUI //ui
 {
-    public static void ShowBGMSlider(Transform sliderObj,float value)
-    {
-        sliderObj.GetComponent<Slider>().value = value;  
-    }
     public static void ShowText(InGameData_s data_s, string message)
     {
        data_s.ShowTextTsf.GetComponent<TextMeshProUGUI>().text = message;
@@ -22,7 +18,7 @@ public static partial class InGameUI//animation
 {
     public static float ShowCharacterAnimation(List<string> animationNames,GameObject characterImageObj)
     {
-        float animationTime = 0f;
+        /*float animationTime = 0f;
         foreach (var data in animationNames)
         {
             if (animationNames.IndexOf(data) == 0)
@@ -36,6 +32,7 @@ public static partial class InGameUI//animation
             animationTime += characterImageObj.GetComponent<SkeletonAnimation>().Skeleton.Data.FindAnimation(data).Duration;
         }
         characterImageObj.GetComponent<SkeletonAnimation>().AnimationState.AddAnimation(0, "idle", true, 0f);
-        return animationTime;
+        return animationTime;*/
+        return 0;
     }
 }

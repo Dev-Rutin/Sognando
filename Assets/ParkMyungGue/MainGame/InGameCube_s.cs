@@ -33,7 +33,7 @@ public partial class InGameCube_s : MonoBehaviour, IInGame //game system
     public void GameStart()
     {
         gameCubeObj.transform.localEulerAngles = Vector3.zero;
-        gameCubeObj.GetComponent<MeshRenderer>().material = _inGameData_s.cubeSliceMaterial;
+        _inGameData_s.cubeUI.gameObject.SetActive(true);
         IsCubeRotate = false;
         rotatedivide = Vector3.zero;
         endRotatePos = Vector3.zero;
@@ -65,12 +65,12 @@ public partial class InGameCube_s : MonoBehaviour, IInGame //game system
         switch (changeTarget)
         {
             case EInGameStatus.SHOWPATH:
-                gameCubeObj.GetComponent<MeshRenderer>().material = _inGameData_s.cubeSliceMaterial;
+                _inGameData_s.cubeUI.gameObject.SetActive(true);
                 break;
             case EInGameStatus.PLAYERMOVE:
                 break;
             case EInGameStatus.TIMEWAIT:
-                gameCubeObj.GetComponent<MeshRenderer>().material = _inGameData_s.cubeMaterial;
+                _inGameData_s.cubeUI.gameObject.SetActive(false);
                 break;
             default:
                 break;

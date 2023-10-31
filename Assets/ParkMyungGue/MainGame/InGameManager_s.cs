@@ -6,6 +6,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.U2D;
 using UnityEngine.UI;
@@ -51,6 +52,8 @@ public partial class InGameManager_s : MonoBehaviour, IUI  //Data
     private bool _isAutoCalibrationOn;
     private float _autoCalibrationValue;
     private int _trueCount;
+    //pause
+    public List<IEnumerator> curCoroutineList;
     //cube
     private Queue<ERotatePosition> _rotateQueue;
     public ECubeFace curFace; 
@@ -61,6 +64,10 @@ public partial class InGameManager_s : MonoBehaviour, IUI  //Data
     [SerializeField] private InGamePlayer_s _inGamePlayer_s;
     [SerializeField] private InGameCube_s _inGameCube_s;
     [SerializeField] private InGameMusicManager_s _inGameMusicManager_s;
+    public void PlayerPostionCheck_InGame(Vector2Int target,bool data)
+    {
+        _inGameEnemy_s.PlayerPositionCheck(target, data);
+    }
     public InGameData_s GetInGameDataScript()
     {
         return _inGameData_s;
@@ -91,6 +98,18 @@ public partial class InGameManager_s : MonoBehaviour, IUI  //Data
     {
         return _inGamePlayer_s.IsplayerMoveCheck;
     }
+    public void PlayerScoreShow(string name)
+    {
+        foreach(Transform data in _inGameData_s.ScoreShowTsf)
+        {
+            data.gameObject.SetActive(false);
+        }
+        if (name != "")
+        {
+            _inGameData_s.ScoreShowTsf.Find(name).gameObject.SetActive(true);
+        }
+
+    }
 }
 public partial class InGameManager_s //data
 {
@@ -108,7 +127,7 @@ public partial class InGameManager_s //data
         _inGameCube_s.DefaultDataSetting();
         DefaultDataSetting();
         //only Test
-        GameOpen();
+        GameStartWaittingSetting();
     }
     public void DefaultDataSetting()
     {
@@ -147,6 +166,8 @@ public partial class InGameManager_s //data
         GetFaceName();
         BindSetting();
         ButtonBind();
+        InGameStart();
+        GameEnd();
     }
     private void BindSetting()
     {
@@ -197,10 +218,10 @@ public partial class InGameManager_s //data
 
     private void ButtonBind()
     {
-        foreach (Transform child in _inGameData_s.buttonsTsf)
+       /* foreach (Transform child in _inGameData_s.buttonsTsf)
         {
             child.GetComponent<Button>().onClick.AddListener((UnityAction)Delegate.CreateDelegate(typeof(UnityAction), this, child.name));
-        }
+        }*/
     }
 }
 public partial class InGameManager_s //data change
@@ -220,23 +241,90 @@ public partial class InGameManager_s //data change
         _inGameData_s.scoreTsf.GetComponent<TextMeshProUGUI>().text = score.ToString();
         StageDataController.Instance.score = score;
     }
+    public void StageChange()
+    {
+        switch(_inGameData_s.curStage)
+        {
+            case EStage.STAGE_ONE:
+                break;
+            case EStage.STAGE_TWO:
+                break;
+            case EStage.STAGE_THREE:
+                break;
+            case EStage.STAGE_FOUR:
+                break;
+            case EStage.STAGE_FIVE:
+                break;
+            case EStage.STAGE_SIX:
+                break;
+        }
+        _inGameData_s.curStage++;
+    }
+    public void AttackChange()
+    {
+        switch(_inGameData_s.curStage)
+        {
+            case EStage.STAGE_ONE:
+                _inGameData_s.playerAttackEffectObj.transform.Find("VFX_MagicSphere_1").gameObject.SetActive(true);
+                _inGameData_s.playerAttackEffectObj.transform.Find("VFX_MagicSphere_1").GetComponent<ParticleSystem>().Play();
+                break;
+            case EStage.STAGE_TWO:
+                break;
+            case EStage.STAGE_THREE:
+                StartCoroutine(AttackIncreaseEffect());
+                _inGameData_s.playerAttackEffectObj.transform.Find("VFX_MagicSphere_1").gameObject.SetActive(false);
+                _inGameData_s.playerAttackEffectObj.transform.Find("VFX_MagicSphere_2").gameObject.SetActive(true);
+                _inGameData_s.playerAttackEffectObj.transform.Find("VFX_MagicSphere_2").GetComponent<ParticleSystem>().Play();
+                break;
+            case EStage.STAGE_FOUR:
+                break;
+            case EStage.STAGE_FIVE:
+                StartCoroutine(AttackIncreaseEffect());
+                _inGameData_s.playerAttackEffectObj.transform.Find("VFX_MagicSphere_2").gameObject.SetActive(false);
+                _inGameData_s.playerAttackEffectObj.transform.Find("VFX_MagicSphere_3").gameObject.SetActive(true);
+                _inGameData_s.playerAttackEffectObj.transform.Find("VFX_MagicSphere_3").GetComponent<ParticleSystem>().Play();
+                break;
+            case EStage.STAGE_SIX:
+                break;
+        }
+    }
+    IEnumerator AttackIncreaseEffect()
+    {
+        _inGameData_s.playerAttackEffectObj.transform.Find("VFX_Growing").gameObject.SetActive(true);
+        _inGameData_s.playerAttackEffectObj.transform.Find("VFX_Growing").GetComponent<ParticleSystem>().Play();
+        yield return new WaitForSeconds(1f);
+        _inGameData_s.playerAttackEffectObj.transform.Find("VFX_Growing").gameObject.SetActive(false);
+    }
+    public void EnemyHPChange(int value)
+    {
+        _inGameEnemy_s.UpdateEnemyHP(value);
+    }
 }
 public partial class InGameManager_s //main system
 {
-    public void GameOpen()
+    public void GameStartWaittingSetting()
     {
+        //_inGameData_s.buttonsTsf.Find("GameStart").gameObject.SetActive(true);
+        //_inGameData_s.exportCubeBGTsf.Find("Animation").gameObject.SetActive(false);
+        //_inGameData_s.exportCubeBGTsf.gameObject.SetActive(true);
         curGameStatus = EGameStatus.STARTWAITTING;
+        //GameStart();
     }
     public void GamePause()
     {
         if (curGameStatus == EGameStatus.PAUSE)
         {
+            Time.timeScale = 1;
             curGameStatus = EGameStatus.PLAYING;
+            _inGameMusicManager_s.AudioUnPause();
+
         }
         else
         {
             if (curGameStatus == EGameStatus.PLAYING)
             {
+                Time.timeScale = 0;
+                _inGameMusicManager_s.AudioPause();
                 curGameStatus = EGameStatus.PAUSE;
             }
         }
@@ -245,9 +333,15 @@ public partial class InGameManager_s //main system
     {
         curGameStatus = EGameStatus.NONE;
     }
-    public void GameStart()
+    IEnumerator StartAnimation()
     {
-        _inGameData_s.buttonsTsf.Find("GameStart").gameObject.SetActive(false);
+        _inGameData_s.exportCubeBGTsf.Find("Animation").gameObject.SetActive(true);
+        _inGameData_s.exportCubeBGTsf.Find("Animation").GetComponent<SkeletonAnimation>().AnimationState.SetAnimation(0, "cube_animation", false);
+        yield return new WaitForSeconds(5.8f);
+        InGameStart();
+    }
+    public void InGameStart()
+    {
         _inGamePlayer_s.GameStart();
         _inGameEnemy_s.GameStart();
         _inGameCube_s.GameStart();
@@ -264,6 +358,12 @@ public partial class InGameManager_s //main system
         IsInput = false;
         InputQueue.Clear();
         //main system;
+        _inGameData_s.curStage = EStage.STAGE_ONE;
+        foreach (Transform target in _inGameData_s.playerAttackEffectObj.transform)
+        {
+            target.gameObject.SetActive(false);
+        }
+        AttackChange();
         beatFreezeCount = 0;
         _isBeatChecked = false;
         curInGameStatus = EInGameStatus.SHOWPATH;
@@ -290,11 +390,18 @@ public partial class InGameManager_s //main system
         {
             data.gameObject.SetActive(false);
         }
-        InGameUI.ShowCharacterAnimation(new List<string>() { "start" }, _inGameData_s.playerImageObj);
-        InGameUI.ShowCharacterAnimation(new List<string>() { "start" }, _inGameData_s.enemyImageObj);
+        //InGameUI.ShowCharacterAnimation(new List<string>() { "start" }, _inGameData_s.playerImageObj);
+        //InGameUI.ShowCharacterAnimation(new List<string>() { "start" }, _inGameData_s.enemyImageObj);
         _inGameData_s.GameStart();
         _inGameMusicManager_s.GameStart();
         curGameStatus = EGameStatus.PLAYING;//need last
+    }
+    public void GameStart()
+    {
+        //show start animation
+        //StartCoroutine(StartAnimation());
+        //
+        InGameStart();
     }
     private void GameEnd()
     {
@@ -310,8 +417,7 @@ public partial class InGameManager_s //main system
         {
             Destroy(target.gameObject);
         }
-        _inGameData_s.buttonsTsf.Find("GameStart").gameObject.SetActive(true);
-        curGameStatus = EGameStatus.STARTWAITTING;//need last
+        GameStartWaittingSetting();
     }
     public void GameOverByPlayer()
     {
@@ -371,7 +477,9 @@ public partial class InGameManager_s //update
                         MoveNextBeat();
                     }
                     lastInputSec = 0f;
-                    IsInput = false;
+                    if (curInputMode != EInputMode.ROTATE)
+                    {
+                    }
                 }       
                     if (!IsBeatObjCreate && _inGameMusicManager_s.loopPositionInBeats >= 0.5f)
                     {
@@ -379,12 +487,13 @@ public partial class InGameManager_s //update
                         beatObj.GetComponent<RectTransform>().localScale = Vector2.Lerp(beatObj.transform.localScale * 1.5f, new Vector2(_inGameData_s.beatEndScaleX, _inGameData_s.beatEndScaleY),0);
                         StartCoroutine(BeatShow(beatObj,1.5f));
                         IsBeatObjCreate = true;
+                    _inGameMusicManager_s.beatCreateCount = 0;
                     }
                 
             }
             if (Input.anyKeyDown)
             {
-                lastInputTsf.GetComponent<TextMeshProUGUI>().text = _inGameMusicManager_s.musicPosition + " and loop position : " + _inGameMusicManager_s.loopPositionInBeats + " and completeLoop : " + _inGameMusicManager_s.completedLoops;
+                //lastInputTsf.GetComponent<TextMeshProUGUI>().text = _inGameMusicManager_s.musicPosition + " and loop position : " + _inGameMusicManager_s.loopPositionInBeats + " and completeLoop : " + _inGameMusicManager_s.completedLoops;
                 if (curInGameStatus == EInGameStatus.PLAYERMOVE)
                 {
                     if (Input.GetKeyDown(KeyCode.Mouse0))
@@ -403,7 +512,6 @@ public partial class InGameManager_s //update
                                 {
                                     if (_cubeKeyBinds[dic.Key]())
                                     {
-                                        BeatScoreCount();
                                     }
                                 }
                                 else
@@ -423,6 +531,7 @@ public partial class InGameManager_s //update
                                 if(!isFirstInput)
                                 {
                                     isFirstInput = true;
+                                    _inGameData_s.doremiTextTsf.gameObject.SetActive(false);
                                     _inGameEnemy_s.EnemyPhaseChange(EEnemyPhase.Phase1);
                                 }
                                 if (BeatJudgement())
@@ -474,13 +583,12 @@ public partial class InGameManager_s //update
             {
                 //Debug.Log("is player Move " + _inGameMusicManager_s.loopPositionInBeats);
                 _inGamePlayer_s.MovePlayer(_playerMoveData[InputQueue.Peek()], _inGameData_s.divideSize);
-                _inGameEnemy_s.PlayerPositionCheck(_inGamePlayer_s.playerPos, true);
+ 
                 if (!_inGameMusicManager_s.IsMoveNextBit)
                 {
                     MoveNextBeat();
                     //Debug.Log("is player move and movenextbit " + _inGameMusicManager_s.loopPositionInBeats);
                 }
-                BeatScoreCount();
             }
             InputQueue.Clear();
         }
@@ -488,13 +596,14 @@ public partial class InGameManager_s //update
     public bool BeatJudgement()
     {
    
-        if(_inGameMusicManager_s.musicPosition-lastInputSec<=0.25f) //연속으로 입력하는것을 막기 위함
+        if(_inGameMusicManager_s.musicPosition-lastInputSec<=0.4f) //연속으로 입력하는것을 막기 위함
         {
             return false;
         }
         if (_inGameMusicManager_s.loopPositionInBeats <=_inGameData_s.beatJudgeMax||_inGameMusicManager_s.loopPositionInBeats >= _inGameData_s.beatJudgeMin)
         {
             AutoCalibration(true,false);
+            BeatScoreCount(_inGameMusicManager_s.loopPositionInBeats);
             return true;
         }
         else
@@ -502,6 +611,7 @@ public partial class InGameManager_s //update
             if (_inGameMusicManager_s.loopPositionInBeats + _autoCalibrationValue <= _inGameData_s.beatJudgeMax || _inGameMusicManager_s.loopPositionInBeats + _autoCalibrationValue >= _inGameData_s.beatJudgeMin)
             {
                 AutoCalibration(true,true);
+                BeatScoreCount(_inGameMusicManager_s.loopPositionInBeats + _autoCalibrationValue);
                 return true;
             }
             else
@@ -572,25 +682,28 @@ public partial class InGameManager_s //update
              
             }
         }
-        autoTsf.GetComponent<TextMeshProUGUI>().text = "is auto calibration :" + _isAutoCalibrationOn + " value : " + _autoCalibrationValue;
+        //autoTsf.GetComponent<TextMeshProUGUI>().text = "is auto calibration :" + _isAutoCalibrationOn + " value : " + _autoCalibrationValue;
     }
-    public void BeatScoreCount() //조정필요
+    public void BeatScoreCount(float postionValue) //조정필요
     {
-     
-        /*if (_beatCountValue <= _inGameData_s.beatJudgeMax - 0.1f && _beatCountValue >= _inGameData_s.beatJudgeMin + 0.1f)
+        if (postionValue <=_inGameData_s.beatJudgeMax-0.05f&& postionValue <= _inGameData_s.beatJudgeMin + 0.05f)
         {
             //perfect
+            _inGameData_s.beatTsf.GetComponent<Image>().sprite = _inGameData_s.beatPrefectImg;
             UpdateCombo(1);
             UpdateScore(100);
             StageDataController.Instance.perfectCount++;
+            PlayerScoreShow("Perfect");
         }
         else
         {
+            _inGameData_s.beatTsf.GetComponent<Image>().sprite = _inGameData_s.beatGoodImg;
             UpdateCombo(1);
             UpdateScore(50);
             //good
             StageDataController.Instance.goodCount++;
-        }*/
+            PlayerScoreShow("Good");
+        }
     }
     public void MoveNextBeat()
     {
@@ -638,12 +751,15 @@ public partial class InGameManager_s //update
         }
         if (!IsInput)
         {
+            _inGameData_s.beatTsf.GetComponent<Image>().sprite = _inGameData_s.beatDefaultImg;
             UpdateCombo(combo * -1);
+            PlayerScoreShow("");
         }
+        IsInput = false;
     }
     IEnumerator WaitTime(float time)
     {
-        curInGameStatus = EInGameStatus.TIMEWAIT;
+        ChangeInGameState(EInGameStatus.TIMEWAIT);
         foreach (Transform target in _inGameData_s.beatTsf)
         {
             Destroy(target.gameObject);
@@ -652,9 +768,8 @@ public partial class InGameManager_s //update
         _isAutoCalibrationOn = false;
         _autoCalibrationValue = 0f;
         yield return new WaitForSeconds(time - 0.2f);
-        ChangeInGameState(EInGameStatus.TIMEWAIT);
+        _inGameData_s.cubeEffectObj.GetComponent<ParticleSystem>().Stop();
         _inGameData_s.cubeEffectObj.transform.Find(curFace.ToString()).gameObject.SetActive(false);
-        _inGameEnemy_s.UpdateEnemyHP(-1);
         if (curGameStatus==EGameStatus.PLAYING)
         {
             if(_inGameEnemy_s.curEnemyPhase==EEnemyPhase.Phase1)
@@ -674,6 +789,8 @@ public partial class InGameManager_s //update
             yield return new WaitForSeconds(0.2f);
             _inGamePlayer_s.UpdatePlayerHP(1);
             ChangeInGameState(EInGameStatus.SHOWPATH);
+            AttackChange();
+            StageChange();
         }
     }
     public void ChangeInGameState(EInGameStatus target)
@@ -698,18 +815,44 @@ public partial class InGameManager_s //cube
     IEnumerator RotateMode()
     {
         curInputMode = EInputMode.ROTATE;
-        _inGameData_s.rotateImageTsf.Find(_rotateTarget.ToString()).gameObject.SetActive(true);
-        yield return new WaitForSeconds(_inGameMusicManager_s.secPerBeat - 0.02f);
+        IsInput = false;
+        StartCoroutine(ShowRotateImage());
+        yield return new WaitForSeconds(_inGameMusicManager_s.secPerBeat*3 - 0.02f);
         if (!IsInput)
         {
             PlayerHPDown(-1, "Don't Rotate");
         }
-        _inGameData_s.rotateImageTsf.Find(_rotateTarget.ToString()).gameObject.SetActive(false);
-        InGameUI.ShowCharacterAnimation(new List<string>() { "ready", "attack" }, _inGameData_s.playerImageObj);
-        _inGameData_s.playerAttackEffectObj.GetComponent<ParticleSystem>().Play();
+        //InGameUI.ShowCharacterAnimation(new List<string>() { "ready", "attack" }, _inGameData_s.playerImageObj);
+        StartCoroutine(_inGamePlayer_s.PlayerAttack());
+       // _inGameData_s.playerAttackEffectObj.GetComponent<ParticleSystem>().Play();
         _inGameData_s.cubeEffectObj.transform.Find(curFace.ToString()).gameObject.SetActive(true);
         _inGameData_s.cubeEffectObj.GetComponent<ParticleSystem>().Play();
         StartCoroutine(WaitTime(_inGameData_s.animationTime));
+    }
+    IEnumerator ShowRotateImage()
+    {
+        Image targetRotateImage = _inGameData_s.rotateImageTsf.Find(_rotateTarget.ToString()).GetComponent<Image>();
+        _inGameData_s.rotateImageTsf.Find(_rotateTarget.ToString()).gameObject.SetActive(true);
+        float timeCount = 0;
+        WaitForSeconds waitTime = new WaitForSeconds(0.02f);
+        while (timeCount <= _inGameMusicManager_s.secPerBeat*4)
+        {
+            if(curGameStatus==EGameStatus.PAUSE)
+            {
+                continue;
+            }
+            if (timeCount < (_inGameMusicManager_s.secPerBeat*4) / 2)
+            {
+                targetRotateImage.color = new Vector4(targetRotateImage.color.r, targetRotateImage.color.g, targetRotateImage.color.b, Mathf.Lerp(0, 1, (timeCount / _inGameMusicManager_s.secPerBeat * 4) / 2)+0.3f);
+            }
+            else
+            {
+                targetRotateImage.color = new Vector4(targetRotateImage.color.r, targetRotateImage.color.g, targetRotateImage.color.b, Mathf.Lerp(1, 0, timeCount / (_inGameMusicManager_s.secPerBeat *4) / 2));
+            }
+            yield return waitTime;
+            timeCount += 0.02f;
+        }
+        _inGameData_s.rotateImageTsf.Find(_rotateTarget.ToString()).gameObject.SetActive(false);
     }
     public void EndRoateMode()
     {
@@ -732,12 +875,27 @@ public partial class InGameManager_s  //player
 {
     public void PlayerHPDown(int value,string message)
     {
+
+        if(message=="beat miss")
+        {
+            _inGameData_s.beatTsf.GetComponent<Image>().sprite = _inGameData_s.beatMissImg;
+        }
         _inGamePlayer_s.UpdatePlayerHP(value);
         InGameUI.ShowText(_inGameData_s, message);
+        PlayerScoreShow("Miss");
     }
     public bool IsCanMovePlayer(Vector2Int movePos, Vector2Int divideSize)
     {
         return _inGamePlayer_s.PlayerMoveCheck(movePos, divideSize);
+    }
+
+    public void DoremiTextChange(string data)
+    {
+        _inGameData_s.doremiTextTsf.Find("Text").GetComponent<TextMeshProUGUI>().text = data;
+    }
+    public void InGameTextChange(string data)
+    {
+        _inGameData_s.inGameTextTsf.Find("Text").GetComponent<TextMeshProUGUI>().text = data;
     }
 }
 public partial class InGameManager_s //enemy

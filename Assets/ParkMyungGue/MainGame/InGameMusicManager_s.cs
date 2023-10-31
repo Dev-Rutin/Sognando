@@ -34,6 +34,10 @@ public partial class InGameMusicManager_s : MonoBehaviour, IDataSetting,IScript 
     public AudioClip mainMusicClip;
     public bool IsMoveNextBit;
     public float lastNextBeatLoopPosition;
+    //pause
+    public float pausePosition;
+    public float pauseStartDspPosition;
+    public float totalPauseValue;
     public void ScriptBind(InGameManager_s gameManager)
     {
         _inGameManager_s = gameManager;
@@ -53,7 +57,10 @@ public partial class InGameMusicManager_s : MonoBehaviour, IDataSetting,IScript 
         mainMusicClip = _inGameData_s.musicClip;
         IsMoveNextBit = false;
         lastNextBeatLoopPosition = 0f; //비트가 정상적으로 넘어갔을 경우의 현재 비트의 위치
-    }
+      pausePosition=0;
+  pauseStartDspPosition=0;
+   totalPauseValue=0;
+}
 }
 public partial class InGameMusicManager_s //main system
 {
@@ -75,6 +82,10 @@ public partial class InGameMusicManager_s //main system
         loopPositionInBeats = 0;
         IsMoveNextBit = false;
         lastNextBeatLoopPosition = 0f;
+        pausePosition = 0;
+        pauseStartDspPosition = 0;
+        totalPauseValue = 0;
+        beatCreateCount = 0;
         AudioPlay(mainMusicClip); //need last
     }
     public void GameEnd()
@@ -84,31 +95,39 @@ public partial class InGameMusicManager_s //main system
 }
 public partial class InGameMusicManager_s //game system
 {
+    public int beatCreateCount;
     private void Update()
     {
         if (_inGameManager_s.curGameStatus == EGameStatus.PLAYING)
         {
-            musicPosition = (float)(AudioSettings.dspTime - dspMusicStartPosition - firstBeatOffset);
+            musicPosition = (float)(AudioSettings.dspTime - dspMusicStartPosition - firstBeatOffset-totalPauseValue);
             musicPositionInBeats = musicPosition / secPerBeat;
             if (musicPositionInBeats >= (completedLoops + 1))
             {
                 completedLoops++;
-                if (_inGameManager_s.GetIsPlayerMoveCheck()||_inGameManager_s.curInGameStatus!=EInGameStatus.PLAYERMOVE)
+                if (!_inGameManager_s.GetIsPlayerMoveCheck()||_inGameManager_s.curInGameStatus!=EInGameStatus.PLAYERMOVE)
                 {
                     _inGameManager_s.MoveNextBeat();
-                    //Debug.Log("just musicmnange next bit " + loopPositionInBeats);
+                    Debug.Log("just musicmnange next bit " + loopPositionInBeats);
                 }
                 else
                 {
                     IsMoveNextBit = false;
                 }
-                _inGameManager_s.IsBeatObjCreate = false;
+                 _inGameManager_s.IsBeatObjCreate = false;
+                /*if (beatCreateCount == 1)
+                {
+                    _inGameManager_s.IsBeatObjCreate = false;
+                }
+                else
+                {
+                    beatCreateCount++;
+                }*/
                 lastNextBeatLoopPosition = loopPositionInBeats;
                 //Debug.Log("move next bit" + "+ msicposition :" + musicPosition+"looppostion : "+ (musicPositionInBeats - completedLoops));
-                debugLogTsf.GetComponent<TextMeshProUGUI>().text =  "move next bit" + "+ msicposition :" + musicPosition+" completedloop : " +completedLoops;
+                //debugLogTsf.GetComponent<TextMeshProUGUI>().text =  "move next bit" + "+ msicposition :" + musicPosition+" completedloop : " +completedLoops;
             }
             loopPositionInBeats = musicPositionInBeats - completedLoops;
-            InGameUI.ShowBGMSlider(_inGameData_s.bgmSlider, musicPosition / mainMusicClip.length);
             /*float value = UnityEngine.Random.Range(0, 0.1f);
             if(loopPositionInBeats >=0.65f+value && loopPositionInBeats <= 0.67f+value&& _inGameManager_s.InputQueue.Count==0)
             {
@@ -152,18 +171,18 @@ public partial class InGameMusicManager_s //music manage
     {
         foreach (var data in _audioDic)
         {
-            data.Value.Stop();
+            data.Value.Pause();
+            pausePosition = data.Value.time;
+            pauseStartDspPosition = musicPosition;
         }
     }
-    public void AudioUnPause(TimeSpan _time)
+    public void AudioUnPause()
     {
         foreach (var data in _audioDic)
         {
-            if (data.Key.length >= _time.TotalSeconds)
-            {
-                data.Value.time = (float)_time.TotalSeconds;
-            }
-            data.Value.Play();
+            data.Value.time = pausePosition;
+            totalPauseValue += (float)(AudioSettings.dspTime - dspMusicStartPosition - firstBeatOffset - totalPauseValue) - pauseStartDspPosition;
+            data.Value.UnPause();
         }
     }
     public void ChangeVolume(float volume) { }

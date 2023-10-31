@@ -7,7 +7,8 @@ public enum EStage
     STAGE_TWO,
     STAGE_THREE,
     STAGE_FOUR,
-    STAGE_FIVE
+    STAGE_FIVE,
+    STAGE_SIX
 }
 public enum EInputMode
 {

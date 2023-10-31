@@ -3,6 +3,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 public struct SideData
 {
     public Vector2 position;
@@ -76,6 +78,7 @@ public struct SideData
 public partial class InGameData_s:MonoBehaviour,IDataSetting // data는 게임이 실행되기 전에 초기화 및 할당되는 값을 보관함
 {
     [Header("main system reference data")]
+    public Transform exportCubeBGTsf;
     public Vector2Int divideSize;
     public Transform divideRectSizeTsf;
     public SideData[,] sideDatas;  //x,y
@@ -86,6 +89,10 @@ public partial class InGameData_s:MonoBehaviour,IDataSetting // data는 게임이 실
     public Transform comboTsf;
     public EStage curStage;
     public Transform beatTsf;
+    public Sprite beatPrefectImg;
+    public Sprite beatGoodImg;
+    public Sprite beatMissImg;
+    public Sprite beatDefaultImg;
     public float beatEndScaleX;
     public float beatEndScaleY;
     public float beatJudgeMax;
@@ -95,16 +102,21 @@ public partial class InGameData_s:MonoBehaviour,IDataSetting // data는 게임이 실
     public float movingTime;
     public float animationTime;
     public GameObject beatObj;
+    public Transform inGameTextTsf;
+    public Transform ScoreShowTsf;
     [Header("player reference data")]
+    public GameObject doremiImageObj;
     public GameObject inGamePlayerObj;
     public GameObject playerImageObj;
     public Transform playerHPOffTsf;
     public GameObject playerAttackEffectObj;
     public int playerMaxHP;
+    public Transform playerHealEffect;
+    public Transform playerHurtEffect;
+    public Transform doremiTextTsf;
     [Header("cube reference data")]
     public GameObject gameCubeObj;
-    public Material cubeMaterial;
-    public Material cubeSliceMaterial;
+    public Transform cubeUI;
     public GameObject cubeEffectObj;
     public Transform rotateImageTsf;
     [Header("enemy reference data")]
@@ -139,15 +151,16 @@ public partial class InGameData_s:MonoBehaviour,IDataSetting // data는 게임이 실
         sideDatas = new SideData[divideSize.x, divideSize.y];
         float xChange = divideRectSizeTsf.GetComponent<RectTransform>().rect.width / divideSize.x;
         float yChange = divideRectSizeTsf.GetComponent<RectTransform>().rect.height / divideSize.y;
+        Vector2 CubePivot = new Vector2(divideRectSizeTsf.GetComponent<RectTransform>().rect.width / -2, divideRectSizeTsf.GetComponent<RectTransform>().rect.height/2);
         for (int i = 0; i < divideSize.x; i++)
         {
             for (int j = 0; j < divideSize.y; j++)
             {
-                sideDatas[i, j] = new SideData(new Vector2(i, j), new Vector2(-1 * (xChange + inGamePlayerObj.GetComponent<RectTransform>().rect.width) - 6 + xChange * i, yChange + inGamePlayerObj.GetComponent<RectTransform>().rect.height + 6 - yChange * j));
+                sideDatas[i, j] = new SideData(new Vector2(i, j), new Vector2((CubePivot.x+xChange/2)+i*xChange,(CubePivot.y-yChange/2)-j*yChange));                                                                                       
             }
         }
-        beatEndScaleX = beatEndScaleX==0?0.95f:beatEndScaleX;
-        beatEndScaleY = beatEndScaleY ==0?0.95f:beatEndScaleY;
+        beatEndScaleX = beatEndScaleX==0?1f:beatEndScaleX;
+        beatEndScaleY = beatEndScaleY ==0?1f:beatEndScaleY;
         beatJudgeMax = beatJudgeMax == 0 ? 0.15f : beatJudgeMax;
         beatJudgeMin = beatJudgeMin == 0 ? 0.85f : beatJudgeMin;
         beatJudgeExtra = beatJudgeExtra == 0 ? 0.3f : beatJudgeExtra;
@@ -172,20 +185,22 @@ public partial class InGameData_s:MonoBehaviour,IDataSetting // data는 게임이 실
     }
     public void StopAllAnimation()
     {
-        playerImageObj.GetComponent<SkeletonAnimation>().AnimationState.TimeScale = 0;
-        enemyImageObj.GetComponent<SkeletonAnimation>().AnimationState.TimeScale = 0;
+       //playerImageObj.GetComponent<SkeletonAnimation>().AnimationState.TimeScale = 0;
+        //enemyImageObj.GetComponent<SkeletonAnimation>().AnimationState.TimeScale = 0;
     }
     public void StartAllAnimation()
     {
-        playerImageObj.GetComponent<SkeletonAnimation>().AnimationState.TimeScale = 1;
-        enemyImageObj.GetComponent<SkeletonAnimation>().AnimationState.TimeScale = 1;
+        //playerImageObj.GetComponent<SkeletonAnimation>().AnimationState.TimeScale = 1;
+        //enemyImageObj.GetComponent<SkeletonAnimation>().AnimationState.TimeScale = 1;
     }
     public void StopAllParticle()
     {
         cubeEffectObj.GetComponent<ParticleSystem>().Stop();
         inGamePlayerObj.transform.Find("Effect").GetComponent<ParticleSystem>().Stop();
+        inGamePlayerObj.transform.Find("NoiseDissolve").GetComponent<ParticleSystem>().Stop();
         enemyHitEffectObj.GetComponent<ParticleSystem>().Stop();
-        playerAttackEffectObj.GetComponent<ParticleSystem>().Stop();
+        playerHealEffect.GetComponent<ParticleSystem>().Stop();
+        playerHurtEffect.GetComponent<ParticleSystem>().Stop();
     }
 }
 public partial class InGameData_s // data converter

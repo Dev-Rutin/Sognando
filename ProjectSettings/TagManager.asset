@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - stageData
+  - FloatingObject
+  - Cloud
   layers:
   - Default
   - TransparentFX

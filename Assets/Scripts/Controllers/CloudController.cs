@@ -8,7 +8,7 @@ public class CloudController : MonoBehaviour
 
     [SerializeField] private float _fadeTime;
     [SerializeField] private float _moveDistance;
-    [SerializeField] private float _moveSpeed;
+    [SerializeField] private float _moveTime;
     // Start is called before the first frame update
     void Start()
     {
@@ -17,7 +17,7 @@ public class CloudController : MonoBehaviour
 
     public void CloudStart()
     {
-        StartCoroutine(CloudMove());
+        StartCoroutine(Fade());
     }
 
     private IEnumerator CloudMove()
@@ -34,6 +34,16 @@ public class CloudController : MonoBehaviour
         }
     }
 
+    private IEnumerator Fade()
+    {
+        foreach (var cloud in _clouds)
+        {
+            FadeUtlity.Instance.CallFade(_fadeTime, cloud.gameObject, EGameObjectType.GameObject, EFadeType.FadeOut);
+            cloud.gameObject.GetComponent<FloatingObjectController>().enabled = true;
+            yield return new WaitForSeconds(Random.Range(0.5f, 0.8f));
+        }
+    }
+
     private IEnumerator MoveAndFade(int index)
     {
         Vector3 markPosition = _clouds[index].transform.position;
@@ -45,7 +55,7 @@ public class CloudController : MonoBehaviour
         while (_clouds[index].color.a < 1)
         {
             timer += Time.deltaTime;
-            markPosition.x = Mathf.Lerp(firstPositionX, destination, timer / _moveSpeed);
+            markPosition.x = Mathf.Lerp(firstPositionX, destination, timer / _moveTime);
             _clouds[index].transform.position = markPosition;
             yield return null;
         }

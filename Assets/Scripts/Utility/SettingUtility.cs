@@ -60,6 +60,6 @@ public class SettingUtility : Singleton<SettingUtility>
     private void CloseSetting(GameObject setting)
     {
         Debug.Log("call button");
-        setting.SetActive(false);
+        setting.GetComponent<Canvas>().enabled = false;
     }
 }

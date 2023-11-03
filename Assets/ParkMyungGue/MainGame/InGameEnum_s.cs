@@ -34,6 +34,7 @@ public enum EGameStatus
 }
 public enum EInGameStatus
 {
+    NONE,
     SHOWPATH,
     PLAYERMOVE,
     TIMEWAIT

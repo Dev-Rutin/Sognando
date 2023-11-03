@@ -112,6 +112,7 @@ public partial class InGameEnemy_s //game system
         isEnemyPhaseEnd = true;
         DoEnemyMode();
         curEnemyMods.Clear();
+        curEnemyPhase = EEnemyPhase.None;
     }
     public void MoveNextBit(EInGameStatus curInGameStatus)
     {
@@ -594,10 +595,12 @@ public partial class InGameEnemy_s //pattern
     }
     private void GetRandomeCoin()
     {
+        Debug.Log("aa");
         GetRandomeObjs("coin", _inGameData_s.coinSampleObj, true,_inGameData_s.coinsTsf, 5);
     }
     private void EndCoin()
     {
+        Debug.Log("b");
         RemoveAllTargetObj("coin");
     }
     private void GetRandomeFire()
@@ -610,6 +613,7 @@ public partial class InGameEnemy_s //pattern
     }
     private void CoinAction()
     {
+        Debug.Log("dd");
         if (_inGameManager_s.curInGameStatus == EInGameStatus.SHOWPATH)
         {
             GetRandomeCoin();
@@ -619,6 +623,7 @@ public partial class InGameEnemy_s //pattern
         {
             if (isEnemyPhaseEnd)
             {
+                Debug.Log("cc");
                 EndCoin();
                 //EndFire();
             }
@@ -925,37 +930,40 @@ _inGameData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transf
     }
     public void GhostAction()
     {
-        if (_inGameManager_s.curInGameStatus == EInGameStatus.SHOWPATH&&_curGhost==null)
+        if (_inGameManager_s.curInGameStatus == EInGameStatus.SHOWPATH)
         {
-            SetGhost();
-        }
-        else
-        {
-            Vector2 moveTarget = Vector2.zero;
-            switch (_curGhostPos)
+            if (_curGhost == null)
             {
-                case 0:
-                    moveTarget = _inGameData_s.sideDatas[1, 0].transform;
-                    break;
-                case 1:
-                    moveTarget = _inGameData_s.sideDatas[2, 0].transform;
-                    break;
-                case 2:
-                    moveTarget = _inGameData_s.sideDatas[2, 1].transform;
-                    break;
-                case 3:
-                    moveTarget = _inGameData_s.sideDatas[2, 1].transform;
-                    break;
-                default:
-                    break;
+                SetGhost();
             }
-            _curGhostPos++;
-            if (_curGhostPos == 4)
+            else
             {
-                _curGhostPos = 0;
-            }
+                Vector2 moveTarget = Vector2.zero;
+                switch (_curGhostPos)
+                {
+                    case 0:
+                        moveTarget = _inGameData_s.sideDatas[1, 0].transform;
+                        break;
+                    case 1:
+                        moveTarget = _inGameData_s.sideDatas[2, 0].transform;
+                        break;
+                    case 2:
+                        moveTarget = _inGameData_s.sideDatas[2, 1].transform;
+                        break;
+                    case 3:
+                        moveTarget = _inGameData_s.sideDatas[2, 1].transform;
+                        break;
+                    default:
+                        break;
+                }
+                _curGhostPos++;
+                if (_curGhostPos == 4)
+                {
+                    _curGhostPos = 0;
+                }
                 curGhostI = MoveGhost(moveTarget);
                 StartCoroutine(curGhostI);
+            }
         }
     }
     public IEnumerator MoveGhost(Vector2 targetPos)

@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using TMPro.EditorUtilities;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
@@ -561,7 +562,10 @@ public partial class DivideCube_s : MonoBehaviour//main system
             default:
                 break;
         }
-        _IsInput = false;
+        if (_curCubeMode == EInputMode.MAINTAIN)
+        {
+            _IsInput = false;
+        }
     }
     IEnumerator WaitTime(float time)
     {

@@ -142,7 +142,7 @@ public partial class InGameManager_s //data
         beatFreezeCount = 0;
         _isBeatChecked = false;
         curGameStatus = EGameStatus.NONE;
-        curInGameStatus = EInGameStatus.SHOWPATH;
+        curInGameStatus = EInGameStatus.NONE;
         curInputMode = EInputMode.MAINTAIN;
         score = 0;
         combo = 0;
@@ -163,7 +163,6 @@ public partial class InGameManager_s //data
         {
             data.gameObject.SetActive(false);
         }
-        GetFaceName();
         BindSetting();
         ButtonBind();
         InGameStart();
@@ -308,7 +307,7 @@ public partial class InGameManager_s //main system
         //_inGameData_s.exportCubeBGTsf.Find("Animation").gameObject.SetActive(false);
         //_inGameData_s.exportCubeBGTsf.gameObject.SetActive(true);
         curGameStatus = EGameStatus.STARTWAITTING;
-        //GameStart();
+        GameStart();
     }
     public void GamePause()
     {
@@ -408,6 +407,7 @@ public partial class InGameManager_s //main system
         IsGameRestart = true;
         _inGameMusicManager_s.GameEnd();
         curGameStatus = EGameStatus.END;
+        curInGameStatus = EInGameStatus.NONE;
         StopAllCoroutines();
         _inGamePlayer_s.GameEnd();
         _inGameEnemy_s.GameEnd();
@@ -596,7 +596,7 @@ public partial class InGameManager_s //update
     public bool BeatJudgement()
     {
    
-        if(_inGameMusicManager_s.musicPosition-lastInputSec<=0.4f) //연속으로 입력하는것을 막기 위함
+        if(_inGameMusicManager_s.musicPosition-lastInputSec<=0.25f) //연속으로 입력하는것을 막기 위함
         {
             return false;
         }
@@ -755,7 +755,10 @@ public partial class InGameManager_s //update
             UpdateCombo(combo * -1);
             PlayerScoreShow("");
         }
-        IsInput = false;
+        if (curInputMode == EInputMode.MAINTAIN)
+        {
+            IsInput = false;
+        }
     }
     IEnumerator WaitTime(float time)
     {

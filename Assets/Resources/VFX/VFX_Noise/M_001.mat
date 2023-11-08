@@ -49,7 +49,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Main_Sprite:
-        m_Texture: {fileID: 2800000, guid: e984bfc8da308834e8d678fdf8c74d64, type: 3}
+        m_Texture: {fileID: 2800000, guid: 207c7c3869bf6b446a73b6f892bb5b97, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Main_tex:
@@ -85,7 +85,7 @@ Material:
     - _QueueOffset: 0
     - _SWI: 1
     m_Colors:
-    - _Color: {r: 2, g: 2, b: 2, a: 1}
+    - _Color: {r: 0, g: 0, b: 0, a: 1}
     - _Diss_color: {r: 2, g: 2, b: 2, a: 0}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
     - _Main_color: {r: 1.498039, g: 1.498039, b: 1.498039, a: 0}

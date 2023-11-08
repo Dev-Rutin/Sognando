@@ -29,7 +29,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Diss_tex:
-        m_Texture: {fileID: 2800000, guid: e45f9aa82a7d18445bc921bc8ec5f1e2, type: 3}
+        m_Texture: {fileID: 2800000, guid: 485184be3d0270f428d659badda68341, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
@@ -37,7 +37,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Main_tex:
-        m_Texture: {fileID: 2800000, guid: 825e4cf86e267ab428d1f653414cc32f, type: 3}
+        m_Texture: {fileID: 2800000, guid: 2eda763399bf5c046841babd1e7be454, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskTex:
@@ -62,17 +62,17 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Diss_line_width: 0.02
-    - _Dissolve: 0.5
+    - _Diss_line_width: -0.05
+    - _Dissolve: 0
     - _EnableExternalAlpha: 0
     - _QueueControl: 0
     - _QueueOffset: 0
     - _SWI: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Diss_color: {r: 5.3403134, g: 5.3403134, b: 5.3403134, a: 0}
+    - _Diss_color: {r: 2, g: 2, b: 2, a: 0}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _Main_color: {r: 2.9960783, g: 2.9960783, b: 2.9960783, a: 0}
+    - _Main_color: {r: 2, g: 2, b: 2, a: 0}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &6707378852117460097

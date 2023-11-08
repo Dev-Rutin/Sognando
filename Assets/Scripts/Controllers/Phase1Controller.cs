@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using Spine;
 using Spine.Unity;
 using UnityEngine;
+using Animation = UnityEngine.Animation;
 
-public class Phase1Controller : MonoBehaviour
+public class Phase1Controller : Singleton<Phase1Controller>
 {
     [SerializeField] private float _fadeTime;
     [SerializeField] private float _musicMarkWaitTime;
@@ -13,7 +15,8 @@ public class Phase1Controller : MonoBehaviour
     [SerializeField] private GameObject _musicMark;
     [SerializeField] private GameObject _cloud;
     [SerializeField] private GameObject _moon;
-    [SerializeField] private GameObject _cubeAnimation;
+    public bool isPhaseEnd;
+
     private SpriteRenderer[] _childs;
     // Start is called before the first frame update
     void Start()
@@ -48,11 +51,11 @@ public class Phase1Controller : MonoBehaviour
 
         yield return new WaitForSeconds(_musicMarkWaitTime);
         
-        _cubeAnimation.SetActive(true);
-        _cubeAnimation.GetComponent<SkeletonAnimation>().AnimationName = "cube_animation";
         
         _cloud.GetComponent<CloudController>().CloudStart();
         
         _musicMark.GetComponent<MusicMarkController>().MarkStart();
+
+        isPhaseEnd = true;
     }
 }

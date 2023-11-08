@@ -3,22 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BackGroundController : MonoBehaviour
+public class BackGroundController : Singleton<BackGroundController>
 {
     [SerializeField] private GameObject _phase1;
     [SerializeField] private GameObject _phase2;
     [SerializeField] private GameObject _phase3;
     [SerializeField] private GameObject _phase4;
     [SerializeField] private GameObject _phase5;
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            StartPhase1();
-        }
-    }
-
+    
     public void StartPhase1()
     {
         _phase1.GetComponent<Phase1Controller>().PhaseStart();

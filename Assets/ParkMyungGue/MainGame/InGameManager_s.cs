@@ -163,11 +163,11 @@ public partial class InGameManager_s //data
         {
             data.gameObject.SetActive(false);
         }
-        GetFaceName();
+        //GetFaceName();
         BindSetting();
         ButtonBind();
-        InGameStart();
-        GameEnd();
+        /*InGameStart();
+        GameEnd();*/
     }
     private void BindSetting()
     {
@@ -246,12 +246,16 @@ public partial class InGameManager_s //data change
         switch(_inGameData_s.curStage)
         {
             case EStage.STAGE_ONE:
+                BackGroundController.Instance.StartPhase2();
                 break;
             case EStage.STAGE_TWO:
+                BackGroundController.Instance.StartPhase3();
                 break;
             case EStage.STAGE_THREE:
+                BackGroundController.Instance.StartPhase4();
                 break;
             case EStage.STAGE_FOUR:
+                BackGroundController.Instance.StartPhase5();
                 break;
             case EStage.STAGE_FIVE:
                 break;
@@ -596,7 +600,7 @@ public partial class InGameManager_s //update
     public bool BeatJudgement()
     {
    
-        if(_inGameMusicManager_s.musicPosition-lastInputSec<=0.4f) //¿¬¼ÓÀ¸·Î ÀÔ·ÂÇÏ´Â°ÍÀ» ¸·±â À§ÇÔ
+        if(_inGameMusicManager_s.musicPosition-lastInputSec<=0.4f) //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·ï¿½ï¿½Ï´Â°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         {
             return false;
         }
@@ -684,7 +688,7 @@ public partial class InGameManager_s //update
         }
         //autoTsf.GetComponent<TextMeshProUGUI>().text = "is auto calibration :" + _isAutoCalibrationOn + " value : " + _autoCalibrationValue;
     }
-    public void BeatScoreCount(float postionValue) //Á¶Á¤ÇÊ¿ä
+    public void BeatScoreCount(float postionValue) //ï¿½ï¿½ï¿½ï¿½ï¿½Ê¿ï¿½
     {
         if (postionValue <=_inGameData_s.beatJudgeMax-0.05f&& postionValue <= _inGameData_s.beatJudgeMin + 0.05f)
         {

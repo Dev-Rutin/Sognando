@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1118340689977608884}
   - component: {fileID: 4313441897485553774}
   m_Layer: 5
-  m_Name: CoinSample
+  m_Name: NoiseSample
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -1,19 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+
+public enum EPlayerAttackLevel
+{
+    NONE,
+    ONE,
+    TWO,
+    THREE
+}
 public enum EStage
 {
+    NONE,
     STAGE_ONE,
     STAGE_TWO,
     STAGE_THREE,
     STAGE_FOUR,
     STAGE_FIVE,
     STAGE_SIX
-}
-public enum EInputMode
-{
-    ROTATE,
-    MAINTAIN
 }
 public enum ERotatePosition
 {
@@ -29,14 +30,14 @@ public enum EGameStatus
     STARTWAITTING,
     PLAYING,
     ENDWAIT,
-    END,
-    PAUSE
+    END
 }
 public enum EInGameStatus
 {
     NONE,
     SHOWPATH,
     PLAYERMOVE,
+    CUBEROTATE,
     TIMEWAIT
 }
 public enum ECubeFace
@@ -52,12 +53,9 @@ public enum ECubeFace
 public enum EEnemyMode
 {
     GHOST,
-    PATH,
-    COIN,
+    NOISE,
     LINEATTACK,
-    LINKLINEATTACK,
-    BLOCK,
-    NEEDLEATTACK
+    LINKLINEATTACK
 }
 public enum ELineAttackMode
 {
@@ -80,8 +78,4 @@ public enum EEnemyPhase
     Phase1,
     Phase2,
     Phase3
-}
-public class InGameEnum_s
-{
-   
 }

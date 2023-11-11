@@ -29,7 +29,9 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 9014879514786739728}
+  - {fileID: 4010483975796935227}
   m_Father: {fileID: 7173397339001514857}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -107,7 +109,6 @@ RectTransform:
   - {fileID: 1853915971156568199}
   - {fileID: 8151122421262697542}
   - {fileID: 357861004576990424}
-  - {fileID: 9014879514786739728}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -135,7 +136,7 @@ GameObject:
   - component: {fileID: 8890247493281329436}
   - component: {fileID: 5787566393781595045}
   m_Layer: 5
-  m_Name: Warning
+  m_Name: AttackDirection
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -223,13 +224,12 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5719849950384719659}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 4010483975796935227}
-  m_Father: {fileID: 7173397339001514857}
+  m_Children: []
+  m_Father: {fileID: 357861004576990424}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -355,8 +355,12 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 9014879514786739728}
+    m_TransformParent: {fileID: 357861004576990424}
     m_Modifications:
+    - target: {fileID: 1007806522188102299, guid: 967c5076419396245a24523ff042c1de, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1007806522188102299, guid: 967c5076419396245a24523ff042c1de, type: 3}
       propertyPath: InitialModule.startSize.scalar
       value: 2
@@ -405,6 +409,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Effect
       objectReference: {fileID: 0}
+    - target: {fileID: 5242947798752636924, guid: 967c5076419396245a24523ff042c1de, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5704097817952398598, guid: 967c5076419396245a24523ff042c1de, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5704097817952398598, guid: 967c5076419396245a24523ff042c1de, type: 3}
       propertyPath: InitialModule.startSize.scalar
       value: 0.09
@@ -414,12 +426,20 @@ PrefabInstance:
       value: 0.06
       objectReference: {fileID: 0}
     - target: {fileID: 6460913121039390451, guid: 967c5076419396245a24523ff042c1de, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6460913121039390451, guid: 967c5076419396245a24523ff042c1de, type: 3}
       propertyPath: InitialModule.startSize.scalar
       value: 0.09
       objectReference: {fileID: 0}
     - target: {fileID: 6460913121039390451, guid: 967c5076419396245a24523ff042c1de, type: 3}
       propertyPath: InitialModule.startSize.minScalar
       value: 0.06
+      objectReference: {fileID: 0}
+    - target: {fileID: 8160299464720835319, guid: 967c5076419396245a24523ff042c1de, type: 3}
+      propertyPath: playOnAwake
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8160299464720835319, guid: 967c5076419396245a24523ff042c1de, type: 3}
       propertyPath: InitialModule.startSize.scalar

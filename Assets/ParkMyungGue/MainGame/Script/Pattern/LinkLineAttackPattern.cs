@@ -1,0 +1,180 @@
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
+
+public class LinkLineAttackPattern : MonoBehaviour
+{
+    [Header("script")]
+    [SerializeField] private ScriptManager_s _script;
+    [Header("data")]
+    [SerializeField]private GameObject _linkLineAttackPrefab;
+    [SerializeField]private Transform _linkLineAttackTsf;
+    private GameObject _totalAttackObj;
+    private GameObject _attackDirection;
+    private GameObject _attackObj;
+    private GameObject _warningTile;
+    private ParticleSystem _warningEffect;
+    
+    private Vector2Int _curLinkLineAttackPos;
+    private Vector2Int _curLinkLineAttackEndPos;
+    private Vector2 _curLinkLineAttackDirection;
+    public ELinkLineAttackMode curLinkLineAttackMode { get; private set; }
+    private int _curLinkLineAttackCount;
+    private void Start()
+    {
+        _totalAttackObj = Instantiate(_linkLineAttackPrefab, _linkLineAttackTsf);
+        _totalAttackObj.transform.localPosition = Vector3.zero;
+        _attackDirection = _totalAttackObj.transform.GetChild(0).gameObject;
+        _attackObj = _totalAttackObj.transform.GetChild(1).gameObject;
+        _warningTile = _totalAttackObj.transform.GetChild(2).gameObject;
+        _warningEffect = _warningTile.transform.GetChild(1).GetComponent<ParticleSystem>();
+        _script._inGamefunBind_s.EgameStart += GameStart;
+    }
+    private void GameStart()
+    {
+        _totalAttackObj.SetActive(false);
+    }
+    private void GetRandomeLinkLineAttack()
+    {
+        int count = Random.Range(0, 2);
+        int secondcount = Random.Range(0, 2);
+        if (count == 0) // row attack
+        {
+            int y = _script._inGamePlayer_s.playerPos.y;
+            if (secondcount == 0)// left
+            {
+                _curLinkLineAttackPos = new Vector2Int(0, y);
+                _curLinkLineAttackEndPos = new Vector2Int(_script._inGameSideData_s.divideSize.x - 1, y);
+
+            }
+            else
+            {
+                _curLinkLineAttackPos = new Vector2Int(_script._inGameSideData_s.divideSize.x - 1, y);
+                _curLinkLineAttackEndPos = new Vector2Int(0, y);
+
+            }
+        }
+        else // columns attack
+        {
+            int x = _script._inGamePlayer_s.playerPos.x;
+            if (secondcount == 0)
+            {
+                _curLinkLineAttackPos = new Vector2Int(x, 0);
+                _curLinkLineAttackEndPos = new Vector2Int(x, _script._inGameSideData_s.divideSize.y - 1);
+            }
+            else
+            {
+                _curLinkLineAttackPos = new Vector2Int(x, _script._inGameSideData_s.divideSize.y - 1);
+                _curLinkLineAttackEndPos = new Vector2Int(x, 0);
+            }
+        }
+        _curLinkLineAttackDirection = new Vector2(_curLinkLineAttackEndPos.x - _curLinkLineAttackPos.x, _curLinkLineAttackEndPos.y - _curLinkLineAttackPos.y).normalized;
+        Vector2 direction = Vector2.zero;
+        if (_curLinkLineAttackDirection == Vector2.down)
+        {
+            direction = new Vector2(0, -150f);
+            _attackDirection.transform.localEulerAngles = new Vector3(0, 0, 90);
+        }
+        else if (_curLinkLineAttackDirection == Vector2.up)
+        {
+            direction = new Vector2(0, 150f);
+            _attackDirection.transform.localEulerAngles = new Vector3(0, 0, -90);
+        }
+        else if (_curLinkLineAttackDirection == Vector2.left)
+        {
+            direction = new Vector2(150f, 0);
+            _attackDirection.transform.localEulerAngles = new Vector3(0, 0, 180);
+        }
+        else if (_curLinkLineAttackDirection == Vector2.right)
+        {
+            direction = new Vector2(-150f, 0);
+        }
+        _attackDirection.transform.localPosition = _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform + direction;
+        _attackObj.transform.localPosition = _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform;
+        _attackObj.SetActive(false);
+        _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack = _totalAttackObj;
+        _warningTile.transform.localPosition = _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform;
+        _warningTile.SetActive(true);
+        _totalAttackObj.SetActive(true);
+    }
+    private void EndRandomeLinkLineAttack()
+    {
+        _script._inGameEnemy_s.RemoveAllTargetObj("linkLineAttack",false);
+        curLinkLineAttackMode = ELinkLineAttackMode.NONE;
+    }
+    public void Action(EInGameStatus inGameStatus, bool isEnemyPhaseEnd, bool isAttack)
+    {
+        if (inGameStatus==EInGameStatus.PLAYERMOVE)
+        { 
+            if (isEnemyPhaseEnd)
+            {
+                EndRandomeLinkLineAttack();
+                curLinkLineAttackMode = ELinkLineAttackMode.NONE;
+            }
+            else if(isAttack)
+            {
+                switch(curLinkLineAttackMode)
+                {
+                    case ELinkLineAttackMode.NONE:
+                        GetRandomeLinkLineAttack();
+                        _warningEffect.Play();
+                        curLinkLineAttackMode= ELinkLineAttackMode.SHOW1;
+                        break;
+                    case ELinkLineAttackMode.SHOW1:
+                        _warningEffect.Play();
+                        curLinkLineAttackMode = ELinkLineAttackMode.SHOW2;
+                        break;
+                    case ELinkLineAttackMode.SHOW2:
+                        _attackObj.gameObject.SetActive(true);
+                        _curLinkLineAttackCount = 1;
+                        _warningTile.transform.localPosition =
+                            _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x + (int)_curLinkLineAttackDirection.x, _curLinkLineAttackPos.y + (int)_curLinkLineAttackDirection.y].transform;
+                        _warningEffect.Play();
+                        curLinkLineAttackMode = ELinkLineAttackMode.ATTACK;
+                        break;
+                    case ELinkLineAttackMode.ATTACK:
+                        if (_curLinkLineAttackPos == _curLinkLineAttackEndPos)
+                        {
+                            EndRandomeLinkLineAttack();
+                        }
+                        else
+                        {
+                            GameObject temp = _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack;
+                            if (_curLinkLineAttackCount == 2)
+                            {
+                                _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x - (int)_curLinkLineAttackDirection.x, _curLinkLineAttackPos.y - (int)_curLinkLineAttackDirection.y].linkLineAttack = null;
+                            }
+                            else
+                            {
+                                _curLinkLineAttackCount++;
+                            }
+                            _curLinkLineAttackPos += new Vector2Int((int)_curLinkLineAttackDirection.x, (int)_curLinkLineAttackDirection.y);
+                            _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack = temp;
+                            _attackObj.transform.localPosition = _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform;
+                            if (_curLinkLineAttackPos != _curLinkLineAttackEndPos)
+                            {
+                                _warningTile.transform.localPosition =
+                                    _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x + (int)_curLinkLineAttackDirection.x, _curLinkLineAttackPos.y + (int)_curLinkLineAttackDirection.y].transform;
+                                _warningEffect.Play();
+                            }
+                            else
+                            {
+                                _warningTile.SetActive(false);
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        if(inGameStatus ==EInGameStatus.CUBEROTATE)
+        {
+            if (isEnemyPhaseEnd)
+            {
+                EndRandomeLinkLineAttack();
+            }
+        }
+    }
+}

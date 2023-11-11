@@ -1,22 +1,10 @@
-using Spine.Unity;
 using System.Collections;
 using System.Collections.Generic;
-using System.Net.NetworkInformation;
-using TMPro;
-using Unity.Burst.Intrinsics;
 using UnityEngine;
-using UnityEngine.UI;
 
-public static partial class InGameUI //ui
+public static class Animation
 {
-    public static void ShowText(InGameData_s data_s, string message)
-    {
-       data_s.ShowTextTsf.GetComponent<TextMeshProUGUI>().text = message;
-    }
-}
-public static partial class InGameUI//animation
-{
-    public static float ShowCharacterAnimation(List<string> animationNames,GameObject characterImageObj)
+    public static float ShowCharacterAnimation(List<string> animationNames, GameObject characterImageObj)
     {
         /*float animationTime = 0f;
         foreach (var data in animationNames)

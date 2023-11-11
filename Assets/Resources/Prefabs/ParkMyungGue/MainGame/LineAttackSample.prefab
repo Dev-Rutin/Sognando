@@ -206,6 +206,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 5983393561103689101}
     m_Modifications:
     - target: {fileID: 1007806522188102299, guid: 967c5076419396245a24523ff042c1de, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1007806522188102299, guid: 967c5076419396245a24523ff042c1de, type: 3}
       propertyPath: InitialModule.startSize.scalar
       value: 2
       objectReference: {fileID: 0}
@@ -253,6 +257,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Effect
       objectReference: {fileID: 0}
+    - target: {fileID: 5242947798752636924, guid: 967c5076419396245a24523ff042c1de, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5704097817952398598, guid: 967c5076419396245a24523ff042c1de, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5704097817952398598, guid: 967c5076419396245a24523ff042c1de, type: 3}
       propertyPath: InitialModule.startSize.scalar
       value: 0.09
@@ -262,12 +274,20 @@ PrefabInstance:
       value: 0.06
       objectReference: {fileID: 0}
     - target: {fileID: 6460913121039390451, guid: 967c5076419396245a24523ff042c1de, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6460913121039390451, guid: 967c5076419396245a24523ff042c1de, type: 3}
       propertyPath: InitialModule.startSize.scalar
       value: 0.09
       objectReference: {fileID: 0}
     - target: {fileID: 6460913121039390451, guid: 967c5076419396245a24523ff042c1de, type: 3}
       propertyPath: InitialModule.startSize.minScalar
       value: 0.06
+      objectReference: {fileID: 0}
+    - target: {fileID: 8160299464720835319, guid: 967c5076419396245a24523ff042c1de, type: 3}
+      propertyPath: playOnAwake
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8160299464720835319, guid: 967c5076419396245a24523ff042c1de, type: 3}
       propertyPath: InitialModule.startSize.scalar

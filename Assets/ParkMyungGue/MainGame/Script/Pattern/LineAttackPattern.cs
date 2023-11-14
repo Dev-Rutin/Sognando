@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LineAttackPattern : MonoBehaviour
+public class LineAttackPattern : Singleton<LineAttackPattern>
 {
-    [Header("scripts")]
-    [SerializeField] private ScriptManager_s _script;
-
     [Header("data")]
     [SerializeField] private GameObject _lineAttackPrefab;
     [SerializeField] private Transform _lineAttackTsf;
@@ -21,13 +18,13 @@ public class LineAttackPattern : MonoBehaviour
     {
         _lineAttackObjList = new List<GameObject>();
         _lineAttackParticleList = new List<ParticleSystem>();
-        for(int i=0;i<Mathf.Max(_script._inGameSideData_s.divideSize.x, _script._inGameSideData_s.divideSize.y);i++)
+        for(int i=0;i<Mathf.Max(InGameSideData_s.Instance.divideSize.x, InGameSideData_s.Instance.divideSize.y);i++)
         {
             _lineAttackObjList.Add(Instantiate(_lineAttackPrefab, _lineAttackTsf));
             _lineAttackParticleList.Add(_lineAttackObjList[i].transform.GetChild(1).GetChild(0).GetComponent<ParticleSystem>());
         }
-        _script._inGamefunBind_s.EgameStart+= GameStart;
-        _script._inGamefunBind_s.EgameEnd+= GameEnd;
+        InGameFunBind_s.Instance.EgameStart+= GameStart;
+       InGameFunBind_s.Instance.EgameEnd+= GameEnd;
     }
     private void GameStart()
     {
@@ -45,27 +42,27 @@ public class LineAttackPattern : MonoBehaviour
         int count = UnityEngine.Random.Range(0, 2);
         if (count == 0) // row attack
         {
-            int y =  _script._inGamePlayer_s.playerPos.y;
-            for (int i = 0; i < _script._inGameSideData_s.divideSize.x; i++)
+            int y =  InGamePlayer_s.Instance.playerPos.y;
+            for (int i = 0; i < InGameSideData_s.Instance.divideSize.x; i++)
             {
-                if (_script._inGameSideData_s.sideDatas[i, y].isCanMakeCheck(true, "lineAttack"))
+                if (InGameSideData_s.Instance.sideDatas[i, y].isCanMakeCheck(true, "lineAttack"))
                 {
                     _lineAttackObjList[i].transform.GetChild(0).gameObject.SetActive(false);
-                    _lineAttackObjList[i].transform.localPosition = _script._inGameSideData_s.sideDatas[i, y].transform;
-                    _script._inGameSideData_s.sideDatas[i, y].lineAttack = _lineAttackObjList[i];
+                    _lineAttackObjList[i].transform.localPosition = InGameSideData_s.Instance.sideDatas[i, y].transform;
+                    InGameSideData_s.Instance.sideDatas[i, y].lineAttack = _lineAttackObjList[i];
                 }
             }
         }
         else // columns attack
         {
-            int x = _script._inGamePlayer_s.playerPos.x;
-            for (int i = 0; i < _script._inGameSideData_s.divideSize.y; i++)
+            int x = InGamePlayer_s.Instance.playerPos.x;
+            for (int i = 0; i < InGameSideData_s.Instance.divideSize.y; i++)
             {
-                if (_script._inGameSideData_s.sideDatas[x, i].isCanMakeCheck(true, "lineAttack"))
+                if (InGameSideData_s.Instance.sideDatas[x, i].isCanMakeCheck(true, "lineAttack"))
                 {
                     _lineAttackObjList[i].transform.GetChild(0).gameObject.SetActive(false);
-                    _lineAttackObjList[i].transform.localPosition = _script._inGameSideData_s.sideDatas[x, i].transform;
-                    _script._inGameSideData_s.sideDatas[x,i].lineAttack = _lineAttackObjList[i];
+                    _lineAttackObjList[i].transform.localPosition = InGameSideData_s.Instance.sideDatas[x, i].transform;
+                    InGameSideData_s.Instance.sideDatas[x,i].lineAttack = _lineAttackObjList[i];
                 }
             }
         }
@@ -76,7 +73,7 @@ public class LineAttackPattern : MonoBehaviour
     }
     private void EndRandomeLineAttack()
     {
-        _script._inGameEnemy_s.RemoveAllTargetObj("lineAttack",false);
+      InGameEnemy_s.Instance.RemoveAllTargetObj("lineAttack",false);
         curLineAttackMod = ELineAttackMode.NONE;
     }
     public void Action(EInGameStatus inGameStatus,bool isEnemyPhaseEnd, bool isAttack)
@@ -137,8 +134,8 @@ public class LineAttackPattern : MonoBehaviour
         ObjectAction.ImageAlphaChange(target.GetComponent<Image>(), 1f);
         target.transform.localPosition = _attackStartPos;
         target.SetActive(true);
-        StartCoroutine(ObjectAction.MovingObj(target, _attackEndPos, _attackTime, _script._inGameMusicManager_s));
+        StartCoroutine(ObjectAction.MovingObj(target, _attackEndPos, _attackTime));
         yield return new WaitUntil(() => target.transform.localPosition.y == _attackEndPos.y);
-        StartCoroutine(ObjectAction.ImageFade(target.GetComponent<Image>(), _script._inGameMusicManager_s.secPerBeat-_attackTime,true , _script._inGameMusicManager_s));
+        StartCoroutine(ObjectAction.ImageFade(target.GetComponent<Image>(), InGameMusicManager_s.Instance.secPerBeat-_attackTime,true ));
     }
 }

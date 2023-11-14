@@ -6,10 +6,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class InGameSideData_s:MonoBehaviour,IScript // side data
+public class InGameSideData_s: Singleton<InGameSideData_s> // side data
 {
-    [Header("scripts")]
-    private ScriptManager_s _scripts;
     [Header("main system reference data")]
     [SerializeField]private RectTransform divideRectSizeTsf;
 
@@ -17,10 +15,6 @@ public class InGameSideData_s:MonoBehaviour,IScript // side data
     public Vector2Int divideSize { get => m_divideSize; }
     public SideData[,] sideDatas {get; set;}  //x,y
 
-    public void ScriptBind(ScriptManager_s script)
-    {
-        _scripts = script;
-    }
     private void Start()
     {
         sideDatas = new SideData[divideSize.x, divideSize.y];
@@ -37,7 +31,7 @@ public class InGameSideData_s:MonoBehaviour,IScript // side data
     }
     public void InGameBind()
     {
-        _scripts._inGamefunBind_s.EgameEnd+=GameEnd;
+        InGameFunBind_s.Instance.EgameEnd+=GameEnd;
     }
     public void GameEnd()
     {

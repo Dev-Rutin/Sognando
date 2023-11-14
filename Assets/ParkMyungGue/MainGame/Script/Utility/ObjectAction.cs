@@ -4,28 +4,28 @@ using UnityEngine.UI;
 
 public static class ObjectAction
 {
-    public static IEnumerator MovingObj(GameObject target, Vector2 targetPos, float movingTime, InGameMusicManager_s music)
+    public static IEnumerator MovingObj(GameObject target, Vector2 targetPos, float movingTime)
     {
         float lerpValue = 0;
-        float startTime = music.musicPosition;
+        float startTime = InGameMusicManager_s.Instance.musicPosition;
         Vector2 startPos = target.transform.localPosition;
         WaitForEndOfFrame waitForEndOfFrame = new WaitForEndOfFrame();
         while (lerpValue <= 1)
         {
-            lerpValue = (music.musicPosition - startTime) * 1 / movingTime;
+            lerpValue = (InGameMusicManager_s.Instance.musicPosition - startTime) * 1 / movingTime;
             target.transform.localPosition = Vector2.Lerp(startPos, targetPos, lerpValue);
             yield return waitForEndOfFrame;
         }
         target.transform.localPosition = targetPos;
     }
-    public static IEnumerator ImageFade(Image target, float time, bool isAllFade,InGameMusicManager_s music)
+    public static IEnumerator ImageFade(Image target, float time, bool isAllFade)
     {
         float lerpValue = 0;
-        float startTime = music.musicPosition;
+        float startTime = InGameMusicManager_s.Instance.musicPosition;
         WaitForEndOfFrame waitForEndOfFrame = new WaitForEndOfFrame();
         while (lerpValue <= 1)
         {
-            lerpValue = (music.musicPosition - startTime) * 1 /time;
+            lerpValue = (InGameMusicManager_s.Instance.musicPosition - startTime) * 1 /time;
             if (isAllFade)
             {
                 ImageAlphaChange(target, Mathf.Lerp(1, 0, lerpValue));
@@ -44,14 +44,14 @@ public static class ObjectAction
             yield return waitForEndOfFrame;
         }
     }
-    public static IEnumerator ImageFade(SpriteRenderer target, float time, bool isAllFade, InGameMusicManager_s music)
+    public static IEnumerator ImageFade(SpriteRenderer target, float time, bool isAllFade)
     {
         float lerpValue = 0;
-        float startTime = music.musicPosition;
+        float startTime = InGameMusicManager_s.Instance.musicPosition;
         WaitForEndOfFrame waitForEndOfFrame = new WaitForEndOfFrame();
         while (lerpValue <= 1)
         {
-            lerpValue = (music.musicPosition - startTime) * 1 / time;
+            lerpValue = (InGameMusicManager_s.Instance.musicPosition - startTime) * 1 / time;
             if (isAllFade)
             {
                 ImageAlphaChange(target, Mathf.Lerp(1, 0, lerpValue));

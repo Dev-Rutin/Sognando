@@ -1,16 +1,12 @@
 using Spine.Unity;
 using System.Collections;
 using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public partial class InGamePlayer_s : MonoBehaviour,IInGame,IScript//data
+public partial class InGamePlayer_s : Singleton<InGamePlayer_s>, IInGame//data
 {
-    [Header("script")]
-    private ScriptManager_s _scripts;
-    [SerializeField] private PlayerUI_s _playerUI_s;
-    [SerializeField] private DoremiUI_s _doremiUI_s;
-
     [Header("player data")]
     [SerializeField] private GameObject _playerObj;
     private Image _playerImage;
@@ -23,10 +19,6 @@ public partial class InGamePlayer_s : MonoBehaviour,IInGame,IScript//data
     private int _playerHitBlock;
     [SerializeField] private ParticleSystem _moveEffect;
     [SerializeField] private ParticleSystem _noiseDissolveEffect;
-    public void ScriptBind(ScriptManager_s script)
-    {
-        _scripts = script;
-    }
     private void Start()
     {
         _playerImage = _playerObj.GetComponent<Image>();
@@ -36,11 +28,11 @@ public partial class InGamePlayer_s//game system
 {
     public void InGameBind()
     {
-        _scripts._inGamefunBind_s.EgameStart += GameStart;
-        _scripts._inGamefunBind_s.EgamePlay += GamePlay;
-        _scripts._inGamefunBind_s.EgameEnd += GameEnd;
-        _scripts._inGamefunBind_s.EmoveNextBit += MoveNextBit;
-        _scripts._inGamefunBind_s.EchangeInGameState += ChangeInGameStatus;
+        InGameFunBind_s.Instance.EgameStart += GameStart;
+        InGameFunBind_s.Instance.EgamePlay += GamePlay;
+        InGameFunBind_s.Instance.EgameEnd += GameEnd;
+        InGameFunBind_s.Instance.EmoveNextBit += MoveNextBit;
+        InGameFunBind_s.Instance.EchangeInGameState += ChangeInGameStatus;
     }
     public void GameStart()
     {
@@ -52,9 +44,9 @@ public partial class InGamePlayer_s//game system
     }
     public void GamePlay()
     {
-        _playerUI_s.PlayerHPUpdate(_curPlayerHP);
-        _playerObj.transform.localPosition = _scripts._inGameSideData_s.sideDatas[playerPos.x, playerPos.y].transform;
-        _playerUI_s.AttackChange(_playerAttackLevel);
+        PlayerUI_s.Instance.PlayerHPUpdate(_curPlayerHP);
+        _playerObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[playerPos.x, playerPos.y].transform;
+        PlayerUI_s.Instance.AttackChange(_playerAttackLevel);
     }
     public void GameEnd()
     {
@@ -90,7 +82,7 @@ public partial class InGamePlayer_s//game system
         switch(changeTarget)
         {
             case EInGameStatus.SHOWPATH:
-                AttackChange(_scripts._inGameManager_s.curStage);
+                AttackChange(InGameManager_s.Instance.curStage);
                 break;
             case EInGameStatus.CUBEROTATE:
                 if (_isGracePeriod)
@@ -101,12 +93,12 @@ public partial class InGamePlayer_s//game system
                 }
                 break;
             case EInGameStatus.TIMEWAIT:
-                MovePlayer(new Vector2Int(playerPos.x * -1, playerPos.y * -1), _scripts._inGameSideData_s.divideSize);
-                if (_scripts._keyInputManager_s.cubeRotateClear)
+                MovePlayer(new Vector2Int(playerPos.x * -1, playerPos.y * -1), InGameSideData_s.Instance.divideSize);
+                if (KeyInputManager_s.Instance.cubeRotateClear)
                 {
                     UpdatePlayerHP(1);
                 }
-                _playerUI_s.PlayerAttack();
+                PlayerUI_s.Instance.PlayerAttack();
                 break;
         }
     }
@@ -136,17 +128,17 @@ public partial class InGamePlayer_s  //move
     }
     private IEnumerator MoveTimeLock()
     {
-        StartCoroutine(ObjectAction.MovingObj(_playerObj, _scripts._inGameSideData_s.sideDatas[playerPos.x, playerPos.y].transform, _movingTime, _scripts._inGameMusicManager_s));
+        StartCoroutine(ObjectAction.MovingObj(_playerObj, InGameSideData_s.Instance.sideDatas[playerPos.x, playerPos.y].transform, _movingTime));
         yield return new WaitForSeconds(_movingTime);
         _moveEffect.Play();
         PlayerPositionCheck();
     }
     public void PlayerPositionCheck()
     {
-        if (_scripts._inGameSideData_s.sideDatas[playerPos.x, playerPos.y].noise != null)
+        if (InGameSideData_s.Instance.sideDatas[playerPos.x, playerPos.y].noise != null)
         {
-            _scripts._inGameEnemy_s.RemoveTargetObj("noise", playerPos.x, playerPos.y, true);
-            _doremiUI_s.DoremiAnimation("ready");
+            InGameEnemy_s.Instance.RemoveTargetObj("noise", playerPos.x, playerPos.y, true);
+            DoremiUI_s.Instance.DoremiAnimation("ready");
             _noiseDissolveEffect.Play();
         }
     }
@@ -159,15 +151,15 @@ public partial class InGamePlayer_s  //data change
         {
             case EStage.STAGE_ONE:
                 _playerAttackLevel = EPlayerAttackLevel.ONE;
-                _playerUI_s.AttackChange(_playerAttackLevel);
+                PlayerUI_s.Instance.AttackChange(_playerAttackLevel);
                 break;
             case EStage.STAGE_THREE:
                 _playerAttackLevel = EPlayerAttackLevel.TWO;
-                _playerUI_s.AttackChange(_playerAttackLevel);
+                PlayerUI_s.Instance.AttackChange(_playerAttackLevel);
                 break;
             case EStage.STAGE_FIVE:
                 _playerAttackLevel = EPlayerAttackLevel.THREE;
-                _playerUI_s.AttackChange(_playerAttackLevel);
+                PlayerUI_s.Instance.AttackChange(_playerAttackLevel);
                 break;
         }
     }
@@ -181,13 +173,13 @@ public partial class InGamePlayer_s  //data change
         {
             PlayerHPDown(changeValue);
         }
-        _playerUI_s.PlayerHPUpdate(_curPlayerHP);
+        PlayerUI_s.Instance.PlayerHPUpdate(_curPlayerHP);
     }
     private void PlayerHPUp(int changeValue)
     {
         _curPlayerHP += changeValue;
         _curPlayerHP = _curPlayerHP > _playerMaxHP ? _playerMaxHP : _curPlayerHP;
-        _playerUI_s.PlayerHPUp();
+        PlayerUI_s.Instance.PlayerHPUp();
     }
     private void PlayerHPDown(int changeValue)
     {
@@ -197,15 +189,15 @@ public partial class InGamePlayer_s  //data change
             _curPlayerHP += changeValue;
             if (_curPlayerHP <= 0)
             {
-                _scripts._inGameManager_s.GameOverByPlayer();
+                InGameManager_s.Instance.GameOverByPlayer();
             }
             else
             {
                 ObjectAction.ImageAlphaChange(_playerImage, 0.7f);
                 _isGracePeriod = true;
                 _playerHitBlock = 1;
-                _playerUI_s.PlayerHPDown();
-                _scripts._inGameManager_s.UpdateCombo(_scripts._inGameManager_s.combo * -1);
+                PlayerUI_s.Instance.PlayerHPDown();
+                InGameManager_s.Instance.UpdateCombo(InGameManager_s.Instance.combo * -1);
             }
         }
     } 

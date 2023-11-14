@@ -4,7 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EnemyUI_s : MonoBehaviour
+public class EnemyUI_s : Singleton<EnemyUI_s>
 {
     [Header("HP")]
     private Dictionary<ECubeFace, Image> _hpImages;

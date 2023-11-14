@@ -4,11 +4,8 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public partial class InGameMusicManager_s : MonoBehaviour,IScript//data 
+public partial class InGameMusicManager_s : Singleton<InGameMusicManager_s>//data 
 {
-    [Header("scripts")]
-    private ScriptManager_s _scripts;
-
     [Header("scripts")]
     [SerializeField] private AudioClip _musicClip;
     private Dictionary<AudioClip, AudioSource> _audioDic;
@@ -25,10 +22,6 @@ public partial class InGameMusicManager_s : MonoBehaviour,IScript//data
     private float _pausePosition;
     private float _pauseStartDspPosition;
     private float _totalPauseValue;
-    public void ScriptBind(ScriptManager_s script)
-    {
-        _scripts = script;
-    }
     private void Start()
     {
         _audioDic = new Dictionary<AudioClip, AudioSource>();
@@ -40,9 +33,9 @@ public partial class InGameMusicManager_s //main system
 {
     public void InGameBind()
     {
-        _scripts._inGamefunBind_s.EgameStart += GameStart;
-        _scripts._inGamefunBind_s.EgamePlay += GamePlay;
-        _scripts._inGamefunBind_s.EgameEnd += GameEnd;
+        InGameFunBind_s.Instance.EgameStart += GameStart;
+        InGameFunBind_s.Instance.EgamePlay += GamePlay;
+        InGameFunBind_s.Instance.EgameEnd += GameEnd;
     }
     public void GameStart()
     {
@@ -69,7 +62,7 @@ public partial class InGameMusicManager_s //game system
 {
     private void Update()
     {
-        if (_scripts._inGameManager_s.curGameStatus == EGameStatus.PLAYING)
+        if (InGameManager_s.Instance.curGameStatus == EGameStatus.PLAYING)
         {
             musicPosition = (float)(AudioSettings.dspTime - _dspMusicStartPosition - _totalPauseValue);
             _musicPositionInBeats = musicPosition / secPerBeat;
@@ -77,12 +70,12 @@ public partial class InGameMusicManager_s //game system
             {
                 //Debug.Log("music"+_scripts._inGameMusicManager_s.musicPosition);
                 completedLoops++;
-                _scripts._inGameBeatManager_s.NextBit();
+                InGameBeatManager_s.Instance.NextBit();
             }
             loopPositionInBeats = _musicPositionInBeats - completedLoops;
-            if(loopPositionInBeats>_scripts._inGameBeatManager_s.beatJudgeMax&&_lastBeatCount<completedLoops)
+            if(loopPositionInBeats>InGameBeatManager_s.Instance.beatJudgeMax&&_lastBeatCount<completedLoops)
             {
-                _scripts._inGameManager_s.MoveNextBeat();
+                InGameManager_s.Instance.MoveNextBeat();
                 _lastBeatCount = completedLoops;
             }
         }

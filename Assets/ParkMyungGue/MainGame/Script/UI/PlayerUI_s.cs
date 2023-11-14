@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerUI_s : MonoBehaviour
+public class PlayerUI_s : Singleton<PlayerUI_s>
 {
     [Header("Script")]
     [SerializeField] private InGameMusicManager_s _music_s;

@@ -11,10 +11,6 @@ interface IInGame
     public void MoveNextBit(EInGameStatus curInGameStatus);
     public void ChangeInGameStatus(EInGameStatus changeTarget);
 }
-interface IScript
-{
-    public void ScriptBind(ScriptManager_s script);
-}
 interface IAudio
 {
     public void AudioPlay(AudioClip clip);

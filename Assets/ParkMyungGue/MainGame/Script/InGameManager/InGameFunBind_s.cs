@@ -1,8 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class InGameFunBind_s
+public class InGameFunBind_s:Singleton<InGameFunBind_s>
 {
     //event
     public delegate void voidHandler();

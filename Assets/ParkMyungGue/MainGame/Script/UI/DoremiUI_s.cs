@@ -2,7 +2,7 @@ using Spine.Unity;
 using TMPro;
 using UnityEngine;
 
-public class DoremiUI_s : MonoBehaviour
+public class DoremiUI_s : Singleton<DoremiUI_s>
 {
     [SerializeField] private SkeletonAnimation _animation;
     [SerializeField] private TextMeshProUGUI _doremiText;

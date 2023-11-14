@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class GhostPattern : MonoBehaviour
+public class GhostPattern : Singleton<GhostPattern>
 {
-    [Header("scripts")]
-    [SerializeField] private InGameSideData_s _sideData_s;
-    [SerializeField] private InGameMusicManager_s _musicManager_s;
     [Header("pattern data")]
     [SerializeField] private GameObject _ghostPrefab;
     [SerializeField] private Transform _ghostTsf;
@@ -19,7 +16,7 @@ public class GhostPattern : MonoBehaviour
     {
         Debug.Log("aa");
         _curGhostObj = Instantiate(_ghostPrefab, _ghostTsf);
-        _curGhostObj.transform.localPosition = _sideData_s.sideDatas[0, 0].transform;
+        _curGhostObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[0, 0].transform;
         _curGhostPos = 0;
         isGhostPlay = true;
     }
@@ -40,24 +37,24 @@ public class GhostPattern : MonoBehaviour
             switch (_curGhostPos)
             {
                 case 0:
-                    _curGhostObj.transform.localPosition = _sideData_s.sideDatas[0, 0].transform;
-                    moveTarget = _sideData_s.sideDatas[1, 0].transform;
+                    _curGhostObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[0, 0].transform;
+                    moveTarget = InGameSideData_s.Instance.sideDatas[1, 0].transform;
                     break;
                 case 1:
-                    moveTarget = _sideData_s.sideDatas[2, 0].transform;
+                    moveTarget = InGameSideData_s.Instance.sideDatas[2, 0].transform;
                     break;
                 case 2:
-                    moveTarget = _sideData_s.sideDatas[2, 1].transform;
+                    moveTarget = InGameSideData_s.Instance.sideDatas[2, 1].transform;
                     break;
                 case 3:
-                    moveTarget = _sideData_s.sideDatas[2, 1].transform;
+                    moveTarget = InGameSideData_s.Instance.sideDatas[2, 1].transform;
                     _curGhostPos = -1;
                     break;
                 default:
                     break;
             }
             _curGhostPos++;
-            _curGhostI = ObjectAction.MovingObj(_curGhostObj, moveTarget, 0.1f, _musicManager_s);
+            _curGhostI = ObjectAction.MovingObj(_curGhostObj, moveTarget, 0.1f);
             StartCoroutine(_curGhostI);
         }
     }

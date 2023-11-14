@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class DebugUI_s : MonoBehaviour
+public class DebugUI_s : Singleton<DebugUI_s>
 {
     [SerializeField] private InGameManager_s _inGameManager_s;
     [SerializeField] GameObject _startButton;

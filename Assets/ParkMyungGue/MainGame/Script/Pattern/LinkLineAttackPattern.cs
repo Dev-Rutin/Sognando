@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class LinkLineAttackPattern : MonoBehaviour
+public class LinkLineAttackPattern : Singleton<LinkLineAttackPattern>
 {
-    [Header("script")]
-    [SerializeField] private ScriptManager_s _script;
     [Header("data")]
     [SerializeField]private GameObject _linkLineAttackPrefab;
     [SerializeField]private Transform _linkLineAttackTsf;
@@ -29,7 +27,7 @@ public class LinkLineAttackPattern : MonoBehaviour
         _attackObj = _totalAttackObj.transform.GetChild(1).gameObject;
         _warningTile = _totalAttackObj.transform.GetChild(2).gameObject;
         _warningEffect = _warningTile.transform.GetChild(1).GetComponent<ParticleSystem>();
-        _script._inGamefunBind_s.EgameStart += GameStart;
+        InGameFunBind_s.Instance.EgameStart += GameStart;
     }
     private void GameStart()
     {
@@ -41,31 +39,31 @@ public class LinkLineAttackPattern : MonoBehaviour
         int secondcount = Random.Range(0, 2);
         if (count == 0) // row attack
         {
-            int y = _script._inGamePlayer_s.playerPos.y;
+            int y = InGamePlayer_s.Instance.playerPos.y;
             if (secondcount == 0)// left
             {
                 _curLinkLineAttackPos = new Vector2Int(0, y);
-                _curLinkLineAttackEndPos = new Vector2Int(_script._inGameSideData_s.divideSize.x - 1, y);
+                _curLinkLineAttackEndPos = new Vector2Int(InGameSideData_s.Instance.divideSize.x - 1, y);
 
             }
             else
             {
-                _curLinkLineAttackPos = new Vector2Int(_script._inGameSideData_s.divideSize.x - 1, y);
+                _curLinkLineAttackPos = new Vector2Int(InGameSideData_s.Instance.divideSize.x - 1, y);
                 _curLinkLineAttackEndPos = new Vector2Int(0, y);
 
             }
         }
         else // columns attack
         {
-            int x = _script._inGamePlayer_s.playerPos.x;
+            int x = InGamePlayer_s.Instance.playerPos.x;
             if (secondcount == 0)
             {
                 _curLinkLineAttackPos = new Vector2Int(x, 0);
-                _curLinkLineAttackEndPos = new Vector2Int(x, _script._inGameSideData_s.divideSize.y - 1);
+                _curLinkLineAttackEndPos = new Vector2Int(x, InGameSideData_s.Instance.divideSize.y - 1);
             }
             else
             {
-                _curLinkLineAttackPos = new Vector2Int(x, _script._inGameSideData_s.divideSize.y - 1);
+                _curLinkLineAttackPos = new Vector2Int(x, InGameSideData_s.Instance.divideSize.y - 1);
                 _curLinkLineAttackEndPos = new Vector2Int(x, 0);
             }
         }
@@ -90,17 +88,17 @@ public class LinkLineAttackPattern : MonoBehaviour
         {
             direction = new Vector2(-150f, 0);
         }
-        _attackDirection.transform.localPosition = _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform + direction;
-        _attackObj.transform.localPosition = _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform;
+        _attackDirection.transform.localPosition = InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform + direction;
+        _attackObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform;
         _attackObj.SetActive(false);
-        _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack = _totalAttackObj;
-        _warningTile.transform.localPosition = _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform;
+        InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack = _totalAttackObj;
+        _warningTile.transform.localPosition = InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform;
         _warningTile.SetActive(true);
         _totalAttackObj.SetActive(true);
     }
     private void EndRandomeLinkLineAttack()
     {
-        _script._inGameEnemy_s.RemoveAllTargetObj("linkLineAttack",false);
+        InGameEnemy_s.Instance.RemoveAllTargetObj("linkLineAttack",false);
         curLinkLineAttackMode = ELinkLineAttackMode.NONE;
     }
     public void Action(EInGameStatus inGameStatus, bool isEnemyPhaseEnd, bool isAttack)
@@ -129,7 +127,7 @@ public class LinkLineAttackPattern : MonoBehaviour
                         _attackObj.gameObject.SetActive(true);
                         _curLinkLineAttackCount = 1;
                         _warningTile.transform.localPosition =
-                            _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x + (int)_curLinkLineAttackDirection.x, _curLinkLineAttackPos.y + (int)_curLinkLineAttackDirection.y].transform;
+                            InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x + (int)_curLinkLineAttackDirection.x, _curLinkLineAttackPos.y + (int)_curLinkLineAttackDirection.y].transform;
                         _warningEffect.Play();
                         curLinkLineAttackMode = ELinkLineAttackMode.ATTACK;
                         break;
@@ -140,22 +138,22 @@ public class LinkLineAttackPattern : MonoBehaviour
                         }
                         else
                         {
-                            GameObject temp = _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack;
+                            GameObject temp = InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack;
                             if (_curLinkLineAttackCount == 2)
                             {
-                                _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x - (int)_curLinkLineAttackDirection.x, _curLinkLineAttackPos.y - (int)_curLinkLineAttackDirection.y].linkLineAttack = null;
+                                InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x - (int)_curLinkLineAttackDirection.x, _curLinkLineAttackPos.y - (int)_curLinkLineAttackDirection.y].linkLineAttack = null;
                             }
                             else
                             {
                                 _curLinkLineAttackCount++;
                             }
                             _curLinkLineAttackPos += new Vector2Int((int)_curLinkLineAttackDirection.x, (int)_curLinkLineAttackDirection.y);
-                            _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack = temp;
-                            _attackObj.transform.localPosition = _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform;
+                            InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack = temp;
+                            _attackObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform;
                             if (_curLinkLineAttackPos != _curLinkLineAttackEndPos)
                             {
                                 _warningTile.transform.localPosition =
-                                    _script._inGameSideData_s.sideDatas[_curLinkLineAttackPos.x + (int)_curLinkLineAttackDirection.x, _curLinkLineAttackPos.y + (int)_curLinkLineAttackDirection.y].transform;
+                                    InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x + (int)_curLinkLineAttackDirection.x, _curLinkLineAttackPos.y + (int)_curLinkLineAttackDirection.y].transform;
                                 _warningEffect.Play();
                             }
                             else

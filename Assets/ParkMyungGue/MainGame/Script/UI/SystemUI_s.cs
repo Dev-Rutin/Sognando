@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SystemUI_s : MonoBehaviour
+public class SystemUI_s : Singleton<SystemUI_s>
 {
     [Header("main game ui canvas")]
     [SerializeField] private TextMeshProUGUI _comboText;

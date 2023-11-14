@@ -6,12 +6,8 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public partial class InGameEnemy_s : MonoBehaviour,IInGame//data
+public partial class InGameEnemy_s : Singleton<InGameEnemy_s>, IInGame//data
 {
-    [Header("script")]
-    private ScriptManager_s _scripts;
-    [SerializeField]private EnemyUI_s _enemyUI_s;
-
     [Header("data")]
     private List<EEnemyMode> _curEnemyMods;
     private Dictionary<EEnemyMode, Action> _enemyModBinds;
@@ -21,16 +17,6 @@ public partial class InGameEnemy_s : MonoBehaviour,IInGame//data
     private int _curEnemyATKGauge;
     private int _curEnemyATKGaugeCount;
     [SerializeField]private EEnemyPhase _curEnemyPhase;
-
-    [Header("pattern")]
-    [SerializeField] private GhostPattern _ghostPattern_s;
-    [SerializeField] private NoisePattern_s _noisePattern_s;
-    [SerializeField] private LineAttackPattern _lineAttackPattern_s;
-    [SerializeField] private LinkLineAttackPattern _linkLineAttackPattern_s;
-    public void ScriptBind(ScriptManager_s script)
-    {
-        _scripts = script;
-    }
     private void Start()
     {
         _curEnemyMods = new List<EEnemyMode>();
@@ -40,9 +26,9 @@ public partial class InGameEnemy_s : MonoBehaviour,IInGame//data
     private void PatternBindSetting()
     {
         EnemyModBind(ref _enemyModBinds, EEnemyMode.GHOST, null);
-        EnemyModBind(ref _enemyModBinds, EEnemyMode.NOISE,()=> _noisePattern_s.Action(_scripts._inGameManager_s.curInGameStatus));
-        EnemyModBind(ref _enemyModBinds, EEnemyMode.LINEATTACK, ()=>_lineAttackPattern_s.Action(_scripts._inGameManager_s.curInGameStatus,EnemyPhaseEndCheck(),(EnemyPatternEndCheck()&&_curEnemyATKGauge==_enemyAttackGaugeMax)||!EnemyPatternEndCheck()));
-        EnemyModBind(ref _enemyModBinds, EEnemyMode.LINKLINEATTACK, ()=>_linkLineAttackPattern_s.Action(_scripts._inGameManager_s.curInGameStatus, EnemyPhaseEndCheck(), EnemyPatternEndCheck() && _curEnemyATKGauge == _enemyAttackGaugeMax || !EnemyPatternEndCheck()));
+        EnemyModBind(ref _enemyModBinds, EEnemyMode.NOISE,()=> NoisePattern_s.Instance.Action(InGameManager_s.Instance.curInGameStatus));
+        EnemyModBind(ref _enemyModBinds, EEnemyMode.LINEATTACK, ()=>LineAttackPattern.Instance.Action(InGameManager_s.Instance.curInGameStatus,EnemyPhaseEndCheck(),(EnemyPatternEndCheck()&&_curEnemyATKGauge==_enemyAttackGaugeMax)||!EnemyPatternEndCheck()));
+        EnemyModBind(ref _enemyModBinds, EEnemyMode.LINKLINEATTACK, ()=>LinkLineAttackPattern.Instance.Action(InGameManager_s.Instance.curInGameStatus, EnemyPhaseEndCheck(), EnemyPatternEndCheck() && _curEnemyATKGauge == _enemyAttackGaugeMax || !EnemyPatternEndCheck()));
     }
     public void EnemyModBind<T>(ref Dictionary<T, Action> binddic, T mod, Action action)
     {
@@ -56,11 +42,11 @@ public partial class InGameEnemy_s //game system
 {
     public void InGameBind()
     {
-        _scripts._inGamefunBind_s.EgameStart += GameStart;
-        _scripts._inGamefunBind_s.EgamePlay += GamePlay;
-        _scripts._inGamefunBind_s.EgameEnd += GameEnd;
-        _scripts._inGamefunBind_s.EmoveNextBit += MoveNextBit;
-        _scripts._inGamefunBind_s.EchangeInGameState += ChangeInGameStatus;
+        InGameFunBind_s.Instance.EgameStart += GameStart;
+        InGameFunBind_s.Instance.EgamePlay += GamePlay;
+        InGameFunBind_s.Instance.EgameEnd += GameEnd;
+        InGameFunBind_s.Instance.EmoveNextBit += MoveNextBit;
+        InGameFunBind_s.Instance.EchangeInGameState += ChangeInGameStatus;
     }
     public void GameStart()
     {
@@ -72,16 +58,16 @@ public partial class InGameEnemy_s //game system
     }
     public void GamePlay()
     {
-        _enemyUI_s.HPReset();
+        EnemyUI_s.Instance.HPReset();
     }
     public void GameEnd()
     {
         DoEnemyMode();
-        if(_ghostPattern_s.isGhostPlay)
+        if(GhostPattern.Instance.isGhostPlay)
         {
-            _ghostPattern_s.EndGhost();
+            GhostPattern.Instance.EndGhost();
         }
-        _noisePattern_s.EndNoisePattern();
+       NoisePattern_s.Instance.EndNoisePattern();
     }
     public void MoveNextBit(EInGameStatus curInGameStatus)
     {
@@ -95,7 +81,7 @@ public partial class InGameEnemy_s //game system
                 break;
             case EInGameStatus.PLAYERMOVE:
                     DoEnemyMode();
-                    EnemyPositionCheck(_scripts._inGamePlayer_s.playerPos);
+                    EnemyPositionCheck(InGamePlayer_s.Instance.playerPos);
                     if(EnemyPatternEndCheck())
                     {
                         _curEnemyATKGaugeCount++;
@@ -142,13 +128,13 @@ public partial class InGameEnemy_s //game system
     }
     public bool EnemyPhaseEndCheck()
     {
-        if(_scripts._inGameManager_s.curGameStatus==EGameStatus.END)
+        if(InGameManager_s.Instance.curGameStatus==EGameStatus.END)
         {
             return true;
         }
         if(_curEnemyMods.Contains(EEnemyMode.NOISE))
         {
-           return _noisePattern_s.isPatternEnd();
+           return NoisePattern_s.Instance.isPatternEnd();
         }
         return false;
     }
@@ -159,13 +145,13 @@ public partial class InGameEnemy_s //game system
             switch(data)
             {
                 case EEnemyMode.LINEATTACK:
-                    if(_lineAttackPattern_s.curLineAttackMod==ELineAttackMode.NONE)
+                    if(LineAttackPattern.Instance.curLineAttackMod==ELineAttackMode.NONE)
                     {
                         return true;
                     }                       
                     break;
                 case EEnemyMode.LINKLINEATTACK:
-                    if (_linkLineAttackPattern_s.curLinkLineAttackMode==ELinkLineAttackMode.NONE)
+                    if (LinkLineAttackPattern.Instance.curLinkLineAttackMode==ELinkLineAttackMode.NONE)
                     {
                         return true;
                     }
@@ -201,10 +187,10 @@ public partial class InGameEnemy_s //game system
                 {
                     _curEnemyMods.Add(EEnemyMode.NOISE);
                 }
-                _ghostPattern_s.SetGhost();
+                GhostPattern.Instance.SetGhost();
                 break;
             case EEnemyPhase.Phase1:
-                _ghostPattern_s.EndGhost();
+                GhostPattern.Instance.EndGhost();
                 _curEnemyMods.Remove(EEnemyMode.GHOST);
                 break;
             case EEnemyPhase.Phase2:
@@ -237,10 +223,10 @@ public partial class InGameEnemy_s //data change
     }
     private void EnemyHPDown()
     {
-        _enemyUI_s.EnemyHPDown(_scripts._inGameCube_s.curFace);
+        EnemyUI_s.Instance.EnemyHPDown(InGameCube_s.Instance.curFace);
         if (_curEnemyHP <= 0)
         {
-            _scripts._inGameManager_s.GameOverByEnemy();
+            InGameManager_s.Instance.GameOverByEnemy();
         }
     }
 }
@@ -250,16 +236,16 @@ public partial class InGameEnemy_s //pattern
     {
         if (_curEnemyMods.Contains(EEnemyMode.LINEATTACK))
         {
-            if (_scripts._inGameSideData_s.sideDatas[playerPos.x, playerPos.y].lineAttack != null && _lineAttackPattern_s.curLineAttackMod == ELineAttackMode.ATTACK)
+            if (InGameSideData_s.Instance.sideDatas[playerPos.x, playerPos.y].lineAttack != null && LineAttackPattern.Instance.curLineAttackMod == ELineAttackMode.ATTACK)
             {
-                _scripts._inGamePlayer_s.UpdatePlayerHP(-1);
+                InGamePlayer_s.Instance.UpdatePlayerHP(-1);
             }
         }
         if (_curEnemyMods.Contains(EEnemyMode.LINKLINEATTACK))
         {
-            if (_scripts._inGameSideData_s.sideDatas[playerPos.x, playerPos.y].linkLineAttack != null && _linkLineAttackPattern_s.curLinkLineAttackMode == ELinkLineAttackMode.ATTACK)
+            if (InGameSideData_s.Instance.sideDatas[playerPos.x, playerPos.y].linkLineAttack != null && LinkLineAttackPattern.Instance.curLinkLineAttackMode == ELinkLineAttackMode.ATTACK)
             {
-                _scripts._inGamePlayer_s.UpdatePlayerHP(-1);
+                InGamePlayer_s.Instance.UpdatePlayerHP(-1);
             }
         }
     }
@@ -272,9 +258,9 @@ public partial class InGameEnemy_s //pattern
                 int x = 2;
                 int y = 1;
                 GameObject instObj = Instantiate(instTarget, parent);
-                instObj.transform.localPosition = _scripts._inGameSideData_s.sideDatas[x, y].transform;
-                TypedReference tr = __makeref(_scripts._inGameSideData_s.sideDatas[x, y]);
-                _scripts._inGameSideData_s.sideDatas[x, y].GetType().GetField(dataName).SetValueDirect(tr, instObj);
+                instObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[x, y].transform;
+                TypedReference tr = __makeref(InGameSideData_s.Instance.sideDatas[x, y]);
+                InGameSideData_s.Instance.sideDatas[x, y].GetType().GetField(dataName).SetValueDirect(tr, instObj);
                 continue;
             }
             bool isCreate = false;
@@ -285,18 +271,18 @@ public partial class InGameEnemy_s //pattern
                 {
                     break;
                 }
-                int x = UnityEngine.Random.Range(0, _scripts._inGameSideData_s.divideSize.x);
-                int y = UnityEngine.Random.Range(0, _scripts._inGameSideData_s.divideSize.y);
-                if (new Vector2(x, y) == _scripts._inGamePlayer_s.playerPos || !_scripts._inGameSideData_s.sideDatas[x, y].isCanMakeCheck(isStack, dataName))
+                int x = UnityEngine.Random.Range(0, InGameSideData_s.Instance.divideSize.x);
+                int y = UnityEngine.Random.Range(0, InGameSideData_s.Instance.divideSize.y);
+                if (new Vector2(x, y) == InGamePlayer_s.Instance.playerPos || !InGameSideData_s.Instance.sideDatas[x, y].isCanMakeCheck(isStack, dataName))
                 {
                     continue;
                 }
                 else
                 {
                     GameObject instObj = Instantiate(instTarget, parent);
-                    instObj.transform.localPosition = _scripts._inGameSideData_s.sideDatas[x, y].transform;
-                    TypedReference tr = __makeref(_scripts._inGameSideData_s.sideDatas[x, y]);
-                    _scripts._inGameSideData_s.sideDatas[x, y].GetType().GetField(dataName).SetValueDirect(tr, instObj);
+                    instObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[x, y].transform;
+                    TypedReference tr = __makeref(InGameSideData_s.Instance.sideDatas[x, y]);
+                    InGameSideData_s.Instance.sideDatas[x, y].GetType().GetField(dataName).SetValueDirect(tr, instObj);
                     isCreate = true;
                 }
                 block++;
@@ -305,8 +291,8 @@ public partial class InGameEnemy_s //pattern
     }
     public void RemoveTargetObj(string dataName, int xpos, int ypos,bool isDestroy)
     {
-        TypedReference tr = __makeref(_scripts._inGameSideData_s.sideDatas[xpos, ypos]);
-        object target = _scripts._inGameSideData_s.sideDatas[xpos, ypos].GetType().GetField(dataName).GetValueDirect(tr);
+        TypedReference tr = __makeref(InGameSideData_s.Instance.sideDatas[xpos, ypos]);
+        object target = InGameSideData_s.Instance.sideDatas[xpos, ypos].GetType().GetField(dataName).GetValueDirect(tr);
         if (target != null)
         {
             if (target.GetType().Equals(typeof(GameObject)))
@@ -319,15 +305,15 @@ public partial class InGameEnemy_s //pattern
                 {
                     ((GameObject)target).SetActive(false);
                 }
-                _scripts._inGameSideData_s.sideDatas[xpos, ypos].GetType().GetField(dataName).SetValueDirect(tr, null);
+                InGameSideData_s.Instance.sideDatas[xpos, ypos].GetType().GetField(dataName).SetValueDirect(tr, null);
             }
         }
     }
     public void RemoveAllTargetObj(string dataName, bool isDestroy)
     {
-        for (int i = 0; i < _scripts._inGameSideData_s.divideSize.x; i++)
+        for (int i = 0; i < InGameSideData_s.Instance.divideSize.x; i++)
         {
-            for (int j = 0; j < _scripts._inGameSideData_s.divideSize.y; j++)
+            for (int j = 0; j < InGameSideData_s.Instance.divideSize.y; j++)
             {
                 RemoveTargetObj(dataName, i, j,isDestroy);
             }

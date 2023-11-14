@@ -4,12 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public partial class InGameCube_s : MonoBehaviour, IInGame, IScript //data
+public partial class InGameCube_s : Singleton<InGameCube_s>, IInGame //data
 {
-    [Header("script")]
-    private ScriptManager_s _scripts;
-    [SerializeField]private CubeUI_s _cubeUI_s;
-
     [Header("cube data")]
     [SerializeField] private Transform _gameCubeTsf;
     [SerializeField] private GameObject _cubeSideUI;
@@ -24,10 +20,6 @@ public partial class InGameCube_s : MonoBehaviour, IInGame, IScript //data
     [SerializeField] private Sprite _rightImage;
     [SerializeField] private float _rotateTime;
     private WaitForEndOfFrame _waitUpdate;
-    public void ScriptBind(ScriptManager_s script)
-    {
-        _scripts = script;
-    }
     private void Start()
     {
         _rotateQueue = new Queue<ERotatePosition>();
@@ -38,11 +30,11 @@ public partial class InGameCube_s//game system
 {
     public void InGameBind()
     {
-        _scripts._inGamefunBind_s.EgameStart += GameStart;
-        _scripts._inGamefunBind_s.EgamePlay += GamePlay;
-        _scripts._inGamefunBind_s.EgameEnd += GameEnd;
-        _scripts._inGamefunBind_s.EmoveNextBit += MoveNextBit;
-        _scripts._inGamefunBind_s.EchangeInGameState += ChangeInGameStatus;
+        InGameFunBind_s.Instance.EgameStart += GameStart;
+        InGameFunBind_s.Instance.EgamePlay += GamePlay;
+        InGameFunBind_s.Instance.EgameEnd += GameEnd;
+        InGameFunBind_s.Instance.EmoveNextBit += MoveNextBit;
+        InGameFunBind_s.Instance.EchangeInGameState += ChangeInGameStatus;
     }
     public void GameStart()
     {
@@ -114,7 +106,7 @@ public partial class InGameCube_s//game system
         }
     }
 }
-public partial class InGameCube_s : MonoBehaviour, IInGame //rotate
+public partial class InGameCube_s //rotate
 {
     public bool RotateCube(Vector3 rotateposition)
     {
@@ -126,13 +118,13 @@ public partial class InGameCube_s : MonoBehaviour, IInGame //rotate
     }
     private IEnumerator RotateTimeLock(Vector3 rotateposition)
     {
-        while(_scripts._inGameManager_s.curInGameStatus==EInGameStatus.CUBEROTATE)
+        while(InGameManager_s.Instance.curInGameStatus==EInGameStatus.CUBEROTATE)
         {
             yield return _waitUpdate;
         }
-        _cubeUI_s.ShowEffect(curFace);
-        float startTime = _scripts._inGameMusicManager_s.musicPosition;
-        while (_scripts._inGameMusicManager_s.musicPosition-startTime<=1f)
+        CubeUI_s.Instance.ShowEffect(curFace);
+        float startTime = InGameMusicManager_s.Instance.musicPosition;
+        while (InGameMusicManager_s.Instance.musicPosition-startTime<=1f)
         {
             yield return _waitUpdate;
         }
@@ -151,10 +143,10 @@ public partial class InGameCube_s : MonoBehaviour, IInGame //rotate
     IEnumerator ShowRotateImage()
     {
         _rotateSprite.sprite = _rotateTargetImage;
-        float waitTime = _scripts._inGameManager_s.beatFreezeCount * _scripts._inGameMusicManager_s.secPerBeat;
-        StartCoroutine(ObjectAction.ImageFade(_rotateSprite, waitTime,false,_scripts._inGameMusicManager_s));
-        float startTime = _scripts._inGameMusicManager_s.musicPosition;
-        while (_scripts._inGameMusicManager_s.musicPosition - startTime <= waitTime)
+        float waitTime = InGameManager_s.Instance.beatFreezeCount * InGameMusicManager_s.Instance.secPerBeat;
+        StartCoroutine(ObjectAction.ImageFade(_rotateSprite, waitTime,false));
+        float startTime = InGameMusicManager_s.Instance.musicPosition;
+        while (InGameMusicManager_s.Instance.musicPosition - startTime <= waitTime)
         {
             yield return _waitUpdate;
         }

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CubeUI_s : MonoBehaviour
+public class CubeUI_s : Singleton<CubeUI_s>
 {
     [SerializeField] private Transform _cubeEffectTsf;
     private ParticleSystem _cubeEffect;

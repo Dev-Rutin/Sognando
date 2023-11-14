@@ -2,11 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public partial class KeyInputManager_s : MonoBehaviour,IInGame
+public partial class KeyInputManager_s : Singleton<KeyInputManager_s>, IInGame
 {
-    [Header("script")]
-    private ScriptManager_s _scripts;
-
     [Header("data")]
     private Dictionary<KeyCode, Action> _otherKeyBinds;
     private Dictionary<KeyCode, Func<bool>> _cubeKeyBinds;
@@ -15,11 +12,6 @@ public partial class KeyInputManager_s : MonoBehaviour,IInGame
     private Queue<KeyCode> _inGameInputQueue;
     public bool cubeRotateClear { get; private set; }
     private bool _isFirstInput;
-
-    public void ScriptBind(ScriptManager_s script)
-    {
-        _scripts = script;
-    }
     private void Start()
     {
         _otherKeyBinds = new Dictionary<KeyCode, Action>();
@@ -53,7 +45,7 @@ public partial class KeyInputManager_s //Data Setting
         PlayerKeyBind(ref _playerKeyBinds, KeyCode.W, Vector2Int.down);
         PlayerKeyBind(ref _playerKeyBinds, KeyCode.S, Vector2Int.up);
 
-        KeyBind(ref _otherKeyBinds, KeyCode.Space, () => _scripts._inGameManager_s.GamePause());
+        KeyBind(ref _otherKeyBinds, KeyCode.Space, () => InGameManager_s.Instance.GamePause());
     }
     private void KeyBind(ref Dictionary<KeyCode, Action> binddic, KeyCode keycode, Action action)
     {
@@ -66,14 +58,14 @@ public partial class KeyInputManager_s //Data Setting
     {
         if (!_otherKeyBinds.ContainsKey(keycode) && !binddic.ContainsKey(keycode))
         {
-            binddic.Add(keycode, () => _scripts._inGamePlayer_s.MovePlayer(movePos,_scripts._inGameSideData_s.divideSize));
+            binddic.Add(keycode, () => InGamePlayer_s.Instance.MovePlayer(movePos,InGameSideData_s.Instance.divideSize));
         }
     }
     private void CubeKeyBind(ref Dictionary<KeyCode, Func<bool>> binddic, KeyCode keycode, Vector3 rotatePosition)
     {
         if (!_otherKeyBinds.ContainsKey(keycode) && !binddic.ContainsKey(keycode))
         {
-            binddic.Add(keycode, () => _scripts._inGameCube_s.RotateCube(rotatePosition));
+            binddic.Add(keycode, () => InGameCube_s.Instance.RotateCube(rotatePosition));
         }
     }
 }
@@ -81,11 +73,11 @@ public partial class KeyInputManager_s //InGame Setting
 {
     public void InGameBind()
     {
-        _scripts._inGamefunBind_s.EgameStart += GameStart;
-        _scripts._inGamefunBind_s.EgamePlay += GamePlay;
-        _scripts._inGamefunBind_s.EgameEnd += GameEnd;
-        _scripts._inGamefunBind_s.EmoveNextBit += MoveNextBit;
-        _scripts._inGamefunBind_s.EchangeInGameState += ChangeInGameStatus;
+        InGameFunBind_s.Instance.EgameStart += GameStart;
+        InGameFunBind_s.Instance.EgamePlay += GamePlay;
+        InGameFunBind_s.Instance.EgameEnd += GameEnd;
+        InGameFunBind_s.Instance.EmoveNextBit += MoveNextBit;
+        InGameFunBind_s.Instance.EchangeInGameState += ChangeInGameStatus;
     }
     public void GameStart()
     {
@@ -108,7 +100,7 @@ public partial class KeyInputManager_s //InGame Setting
             case EInGameStatus.PLAYERMOVE:
                 if(!_isInput)
                 {
-                    _scripts._inGameManager_s.DefaultShow();
+                    InGameManager_s.Instance.DefaultShow();
                 }
                 _isInput = false;
                 break;
@@ -116,7 +108,7 @@ public partial class KeyInputManager_s //InGame Setting
                 if (cubeRotateClear==false)
                 {
                     _isInput = false;
-                    _scripts._inGameManager_s.DefaultShow();
+                    InGameManager_s.Instance.DefaultShow();
                 }
                 break;
             default:
@@ -138,11 +130,11 @@ public partial class KeyInputManager_s //InGame Setting
     }
     private void Update()
     {
-        if (_scripts._inGameManager_s.curGameStatus == EGameStatus.PLAYING)
+        if (InGameManager_s.Instance.curGameStatus == EGameStatus.PLAYING)
         {
             if (Input.anyKeyDown)
             {
-                if (_scripts._inGameManager_s.curInGameStatus == EInGameStatus.PLAYERMOVE|| _scripts._inGameManager_s.curInGameStatus == EInGameStatus.CUBEROTATE)
+                if (InGameManager_s.Instance.curInGameStatus == EInGameStatus.PLAYERMOVE|| InGameManager_s.Instance.curInGameStatus == EInGameStatus.CUBEROTATE)
                 {
                     if (!_isInput)
                     {
@@ -153,27 +145,27 @@ public partial class KeyInputManager_s //InGame Setting
                         if(!_isFirstInput)
                         {
                             _isFirstInput = true;
-                            _scripts._inGameEnemy_s.EnemyPhaseChange(EEnemyPhase.Phase1);
+                            InGameEnemy_s.Instance.EnemyPhaseChange(EEnemyPhase.Phase1);
                         }
-                        if (_scripts._inGameBeatManager_s.BeatJudgement())
+                        if (InGameBeatManager_s.Instance.BeatJudgement())
                         {
-                            if (_scripts._inGameManager_s.curInGameStatus == EInGameStatus.PLAYERMOVE)
+                            if (InGameManager_s.Instance.curInGameStatus == EInGameStatus.PLAYERMOVE)
                             {
                                 _playerKeyBinds[_inGameInputQueue.Peek()]();
                             }
-                            else if (_scripts._inGameManager_s.curInGameStatus == EInGameStatus.CUBEROTATE)
+                            else if (InGameManager_s.Instance.curInGameStatus == EInGameStatus.CUBEROTATE)
                             {
                                 cubeRotateClear= _cubeKeyBinds[_inGameInputQueue.Peek()]();
                             }
                         }
-                        else if(_scripts._inGameManager_s.curInGameStatus == EInGameStatus.PLAYERMOVE)
+                        else if(InGameManager_s.Instance.curInGameStatus == EInGameStatus.PLAYERMOVE)
                         {
-                            _scripts._inGameManager_s.MissScore();
+                            InGameManager_s.Instance.MissScore();
                         }
                         _inGameInputQueue.Clear();
                     }
                 }
-                if (_scripts._inGameManager_s.curGameStatus == EGameStatus.PLAYING) //인게임 외의 입력 ex)일시정지
+                if (InGameManager_s.Instance.curGameStatus == EGameStatus.PLAYING) //인게임 외의 입력 ex)일시정지
                 {
                     foreach (var dic in _otherKeyBinds)
                     {
@@ -188,7 +180,7 @@ public partial class KeyInputManager_s //InGame Setting
     }
     private void InGameInputCheck()
     {
-        if (_scripts._inGameManager_s.curInGameStatus == EInGameStatus.PLAYERMOVE)
+        if (InGameManager_s.Instance.curInGameStatus == EInGameStatus.PLAYERMOVE)
         {
             foreach (var dic in _playerKeyBinds)
             {
@@ -199,7 +191,7 @@ public partial class KeyInputManager_s //InGame Setting
                 }
             }
         }
-        else if (_scripts._inGameManager_s.curInGameStatus == EInGameStatus.CUBEROTATE)
+        else if (InGameManager_s.Instance.curInGameStatus == EInGameStatus.CUBEROTATE)
         {
             foreach (var dic in _cubeKeyBinds)
             {

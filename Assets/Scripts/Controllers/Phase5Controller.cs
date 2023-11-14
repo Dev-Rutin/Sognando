@@ -10,6 +10,7 @@ public class Phase5Controller : MonoBehaviour
     [SerializeField] private GameObject _notation;
     [SerializeField] private float _windowLightAlpha;
     [SerializeField] private GameObject _windowLight;
+    [SerializeField] private GameObject _moon;
     
     private SpriteRenderer[] _childs;
     // Start is called before the first frame update
@@ -26,6 +27,8 @@ public class Phase5Controller : MonoBehaviour
 
     private IEnumerator PhaseStartCorutine()
     {
+        _moon.gameObject.GetComponent<MoonController>().isMoving = true;
+        _moon.gameObject.GetComponent<MoonController>().MoveToLevel(5);
         for (int i = 0; i < 5; i++)
         {
             Debug.Log($"name : {_childs[i].name}");
@@ -33,7 +36,7 @@ public class Phase5Controller : MonoBehaviour
             yield return new WaitForSeconds(_fadeTime + 0.5f);
         }
         StartCoroutine(NotationLightFade());
-        
+
         _windowLight.GetComponent<WindowLightController>().FadeStart(_windowLightAlpha);
         
         yield return new WaitForSeconds(_fadeTime + 0.5f);

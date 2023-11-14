@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.VersionControl;
 using UnityEngine;
-using UnityEngine.UI;
-using static UnityEngine.Rendering.DebugUI;
-
+class BeatStruct
+{
+    public float value;
+}
 public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGame
 {
     [Header("data")]
@@ -23,8 +23,8 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
     private List<GameObject> _beatObjList;
     private WaitForEndOfFrame _waitUpdate;
 
-    private float _beatShow1LerpValue;
-    private float _beatShow2LerpValue;
+    BeatStruct _beatShowLerpValue1;
+    BeatStruct _beatShowLerpValue2;
     [Header("auto")]
     private bool _isAutoCalibrationOn;
     private float _autoCalibrationValue;
@@ -34,11 +34,9 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
         _beatObjList.Add(Instantiate(_beatPrefab, _beatTsf));
         _beatObjList.Add(Instantiate(_beatPrefab, _beatTsf));
         _waitUpdate = new WaitForEndOfFrame();
+        _beatShowLerpValue1 = new BeatStruct();
+        _beatShowLerpValue2 = new BeatStruct();
     }
-  
-}
-public partial class InGameBeatManager_s
-{
     public void InGameBind()
     {
         InGameFunBind_s.Instance.EgameStart += GameStart;
@@ -55,8 +53,8 @@ public partial class InGameBeatManager_s
     }
     public void GamePlay()
     {
-        StartCoroutine(BeatShow1(_beatObjList[0]));
-        StartCoroutine(BeatShow2(_beatObjList[1]));
+        StartCoroutine(BeatShow(_beatObjList[0],_beatShowLerpValue1));
+        StartCoroutine(BeatShow(_beatObjList[1], _beatShowLerpValue2));
     }
     public void GameEnd()
     {
@@ -93,11 +91,11 @@ public partial class InGameBeatManager_s
     {
         if (_beatSelect)
         {
-            _beatShow1LerpValue = 0;
+            _beatShowLerpValue1.value = 0;
         }
         else
         {
-            _beatShow2LerpValue = 0;
+            _beatShowLerpValue2.value = 0;
         }
         if (GhostPattern.Instance.isGhostPlay)
         {
@@ -106,28 +104,15 @@ public partial class InGameBeatManager_s
         _beatSelect = !_beatSelect;
     }
 
-    private IEnumerator BeatShow1(GameObject beatObj)
+    private IEnumerator BeatShow(GameObject beatObj,BeatStruct data)
     {
         yield return new WaitUntil(() => InGameMusicManager_s.Instance.completedLoops < 1);
         float lastPos = InGameMusicManager_s.Instance.musicPosition;
-        _beatShow1LerpValue = (_startScale.x - beatObj.transform.localScale.x) * 1f / (_startScale.x - _endScale.x);;
+        data.value = (_startScale.x - beatObj.transform.localScale.x) * 1f / (_startScale.x - _endScale.x);;
         while (InGameManager_s.Instance.curGameStatus == EGameStatus.PLAYING)
         {
-            _beatShow1LerpValue += (InGameMusicManager_s.Instance.musicPosition - lastPos) / (InGameMusicManager_s.Instance.secPerBeat * 2);
-            beatObj.transform.localScale = Vector3.Lerp(_startScale, _endScale, _beatShow1LerpValue);
-            lastPos = InGameMusicManager_s.Instance.musicPosition;
-            yield return _waitUpdate;
-        }
-    }
-    private IEnumerator BeatShow2(GameObject beatObj)
-    {
-        yield return new WaitUntil(() => InGameMusicManager_s.Instance.completedLoops < 1);
-        float lastPos = InGameMusicManager_s.Instance.musicPosition;
-        _beatShow2LerpValue = (_startScale.x - beatObj.transform.localScale.x) * 1f / (_startScale.x - _endScale.x);
-        while (InGameManager_s.Instance.curGameStatus == EGameStatus.PLAYING)
-        {
-            _beatShow2LerpValue += ( InGameMusicManager_s.Instance.musicPosition - lastPos) / (InGameMusicManager_s.Instance.secPerBeat*2);
-            beatObj.transform.localScale = Vector3.Lerp(_startScale, _endScale, _beatShow2LerpValue);
+            data.value += (InGameMusicManager_s.Instance.musicPosition - lastPos) / (InGameMusicManager_s.Instance.secPerBeat * 2);
+            beatObj.transform.localScale = Vector3.Lerp(_startScale, _endScale, data.value);
             lastPos = InGameMusicManager_s.Instance.musicPosition;
             yield return _waitUpdate;
         }
@@ -219,7 +204,7 @@ public partial class InGameBeatManager_s
     private void BeatScoreCount(float postionValue)
     {
         Debug.Log(postionValue);
-        if (postionValue <= beatJudgeMax - 0.05f || postionValue >= beatJudgeMin + 0.05f)
+        if (postionValue <= beatJudgeMax - 0.2f || postionValue >= beatJudgeMin + 0.2f)
         {
             InGameManager_s.Instance.PerfectScroe();
         }

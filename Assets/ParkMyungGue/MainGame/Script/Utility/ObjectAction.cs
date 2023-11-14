@@ -4,12 +4,12 @@ using UnityEngine.UI;
 
 public static class ObjectAction
 {
+    static WaitForEndOfFrame waitForEndOfFrame = new WaitForEndOfFrame();
     public static IEnumerator MovingObj(GameObject target, Vector2 targetPos, float movingTime)
     {
         float lerpValue = 0;
         float startTime = InGameMusicManager_s.Instance.musicPosition;
         Vector2 startPos = target.transform.localPosition;
-        WaitForEndOfFrame waitForEndOfFrame = new WaitForEndOfFrame();
         while (lerpValue <= 1)
         {
             lerpValue = (InGameMusicManager_s.Instance.musicPosition - startTime) * 1 / movingTime;
@@ -22,7 +22,6 @@ public static class ObjectAction
     {
         float lerpValue = 0;
         float startTime = InGameMusicManager_s.Instance.musicPosition;
-        WaitForEndOfFrame waitForEndOfFrame = new WaitForEndOfFrame();
         while (lerpValue <= 1)
         {
             lerpValue = (InGameMusicManager_s.Instance.musicPosition - startTime) * 1 /time;
@@ -48,7 +47,6 @@ public static class ObjectAction
     {
         float lerpValue = 0;
         float startTime = InGameMusicManager_s.Instance.musicPosition;
-        WaitForEndOfFrame waitForEndOfFrame = new WaitForEndOfFrame();
         while (lerpValue <= 1)
         {
             lerpValue = (InGameMusicManager_s.Instance.musicPosition - startTime) * 1 / time;
@@ -81,5 +79,17 @@ public static class ObjectAction
         Color targetCol = target.color;
         targetCol.a = value;
         target.color = targetCol;
+    }
+    public static IEnumerator ObjectScalePump(Transform target, Vector3 targetScale, float time)
+    {
+        float lerpValue = 0;
+        float startTime = InGameMusicManager_s.Instance.musicPosition;
+        while (lerpValue<=1)
+        {
+            lerpValue = (InGameMusicManager_s.Instance.musicPosition - startTime) * 1 / time;
+            target.localScale = Vector3.Lerp(Vector3.one, targetScale, lerpValue);
+            yield return waitForEndOfFrame;
+        }
+        target.localScale = Vector3.one;
     }
 }

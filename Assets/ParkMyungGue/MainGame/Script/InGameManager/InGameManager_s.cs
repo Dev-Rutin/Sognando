@@ -197,6 +197,6 @@ public partial class InGameManager_s //data Change
     {
         _score += changevalue;
         StageDataController.Instance.score = _score;
-        SystemUI_s.Instance.UpdateCombo(_score);
+        SystemUI_s.Instance.UpdateScore(_score);
     }
 }

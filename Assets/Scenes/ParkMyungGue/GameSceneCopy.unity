@@ -1519,8 +1519,8 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1122221646}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 90}
+  m_LocalScale: {x: 0.009259259, y: 0.009259259, z: 0.009259259}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 784362881}
@@ -1534,8 +1534,8 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0, y: 0}
+  m_SizeDelta: {x: 1920.0001, y: 1080}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &1122221648
 Canvas:
   m_ObjectHideFlags: 0
@@ -1545,7 +1545,7 @@ Canvas:
   m_GameObject: {fileID: 1122221646}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 1
+  m_RenderMode: 2
   m_Camera: {fileID: 6522795580812275616}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -1598,7 +1598,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!1 &1174405732
 GameObject:
   m_ObjectHideFlags: 0
@@ -1876,7 +1876,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerObj: {fileID: 733504504822825378}
   _movingTime: 0.1
-  _playerMaxHP: 6
+  _playerMaxHP: 999
   _curPlayerHP: 0
   _moveEffect: {fileID: 4671210023328674786}
   _noiseDissolveEffect: {fileID: 472381579}
@@ -2629,8 +2629,8 @@ MonoBehaviour:
   _beatTsf: {fileID: 3754231412218803269}
   _startScale: {x: 1.5, y: 1.5, z: 1.5}
   _endScale: {x: 1, y: 1, z: 1}
-  m_beatJudgeMax: 0.15
-  m_beatJudgeMin: 0.85
+  m_beatJudgeMax: 0.25
+  m_beatJudgeMin: 0.7
 --- !u!4 &2046577916 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4459342463526956199, guid: 96b11b87e2d308e458b878a62325465a, type: 3}
@@ -3156,17 +3156,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 641c1416c2a86fa428896808f26930ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _comboTsf: {fileID: 7617271045500129353}
   _comboText: {fileID: 1089028258485303006}
+  _scoreTsf: {fileID: 6402038570033147685}
   _scoreText: {fileID: 8725125715439576918}
   _beatImage_UI: {fileID: 1543848000}
   _missSprite: {fileID: 21300000, guid: 182fb3ec1340585418a5674a0b1876e8, type: 3}
   _goodSprite: {fileID: 21300000, guid: f80280b7de7437b48a519ed947986f7b, type: 3}
   _perfectSprite: {fileID: 21300000, guid: 04dd021b2e81f6c43a2c87c446647425, type: 3}
+  _beatJudgeTsf: {fileID: 1174405733}
   _beatImage: {fileID: 7675774843353642314}
-  _beatPerfectImg: {fileID: 21300000, guid: c9a79e63dfdfb1c4b8ced3fff50fc171, type: 3}
-  _beatGoodImg: {fileID: 21300000, guid: 393f438d85ae4a949a5c476c49a6eb46, type: 3}
-  _beatMissImg: {fileID: 21300000, guid: 93a88a17cf835ac4fb48664e941a1c14, type: 3}
-  _beatDefaultImg: {fileID: 21300000, guid: 49a4e82f8ea72cf408c0503dd445986a, type: 3}
+  _beatPerfectSprite: {fileID: 21300000, guid: c9a79e63dfdfb1c4b8ced3fff50fc171, type: 3}
+  _beatGoodSprite: {fileID: 21300000, guid: 393f438d85ae4a949a5c476c49a6eb46, type: 3}
+  _beatMissSprite: {fileID: 21300000, guid: 93a88a17cf835ac4fb48664e941a1c14, type: 3}
+  _beatDefaultSprite: {fileID: 21300000, guid: 49a4e82f8ea72cf408c0503dd445986a, type: 3}
 --- !u!114 &25702764727974015
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19147,6 +19150,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: edfe97ee7aad8954fa6f9c8491479d0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _fadePenal: {fileID: 0}
+  _gameManagerObject: {fileID: 0}
+  _fadeTime: 0
+  _cubeAnimation: {fileID: 0}
+  _cube: {fileID: 0}
+  _player: {fileID: 0}
+  _fairy: {fileID: 0}
+  _creature: {fileID: 0}
+  _systemCanvas: {fileID: 0}
+  _systemBGCanvas: {fileID: 0}
+  _mainGameCanvas: {fileID: 0}
+  isAnimationStart: 0
 --- !u!1 &2670072412749234852
 GameObject:
   m_ObjectHideFlags: 0
@@ -19253,7 +19268,7 @@ Canvas:
   m_GameObject: {fileID: 2973460624891696195}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 1
+  m_RenderMode: 2
   m_Camera: {fileID: 6522795580812275616}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -49776,7 +49791,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!1 &5734286838345702449
 GameObject:
   m_ObjectHideFlags: 0
@@ -76148,7 +76163,7 @@ Transform:
   m_GameObject: {fileID: 4622171509422678410}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -81437,8 +81452,8 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2973460624891696195}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 90}
+  m_LocalScale: {x: 0.009259259, y: 0.009259259, z: 0.009259259}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3754231412218803269}
@@ -81449,8 +81464,8 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0, y: 0}
+  m_SizeDelta: {x: 1920.0001, y: 1080}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &8725125715439576918
 MonoBehaviour:
   m_ObjectHideFlags: 0

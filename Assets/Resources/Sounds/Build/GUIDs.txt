@@ -1,0 +1,9 @@
+{949bf145-675f-4a53-94c4-7b5d2e6dcbf3} bank:/Master
+{0c86d191-1624-0611-128d-f1a3df9ecd6b} bank:/Master.strings
+{232b22cf-d991-4b65-af7d-cc7203b9d734} bus:/
+{e118cca5-364b-4ee7-81b7-90bb9bfd1fd5} bus:/Reverb
+{539524da-f0f2-47f4-bda4-5244aae1dc78} parameter:/Combo
+{fb4288cd-f276-4a93-b06e-d8d4b83a0514} parameter:/PlayerState
+{04844a54-b4a3-4af1-a798-9a02c39a059f} parameter:/Result
+{678a00e6-34f6-49af-a1f7-092664d93af7} parameter:/Time
+{4cefb7fc-3ff6-4a50-aade-a06d65791f5f} parameter:/UI

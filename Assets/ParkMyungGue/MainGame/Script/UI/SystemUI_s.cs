@@ -1,5 +1,6 @@
 using System.Collections;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,6 +26,7 @@ public class SystemUI_s : Singleton<SystemUI_s>
 
     [Header("camera")]
     WaitForEndOfFrame waitUpdate;
+    [SerializeField] private int _cameraShakeCount;
     private void Start()
     {
         waitUpdate = new WaitForEndOfFrame();
@@ -66,24 +68,22 @@ public class SystemUI_s : Singleton<SystemUI_s>
     }
     public IEnumerator CameraShake()
     {
-        float startTime = InGameMusicManager_s.Instance.musicPosition;
-        StartCoroutine(ObjectAction.MovingObj(Camera.main.gameObject, new Vector2(-0.11f, -0.05f), 0.03f));
-        while(InGameMusicManager_s.Instance.musicPosition-startTime<=0.1f)
+        float startTime;
+        bool lastShakeIsLeft = false;
+        bool lastShakeIsDown = false;
+        Vector2 shakeTarget = Vector2.zero;
+        for (int i=0;i<_cameraShakeCount;i++)
         {
-            yield return waitUpdate;
+            shakeTarget.x = Random.Range(0, lastShakeIsLeft ? -0.2f : 0.2f);
+            shakeTarget.y = Random.Range(0, lastShakeIsDown ? -0.2f : 0.2f);
+            startTime = InGameMusicManager_s.Instance.musicPosition;
+            Debug.Log(shakeTarget);
+            StartCoroutine(ObjectAction.MovingObj(Camera.main.gameObject, shakeTarget, 0.03f));
+            while (InGameMusicManager_s.Instance.musicPosition - startTime <= 0.1f)
+            {
+                yield return waitUpdate;
+            }
         }
-        startTime = InGameMusicManager_s.Instance.musicPosition;
-        StartCoroutine(ObjectAction.MovingObj(Camera.main.gameObject, new Vector2(0.08f, 0.08f), 0.03f));
-        while (InGameMusicManager_s.Instance.musicPosition - startTime <= 0.1f)
-        {
-            yield return waitUpdate;
-        }
-        startTime = InGameMusicManager_s.Instance.musicPosition;
-        StartCoroutine(ObjectAction.MovingObj(Camera.main.gameObject, new Vector2(0.08f, -0.8f), 0.03f));
-        while (InGameMusicManager_s.Instance.musicPosition - startTime <= 0.1f)
-        {
-            yield return waitUpdate;
-        }
-        Camera.main.transform.position = Vector2.zero;
+        StartCoroutine(ObjectAction.MovingObj(Camera.main.gameObject, Vector2.zero, 0.03f));
     }
 }

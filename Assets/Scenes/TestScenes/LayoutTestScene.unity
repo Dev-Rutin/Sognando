@@ -1716,6 +1716,7 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 2918377789465786593, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -1764,6 +1765,24 @@ PrefabInstance:
       propertyPath: m_LocalScale.z
       value: 1.1409729
       objectReference: {fileID: 0}
+=======
+    - target: {fileID: 3209161876752891486, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
+      propertyPath: loop
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3209161876752891486, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
+      propertyPath: _animationName
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3776207218322888766, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: f6f44f6ff7cd18b4997bb15b8fc6415f, type: 2}
+    - target: {fileID: 6086562587528629557, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+>>>>>>> origin/feature-player-img
     - target: {fileID: 7373597597807372714, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.3

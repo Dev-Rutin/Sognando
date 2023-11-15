@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{04d70e6a-65cb-4aa7-afff-0450ba50243f}">
+		<property name="assetPath">
+			<value>Cube_Start_Background.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>3.0708541666666669</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{51620df4-56e1-47dd-99e7-5174b727a3f4}</destination>
+		</relationship>
+	</object>
+</objects>

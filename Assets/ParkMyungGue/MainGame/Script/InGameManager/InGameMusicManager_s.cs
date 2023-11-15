@@ -1,14 +1,16 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
+using FMOD.Studio;
+using FMODUnity;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 public partial class InGameMusicManager_s : Singleton<InGameMusicManager_s>//data 
 {
-    [Header("scripts")]
+    [Header("fmod")]
+    private FMOD.ChannelGroup _channel;
+    private ulong _dspClock, _parentClock;
+    [Header("data")]
+    private AudioSource _audioSource;
     [SerializeField] private AudioClip _musicClip;
-    private Dictionary<AudioClip, AudioSource> _audioDic;
     [SerializeField] private int _bpm;
     public float secPerBeat { get; private set; }
     public float musicPosition { get; private set; }
@@ -24,9 +26,10 @@ public partial class InGameMusicManager_s : Singleton<InGameMusicManager_s>//dat
     private float _totalPauseValue;
     private void Start()
     {
-        _audioDic = new Dictionary<AudioClip, AudioSource>();
+        _audioSource = GetComponent<AudioSource>();
         secPerBeat = 60f / _bpm;
-        _waitUpdate = new WaitForEndOfFrame();       
+        _waitUpdate = new WaitForEndOfFrame();
+        //FMODUnity.RuntimeManager.CoreSystem.getMasterChannelGroup(out _channel);
     }
 }
 public partial class InGameMusicManager_s //main system
@@ -64,7 +67,10 @@ public partial class InGameMusicManager_s //game system
     {
         if (InGameManager_s.Instance.curGameStatus == EGameStatus.PLAYING)
         {
+            //_channel.getDSPClock(out _dspClock, out _parentClock);
+            Debug.Log(AudioSettings.dspTime);
             musicPosition = (float)(AudioSettings.dspTime - _dspMusicStartPosition - _totalPauseValue);
+            Debug.Log(musicPosition);
             _musicPositionInBeats = musicPosition / secPerBeat;
             if (_musicPositionInBeats >= (completedLoops + 1))
             {
@@ -86,42 +92,30 @@ public partial class InGameMusicManager_s //music manage
 {
     public void AudioPlay(AudioClip clip)
     {
-        if (!_audioDic.ContainsKey(clip))
-        {
-            this.AddComponent<AudioSource>();
-            _audioDic.Add(clip, this.GetComponents<AudioSource>()[_audioDic.Count]);
-            _audioDic[clip].clip = clip;
-        }
-        if (_audioDic.Count == 1)
-        {
-            _dspMusicStartPosition = (float)AudioSettings.dspTime;
-            _audioDic[clip].Play();
-        }
+        // _channel.getDSPClock(out _dspClock, out _parentClock);
+        //_dspMusicStartPosition =  _dspClock;
+        //GetComponent<StudioEventEmitter>().Play();
+        _audioSource.clip = _musicClip;
+        _audioSource.Play();
+        _dspMusicStartPosition = (float)AudioSettings.dspTime;
     }
     public void AudioStop(AudioClip clip)
     {
-        if (_audioDic.ContainsKey(clip))
-        {
-            _audioDic[clip].Stop();
-        }
+        //GetComponent<StudioEventEmitter>().Stop();
+        _audioSource.Stop();
     }
     public void AudioPause()
     {
-        foreach (var data in _audioDic)
-        {
-            data.Value.Pause();
-            _pausePosition = data.Value.time;
-            _pauseStartDspPosition = musicPosition;
-        }
+       // GetComponent<StudioEventEmitter>().EventInstance.setPaused(true);
+        _pauseStartDspPosition = musicPosition;
+        _audioSource.Pause();
     }
     public void AudioUnPause()
     {
-        foreach (var data in _audioDic)
-        {
-            data.Value.time = _pausePosition;
-            _totalPauseValue += (float)(AudioSettings.dspTime - _dspMusicStartPosition - _totalPauseValue) - _pauseStartDspPosition;
-            data.Value.UnPause();
-        }
+        //_channel.getDSPClock(out _dspClock, out _parentClock);
+        _totalPauseValue += (float)(AudioSettings.dspTime - _dspMusicStartPosition - _totalPauseValue) - _pauseStartDspPosition;
+        //GetComponent<StudioEventEmitter>().EventInstance.setPaused(false);
+        _audioSource.UnPause();
     }
     public void ChangeVolume(float volume) { }
 }

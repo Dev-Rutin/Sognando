@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{913dd468-b817-454a-9081-ec4c4f39f9e6}">
+		<property name="assetPath">
+			<value>STAGE_ONE.wav</value>
+		</property>
+		<property name="isStreaming">
+			<value>true</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>184.80002267573695</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{8b48ac32-6b06-4e87-a49a-884ebf770891}</destination>
+		</relationship>
+	</object>
+</objects>

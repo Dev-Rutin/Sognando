@@ -742,11 +742,6 @@ RectTransform:
   m_AnchoredPosition: {x: -4.9999695, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &652731983 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6962070672602739901, guid: 132ddc90eb5059e4c8fcc08364c8bead, type: 3}
-  m_PrefabInstance: {fileID: 2080811720}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &652731984 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1381129969266627874, guid: 132ddc90eb5059e4c8fcc08364c8bead, type: 3}
@@ -912,11 +907,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1517866791}
   m_SourcePrefab: {fileID: 100100000, guid: 6e7fdad94e4a9e24ab1aedf7c682fc20, type: 3}
---- !u!4 &1081232307 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8220876116721117861, guid: 2f5625892c5bf194cbb25c8d242e8ef7, type: 3}
-  m_PrefabInstance: {fileID: 6393447533564704721}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1174405732
 GameObject:
   m_ObjectHideFlags: 0
@@ -1483,6 +1473,22 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 3209161876752891486, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
+      propertyPath: loop
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3209161876752891486, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
+      propertyPath: _animationName
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3776207218322888766, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: f6f44f6ff7cd18b4997bb15b8fc6415f, type: 2}
+    - target: {fileID: 6086562587528629557, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7373597597807372714, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.92
@@ -1691,11 +1697,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1893543685}
   m_CullTransparentMesh: 1
---- !u!4 &1929588204 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7649714001411313692, guid: 3deb7047f0b3333408be8cd593baca94, type: 3}
-  m_PrefabInstance: {fileID: 5775573340049804426}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2033704695
 GameObject:
   m_ObjectHideFlags: 0
@@ -18438,29 +18439,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a74426e2e1c54f458ea304fbae50742, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lastInputTsf: {fileID: 0}
-  autoTsf: {fileID: 0}
-  beatJudgeValue: {fileID: 0}
-  IsInput: 0
-  beatFreezeCount: 0
-  _isBeatChecked: 0
-  curGameStatus: 0
-  curInGameStatus: 0
-  curInputMode: 0
-  score: 0
-  combo: 0
-  lastBeatObj: {fileID: 0}
-  lastBeatStartScaleX: 0
-  IsBeatObjCreate: 0
-  IsSecondBeatObjCreate: 0
-  IsGameRestart: 0
-  isFirstInput: 0
-  curFace: 0
-  _inGameData_s: {fileID: 5174156064358676654}
-  _inGameEnemy_s: {fileID: 6527636993774863763}
-  _inGamePlayer_s: {fileID: 3580971228987396072}
-  _inGameCube_s: {fileID: 4361814510533180097}
-  _inGameMusicManager_s: {fileID: 5084493237424015907}
 --- !u!199 &2960195450517509982
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -23604,10 +23582,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4c7951c241f5124282481a5afe9ae45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inGamePlayerObj: {fileID: 0}
-  playerPos: {x: 0, y: 0}
+  _playerObj: {fileID: 0}
+  _movingTime: 0
+  _playerMaxHP: 0
   _curPlayerHP: 0
-  IsplayerMoveCheck: 0
+  _moveEffect: {fileID: 0}
+  _noiseDissolveEffect: {fileID: 0}
 --- !u!224 &3589389717673433590
 RectTransform:
   m_ObjectHideFlags: 0
@@ -33761,7 +33741,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5f45f3d9ec3b4541a6f86752ebd89ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameCubeObj: {fileID: 0}
+  _gameCubeTsf: {fileID: 0}
+  _cubeSideUI: {fileID: 0}
+  _rotateSprite: {fileID: 0}
+  _upImage: {fileID: 0}
+  _downImage: {fileID: 0}
+  _leftImage: {fileID: 0}
+  _rightImage: {fileID: 0}
+  _rotateTime: 0
 --- !u!224 &4386989964317064459
 RectTransform:
   m_ObjectHideFlags: 0
@@ -43934,22 +43921,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aefec6266a96bd24798102dba189128d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugLogTsf: {fileID: 0}
-  bpm: 0
-  secPerBeat: 0
-  musicPosition: 0
-  musicPositionInBeats: 0
-  dspMusicStartPosition: 0
-  firstBeatOffset: 0
-  completedLoops: 0
-  loopPositionInBeats: 0
-  mainMusicClip: {fileID: 0}
-  IsMoveNextBit: 0
-  lastNextBeatLoopPosition: 0
-  pausePosition: 0
-  pauseStartDspPosition: 0
-  totalPauseValue: 0
-  beatCreateCount: 0
+  _musicClip: {fileID: 0}
+  _bpm: 0
 --- !u!4 &5112904983034898081
 Transform:
   m_ObjectHideFlags: 0
@@ -43989,67 +43962,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e03df958903a3424281e83e8a5a1c4ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  exportCubeBGTsf: {fileID: 0}
-  divideSize: {x: 0, y: 0}
   divideRectSizeTsf: {fileID: 6174387753531421306}
-  buttonsTsf: {fileID: 0}
-  bgmSlider: {fileID: 0}
-  ShowTextTsf: {fileID: 6916257137709870631}
-  scoreTsf: {fileID: 1535583410671840229}
-  comboTsf: {fileID: 4326333263725079247}
-  curStage: 0
-  beatTsf: {fileID: 3754231412218803269}
-  beatPrefectImg: {fileID: 21300000, guid: c9a79e63dfdfb1c4b8ced3fff50fc171, type: 3}
-  beatGoodImg: {fileID: 21300000, guid: 393f438d85ae4a949a5c476c49a6eb46, type: 3}
-  beatMissImg: {fileID: 21300000, guid: 93a88a17cf835ac4fb48664e941a1c14, type: 3}
-  beatDefaultImg: {fileID: 21300000, guid: 49a4e82f8ea72cf408c0503dd445986a, type: 3}
-  beatEndScaleX: 0
-  beatEndScaleY: 0
-  beatJudgeMax: 0
-  beatJudgeMin: 0
-  beatJudgeExtra: 0
-  bpm: 100
-  movingTime: 0
-  animationTime: 0
-  beatObj: {fileID: 3132110195659578560, guid: 8f457c51c0984814c829959edea2bd3a, type: 3}
-  inGameTextTsf: {fileID: 0}
-  ScoreShowTsf: {fileID: 1174405733}
-  doremiImageObj: {fileID: 5854048869137783988}
-  inGamePlayerObj: {fileID: 733504504822825378}
-  playerImageObj: {fileID: 0}
-  playerHPOffTsf: {fileID: 0}
-  playerAttackEffectObj: {fileID: 652731983}
-  playerMaxHP: 6
-  playerHealEffect: {fileID: 1929588204}
-  playerHurtEffect: {fileID: 1081232307}
-  doremiTextTsf: {fileID: 8777487138356664354}
-  gameCubeObj: {fileID: 1517866785}
-  cubeUI: {fileID: 8880693372697999908}
-  cubeEffectObj: {fileID: 7958909913752454318}
-  rotateImageTsf: {fileID: 6156261541907465582}
-  enemyHPTsf: {fileID: 1682352360158702977}
-  enemyATKOnTsf: {fileID: 0}
-  enemyImageObj: {fileID: 0}
-  enemyHitEffectObj: {fileID: 6570461572709634006}
-  enemyMaxHP: 0
-  enemyAttackGaugeMax: 0
-  movePathTsf: {fileID: 3998625261195224139}
-  pathSampleObj: {fileID: 3864838494663170502, guid: eb3bf7f3de3ebcd478ad9bf01d8ca450, type: 3}
-  coinsTsf: {fileID: 5034859285157997232}
-  coinSampleObj: {fileID: 3069014041795708903, guid: bb9fd78e61842ed48a175a156f503312, type: 3}
-  fireTsf: {fileID: 6058281167781727690}
-  fireSampleObj: {fileID: 6213339971671313379, guid: 44de88f44dae901479833e7ce7ab8896, type: 3}
-  blockTsf: {fileID: 9071984196461273610}
-  blockSampleObj: {fileID: 693330362313198814, guid: 6566d16b6fe51dc4a8e79c43f12179ce, type: 3}
-  lineAttackTsf: {fileID: 2218739757632956468}
-  lineAttackSampleObj: {fileID: 4632828099348867800, guid: add65419816b3334eb29b5424e8e395d, type: 3}
-  linkLineAttackTsf: {fileID: 3657861894755720873}
-  linkLineAttackSampleObj: {fileID: 4632828099348867800, guid: 390b94f754ef047498279c991a487267, type: 3}
-  needleAttackSampleObj: {fileID: 0}
-  needleAttackTsf: {fileID: 4386989964317064459}
-  ghostSampleObj: {fileID: 8748312558404695860, guid: 71d44ba5a9a1c1e449cca4f5bc931af2, type: 3}
-  ghostTsf: {fileID: 3761678609865640706}
-  musicClip: {fileID: 8300000, guid: d6455b9902ec12849a993969cc0c6b0a, type: 3}
+  m_divideSize: {x: 0, y: 0}
 --- !u!198 &5206647246299086074
 ParticleSystem:
   m_ObjectHideFlags: 0
@@ -59936,13 +59850,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d9708528696acd45b185e8c314ffa92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  curEnemyMods: 
+  _enemyMaxHP: 0
   _curEnemyHP: 0
-  _curEnemyATKGauge: 0
-  _enemyATKGaugeCount: 0
-  isEnemyPhaseEnd: 0
-  isEnemyPhase: 0
-  curEnemyPhase: 0
+  _enemyAttackGaugeMax: 0
+  _curEnemyPhase: 0
 --- !u!1 &6570461572709634006
 GameObject:
   m_ObjectHideFlags: 0
@@ -70535,6 +70446,11 @@ MonoBehaviour:
   perfectCount: 0
   goodCount: 0
   missCount: 0
+  totalValue: 0
+  judgementValue: 0
+  loseValuel: 0
+  totalScroe: 0
+  rankScore: 0
 --- !u!1 &7958909913752454318
 GameObject:
   m_ObjectHideFlags: 0

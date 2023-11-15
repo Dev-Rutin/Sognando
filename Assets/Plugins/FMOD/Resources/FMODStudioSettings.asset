@@ -493,8 +493,8 @@ MonoBehaviour:
   switchSettingsMigration: 1
   HasSourceProject: 1
   HasPlatforms: 1
-  sourceProjectPath: Assets/Resources/Sounds/SognandoSound.fspro
-  sourceBankPath: Assets/Resources/Sounds/Build
+  sourceProjectPath: Assets/Resources/ParkMyungGue/Music/Test/Test.fspro
+  sourceBankPath: Assets/Resources/ParkMyungGue/Music/Test/Build
   sourceBankPathUnformatted: 
   BankRefreshCooldown: 5
   ShowBankRefreshWindow: 1

@@ -164,7 +164,10 @@ public partial class InGameManager_s //data Change
 {
     public void DefaultShow()
     {
-        UpdateCombo(combo * -1);
+        if (curInGameStatus == EInGameStatus.PLAYERMOVE)
+        {
+            UpdateCombo(combo * -1);
+        }
         SystemUI_s.Instance.DefaultShow();
     }
     public void GoodScroe()

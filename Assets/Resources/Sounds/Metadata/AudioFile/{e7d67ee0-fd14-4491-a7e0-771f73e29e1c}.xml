@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{e7d67ee0-fd14-4491-a7e0-771f73e29e1c}">
+		<property name="assetPath">
+			<value>Combo_Third.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>1</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{51620df4-56e1-47dd-99e7-5174b727a3f4}</destination>
+		</relationship>
+	</object>
+</objects>

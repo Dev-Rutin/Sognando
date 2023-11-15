@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="ParameterPreset" id="{233aef03-7d02-404a-b9e5-e1d5c00719fd}">
+		<property name="name">
+			<value>Cube</value>
+		</property>
+		<relationship name="folder">
+			<destination>{75e671a3-1e1f-42f0-a400-0167fb21cee6}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{0f422173-fbc3-4dd3-ac5e-2fa5a277486f}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{0f422173-fbc3-4dd3-ac5e-2fa5a277486f}">
+		<property name="parameterType">
+			<value>2</value>
+		</property>
+		<property name="enumerationLabels">
+			<value>Making</value>
+		</property>
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>

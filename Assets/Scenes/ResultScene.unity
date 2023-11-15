@@ -2951,6 +2951,7 @@ GameObject:
   - component: {fileID: 2102359363}
   - component: {fileID: 2102359362}
   - component: {fileID: 2102359364}
+  - component: {fileID: 2102359365}
   m_Layer: 0
   m_Name: ResultManager
   m_TagString: Untagged
@@ -2978,7 +2979,7 @@ MonoBehaviour:
   _perfectText: {fileID: 1180750186}
   _goodText: {fileID: 652181964}
   _missText: {fileID: 99388521}
-  _fadeTime: 1.5
+  _fadeTime: 0.1
   _fadePenal: {fileID: 42897251}
 --- !u!4 &2102359363
 Transform:
@@ -3007,6 +3008,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a8ca7467fa8a4748b04601960a9a4e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2102359365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2102359361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef89ea76d31fd754c930996d6ec6f280, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shakeAmount: 3
+  shakeTime: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

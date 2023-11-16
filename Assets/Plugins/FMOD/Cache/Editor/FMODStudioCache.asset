@@ -15,7 +15,7 @@ MonoBehaviour:
   Path: Assets/Resources/ParkMyungGue/Music/Test/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 638356533439590910
+  lastModified: 638357318353264445
   FileSizes:
   - Name: Desktop
     Value: 758
@@ -42,7 +42,7 @@ MonoBehaviour:
   - {fileID: 3111829445092978582}
   StringsBanks:
   - {fileID: -4106316618070263749}
-  cacheTime: 638356533439590910
+  cacheTime: 638357318353264445
   cacheVersion: 131609
 --- !u!114 &3111829445092978582
 MonoBehaviour:
@@ -59,7 +59,7 @@ MonoBehaviour:
   Path: Assets/Resources/ParkMyungGue/Music/Test/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 638356533439556190
+  lastModified: 638357318353199974
   FileSizes:
   - Name: Desktop
     Value: 2656928

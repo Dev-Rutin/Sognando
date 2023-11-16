@@ -2,6 +2,7 @@ using Spine.Unity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -162,11 +163,23 @@ public partial class InGameEnemy_s //game system
     }
     private void DoEnemyMode()
     {
-        foreach (var data in _curEnemyMods)
+        if(_curEnemyMods.Contains(EEnemyMode.NOISE))
         {
-            if (_enemyModBinds[data]!= null)
+            _enemyModBinds[EEnemyMode.NOISE]();
+        }
+        if (_curEnemyMods.Contains(EEnemyMode.LINEATTACK) && _curEnemyMods.Contains(EEnemyMode.LINKLINEATTACK))
+        {
+            _enemyModBinds[UnityEngine.Random.Range(0, 2) == 0 ? EEnemyMode.LINEATTACK : EEnemyMode.LINKLINEATTACK]();
+        }
+        else
+        {
+            if (_curEnemyMods.Contains(EEnemyMode.LINEATTACK))
             {
-                _enemyModBinds[data]();
+                _enemyModBinds[EEnemyMode.LINEATTACK]();
+            }
+            if (_curEnemyMods.Contains(EEnemyMode.LINKLINEATTACK))
+            {
+                _enemyModBinds[EEnemyMode.LINKLINEATTACK]();
             }
         }
         if (_curEnemyATKGauge >= _enemyAttackGaugeMax)
@@ -206,6 +219,11 @@ public partial class InGameEnemy_s //game system
                     _curEnemyMods.Remove(EEnemyMode.LINKLINEATTACK);
                 }
                 _curEnemyMods.Add(EEnemyMode.LINEATTACK);
+                break;
+            case EEnemyPhase.Phase4:
+                _curEnemyMods.Add(EEnemyMode.LINKLINEATTACK);
+                break;
+            default:
                 break;
         }
         _curEnemyPhase = target;

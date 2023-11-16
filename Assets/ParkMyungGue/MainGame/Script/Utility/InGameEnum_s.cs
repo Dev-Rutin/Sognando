@@ -77,5 +77,6 @@ public enum EEnemyPhase
     Ghost,
     Phase1,
     Phase2,
-    Phase3
+    Phase3,
+    Phase4
 }

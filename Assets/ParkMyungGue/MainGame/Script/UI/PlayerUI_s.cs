@@ -5,9 +5,6 @@ using UnityEngine.UI;
 
 public class PlayerUI_s : Singleton<PlayerUI_s>
 {
-    [Header("Script")]
-    [SerializeField] private InGameMusicManager_s _music_s;
-    [SerializeField] private InGameEnemy_s _enemy_s;
     [Header("HP")]
     private List<Image> _hpImages;
     [SerializeField] private Sprite _hpOn;
@@ -28,7 +25,7 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
     [SerializeField] private Transform _playerAttackStartPos;
     [SerializeField] private Transform _playerAttackEndPos;
     [SerializeField] float _attackAnimationTime;
-    private ParticleSystem _curAttackParticle;
+    [SerializeField] private ParticleSystem _curAttackParticle;
     private WaitForEndOfFrame _waitUpdate;
     private void Start()
     {
@@ -91,17 +88,17 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
     private IEnumerator IAttack()
     {
         _attackTrail.Play();
-        float startPosition = _music_s.musicPosition;
+        float startPosition = InGameMusicManager_s.Instance.musicPosition;
         float curTimeCount = 0;
         while(curTimeCount<=_attackAnimationTime)
         {
             _attackTsf.localPosition = Vector3.Slerp(_playerAttackStartPos.localPosition, _playerAttackEndPos.localPosition, curTimeCount);
-            curTimeCount = _music_s.musicPosition - startPosition;
+            curTimeCount = InGameMusicManager_s.Instance.musicPosition - startPosition;
             yield return _waitUpdate;
         }
-        _attackTrail.Stop();
-        _curAttackParticle.Stop();
-       _enemy_s.UpdateEnemyHP(-1);
+        _attackTrail.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
+        _curAttackParticle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+       InGameEnemy_s.Instance.UpdateEnemyHP(-1);
         yield return new WaitForSeconds(1f);
         _attackTsf.localPosition = _playerAttackStartPos.localPosition;
         _curAttackParticle.Play();

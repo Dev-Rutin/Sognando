@@ -224,7 +224,6 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
     }
     private void BeatScoreCount(float postionValue)
     {
-        Debug.Log(postionValue);
         if (postionValue <= beatJudgeMax - 0.2f || postionValue >= beatJudgeMin + 0.2f)
         {
             InGameManager_s.Instance.PerfectScroe();

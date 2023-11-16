@@ -18,7 +18,7 @@ public static class ObjectAction
         }
         target.transform.localPosition = targetPos;
     }
-    public static IEnumerator ImageFade(Image target, float time, bool isAllFade)
+    public static IEnumerator ImageFade(Image target, float time,bool isAllFade, float startValue, float endValue = 0)
     {
         float lerpValue = 0;
         float startTime = InGameMusicManager_s.Instance.musicPosition;
@@ -27,23 +27,23 @@ public static class ObjectAction
             lerpValue = (InGameMusicManager_s.Instance.musicPosition - startTime) * 1 /time;
             if (isAllFade)
             {
-                ImageAlphaChange(target, Mathf.Lerp(1, 0, lerpValue));
+                ImageAlphaChange(target, Mathf.Lerp(startValue, endValue, lerpValue));
             }
             else
             {
                 if (lerpValue < time / 2)
                 {
-                    ImageAlphaChange(target, Mathf.Lerp(1, 0.5f, 0.5f/lerpValue));
+                    ImageAlphaChange(target, Mathf.Lerp(startValue, 0.5f, 0.5f/lerpValue));
                 }
                 else
                 {
-                    ImageAlphaChange(target, Mathf.Lerp(0.5f, 1, 0.5f/lerpValue-1));
+                    ImageAlphaChange(target, Mathf.Lerp(0.5f, startValue, 0.5f/lerpValue-1));
                 }
             }
             yield return waitForEndOfFrame;
         }
     }
-    public static IEnumerator ImageFade(SpriteRenderer target, float time, bool isAllFade)
+    public static IEnumerator ImageFade(SpriteRenderer target, float time, bool isAllFade,float startValue, float endValue = 0)
     {
         float lerpValue = 0;
         float startTime = InGameMusicManager_s.Instance.musicPosition;
@@ -52,17 +52,17 @@ public static class ObjectAction
             lerpValue = (InGameMusicManager_s.Instance.musicPosition - startTime) * 1 / time;
             if (isAllFade)
             {
-                ImageAlphaChange(target, Mathf.Lerp(1, 0, lerpValue));
+                ImageAlphaChange(target, Mathf.Lerp(startValue, endValue, lerpValue));
             }
             else
             {
                 if (lerpValue < time / 2)
                 {
-                    ImageAlphaChange(target, Mathf.Lerp(1, 0.5f, 0.5f / lerpValue));
+                    ImageAlphaChange(target, Mathf.Lerp(startValue, 0.5f, 0.5f / lerpValue));
                 }
                 else
                 {
-                    ImageAlphaChange(target, Mathf.Lerp(0.5f, 1, 0.5f / lerpValue - 1));
+                    ImageAlphaChange(target, Mathf.Lerp(0.5f, startValue, 0.5f / lerpValue - 1));
                 }
             }
             yield return waitForEndOfFrame;

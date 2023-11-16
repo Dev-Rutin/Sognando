@@ -7,16 +7,22 @@ using UnityEngine.UI;
 public class EnemyUI_s : Singleton<EnemyUI_s>
 {
     [Header("HP")]
+    private Dictionary<ECubeFace,Transform> _hpsTsf;
+    [SerializeField] private Vector3 _pumpSize;
     private Dictionary<ECubeFace, Image> _hpImages;
     private Dictionary<ECubeFace, Sprite> _hpOn;
     private Dictionary<ECubeFace, Sprite> _hpOff;
     [SerializeField] private Transform _hpUITsf;
-
     [Header("Effect")]
     [SerializeField] private ParticleSystem _enemyHitEffect;
 
     private void Start()
     {
+        _hpsTsf = new Dictionary<ECubeFace, Transform>();
+        foreach (Transform data in _hpUITsf)
+        {
+            _hpsTsf.Add(Enum.Parse<ECubeFace>(data.name), data);
+        }
         _hpImages = new Dictionary<ECubeFace, Image>();
         foreach (Transform data in _hpUITsf)
         {
@@ -44,5 +50,9 @@ public class EnemyUI_s : Singleton<EnemyUI_s>
     {
         _hpImages[face].sprite = _hpOff[face];
         _enemyHitEffect.Play();
+    }
+    public void PumpHP(ECubeFace face)
+    {
+        StartCoroutine(ObjectAction.ObjectScalePump(_hpsTsf[face], _pumpSize, 0.1f));
     }
 }

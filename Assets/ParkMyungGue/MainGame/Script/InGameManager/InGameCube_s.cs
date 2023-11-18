@@ -118,27 +118,19 @@ public partial class InGameCube_s //rotate
     }
     private IEnumerator RotateTimeLock(Vector3 rotateposition)
     {
-        while(InGameManager_s.Instance.curInGameStatus==EInGameStatus.CUBEROTATE)
+        DoremiUI_s.Instance.SingleDoremiAnimation("ready", true);
+        while (InGameManager_s.Instance.curInGameStatus == EInGameStatus.CUBEROTATE)
         {
             yield return _waitUpdate;
         }
         CubeUI_s.Instance.ShowEffect(curFace);
         float startTime = InGameMusicManager_s.Instance.musicPosition;
-        while (InGameMusicManager_s.Instance.musicPosition-startTime<=1f)
+        float waitTime = InGameManager_s.Instance.beatFreezeCount * InGameMusicManager_s.Instance.secPerBeat;
+        while (InGameMusicManager_s.Instance.musicPosition-startTime<=waitTime)
         {
             yield return _waitUpdate;
         }
-        float rotateIncrease = 0;
-        float curRotateValue = 0;
-        while (rotateIncrease<=90)
-        {
-            curRotateValue = Mathf.Abs(rotateposition.x + rotateposition.y + rotateposition.z) / (1 / Time.deltaTime * _rotateTime);
-            _gameCubeTsf.RotateAround(_gameCubeTsf.position, rotateposition, curRotateValue);
-            rotateIncrease += curRotateValue;
-            yield return _waitUpdate;
-        }
-        _gameCubeTsf.RotateAround(_gameCubeTsf.position, rotateposition, Mathf.Abs(rotateposition.x + rotateposition.y + rotateposition.z) - rotateIncrease);
-        _gameCubeTsf.localEulerAngles = new Vector3(MathF.Round(_gameCubeTsf.localEulerAngles.x), Mathf.Round(_gameCubeTsf.localEulerAngles.y), Mathf.Round(_gameCubeTsf.localEulerAngles.z));
+        StartCoroutine(ObjectAction.RotateObj(_gameCubeTsf.gameObject, rotateposition, _rotateTime));
     }
     IEnumerator ShowRotateImage()
     {
@@ -166,31 +158,13 @@ public partial class InGameCube_s //rotate
     public IEnumerator QuakeCube(float rotateTime)
     {
         Vector3 rotateTarget = new Vector3(UnityEngine.Random.Range(-150, 150) * 0.01f, UnityEngine.Random.Range(-150, 150) * 0.01f, UnityEngine.Random.Range(-150, 150) * 0.01f);
-        float startTime = InGameMusicManager_s.Instance.musicPosition;
-        float rotateIncrease = 0;
-        float curRotateValue = 0;
+        StartCoroutine(ObjectAction.RotateObj(_gameCubeTsf.gameObject, rotateTarget, rotateTime));
+       float startTime = InGameMusicManager_s.Instance.musicPosition;
         while (InGameMusicManager_s.Instance.musicPosition-startTime<=rotateTime)
         {
-            curRotateValue = Mathf.Abs(rotateTarget.x + rotateTarget.y + rotateTarget.z) / (1 / Time.deltaTime * rotateTime);
-            _gameCubeTsf.RotateAround(_gameCubeTsf.position, rotateTarget, curRotateValue);
-            rotateIncrease += curRotateValue;
             yield return _waitUpdate;
         }
-        _gameCubeTsf.RotateAround(_gameCubeTsf.position, rotateTarget, Mathf.Abs(rotateTarget.x + rotateTarget.y + rotateTarget.z) - rotateIncrease);
-        _gameCubeTsf.localEulerAngles = new Vector3(MathF.Round(_gameCubeTsf.localEulerAngles.x), Mathf.Round(_gameCubeTsf.localEulerAngles.y), Mathf.Round(_gameCubeTsf.localEulerAngles.z));
-
         rotateTarget = rotateTarget * -1;
-        startTime = InGameMusicManager_s.Instance.musicPosition;
-        rotateIncrease = 0;
-        curRotateValue = 0;
-        while (InGameMusicManager_s.Instance.musicPosition - startTime <= rotateTime)
-        {
-            curRotateValue = Mathf.Abs(rotateTarget.x + rotateTarget.y + rotateTarget.z) / (1 / Time.deltaTime * rotateTime);
-            _gameCubeTsf.RotateAround(_gameCubeTsf.position, rotateTarget, curRotateValue);
-            rotateIncrease += curRotateValue;
-            yield return _waitUpdate;
-        }
-        _gameCubeTsf.RotateAround(_gameCubeTsf.position, rotateTarget, Mathf.Abs(rotateTarget.x + rotateTarget.y + rotateTarget.z) - rotateIncrease);
-        _gameCubeTsf.localEulerAngles = new Vector3(MathF.Round(_gameCubeTsf.localEulerAngles.x), Mathf.Round(_gameCubeTsf.localEulerAngles.y), Mathf.Round(_gameCubeTsf.localEulerAngles.z));
+        StartCoroutine(ObjectAction.RotateObj(_gameCubeTsf.gameObject, rotateTarget, rotateTime));
     }
 }

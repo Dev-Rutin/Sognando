@@ -47,6 +47,8 @@ public partial class InGamePlayer_s//game system
         PlayerUI_s.Instance.PlayerHPUpdate(_curPlayerHP);
         _playerObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[playerPos.x, playerPos.y].transform;
         PlayerUI_s.Instance.AttackChange(_playerAttackLevel);
+        DoremiUI_s.Instance.SingleDoremiAnimation("idle",true);
+
     }
     public void GameEnd()
     {
@@ -143,7 +145,6 @@ public partial class InGamePlayer_s  //move
         if (InGameSideData_s.Instance.sideDatas[playerPos.x, playerPos.y].noise != null)
         {
             InGameEnemy_s.Instance.RemoveTargetObj("noise", playerPos.x, playerPos.y, true);
-            DoremiUI_s.Instance.DoremiAnimation("ready");
             _noiseDissolveEffect.Play();
         }
     }

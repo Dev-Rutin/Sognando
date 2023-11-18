@@ -13,20 +13,20 @@ MonoBehaviour:
   m_Name: doremi_SkeletonData
   m_EditorClassIdentifier: 
   atlasAssets:
-  - {fileID: 11400000, guid: 72d23be72e0214f4492b1db1719eb2f8, type: 2}
+  - {fileID: 11400000, guid: c274afe471f8e0844b7813f74235ec99, type: 2}
   scale: 0.01
-  skeletonJSON: {fileID: 4900000, guid: d2d9809e2b088844180dad174f06ba50, type: 3}
+  skeletonJSON: {fileID: 4900000, guid: 0960915581a12ed4ba58d35eed66ea64, type: 3}
   isUpgradingBlendModeMaterials: 0
   blendModeMaterials:
     requiresBlendModeMaterials: 1
     applyAdditiveMaterial: 1
     additiveMaterials:
     - pageName: doremi.png
-      material: {fileID: 2100000, guid: f6a987338009ab74bbe129d60e7e7577, type: 2}
+      material: {fileID: 2100000, guid: c29dc467d8a42694492c2279a92f2209, type: 2}
     multiplyMaterials: []
     screenMaterials:
     - pageName: doremi.png
-      material: {fileID: 2100000, guid: 09c259f2280573a49aa70ca0ecb30062, type: 2}
+      material: {fileID: 2100000, guid: f1696fb2537d6854aa9a3defdd457868, type: 2}
   skeletonDataModifiers: []
   fromAnimation: []
   toAnimation: []

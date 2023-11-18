@@ -563,7 +563,7 @@ MonoBehaviour:
   _attackTrail: {fileID: 2080811721}
   _playerAttackStartPos: {fileID: 1372909883}
   _playerAttackEndPos: {fileID: 1720748559}
-  _attackAnimationTime: 1
+  _attackAnimationTime: 3
   _curAttackParticle: {fileID: 0}
 --- !u!1 &281319302
 GameObject:
@@ -2551,8 +2551,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: acb18623e54948e4fadf176ab584a8b6, type: 3}
+  m_SortingOrder: 1
+  m_Sprite: {fileID: 21300000, guid: 84419577ea620564e86fcc0b1ac4c40f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -44694,7 +44694,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d247ba06193faa74d9335f5481b2b56c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skeletonDataAsset: {fileID: 11400000, guid: 24b66d642a5e5024d88b483d48d3f06e, type: 2}
+  skeletonDataAsset: {fileID: 11400000, guid: 7816c580bf0990c43b409927bdd0ee7f, type: 2}
   initialSkinName: 
   fixPrefabOverrideViaMeshFilter: 2
   initialFlipX: 0
@@ -71229,7 +71229,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d34e814b58798f04f886974ace675cef, type: 2}
+  - {fileID: 2100000, guid: 2642a3c1d1a0d9442b3123b92f8109d0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

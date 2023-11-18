@@ -19,10 +19,14 @@ public partial class InGameMusicManager_s : Singleton<InGameMusicManager_s>//dat
     public int completedLoops { get; private set; }
     private float _lastBeatCount;
     public float loopPositionInBeats { get; private set; }
+    private float _pauseValue;
+    private int _previousPausePosition;
+    public bool isPause { get; private set; }
     private void Start()
     {
         _audioSource = GetComponent<AudioSource>();
         secPerBeat = 60f / _bpm;
+        isPause = true;
     }
 }
 public partial class InGameMusicManager_s //main system
@@ -32,6 +36,8 @@ public partial class InGameMusicManager_s //main system
         InGameFunBind_s.Instance.EgameStart += GameStart;
         InGameFunBind_s.Instance.EgamePlay += GamePlay;
         InGameFunBind_s.Instance.EgameEnd += GameEnd;
+        InGameFunBind_s.Instance.Epause += AudioPause;
+        InGameFunBind_s.Instance.EunPause += AudioUnPause;
     }
     public void GameStart()
     {
@@ -40,6 +46,8 @@ public partial class InGameMusicManager_s //main system
         completedLoops = 0;
         _lastBeatCount = 0;
         loopPositionInBeats = 0;
+        _pauseValue = 0;
+        _previousPausePosition = 0;
     }
     public void GamePlay()
     {
@@ -54,10 +62,10 @@ public partial class InGameMusicManager_s //game system
 {
     private void Update()
     {
-        if (InGameManager_s.Instance.curGameStatus == EGameStatus.PLAYING)
+        if (!isPause)
         {
             _curMusicEventInstance.getTimelinePosition(out _getPosition);
-            musicPosition = _getPosition*0.001f;
+            musicPosition = (_getPosition*0.001f) - _pauseValue;
             _musicPositionInBeats = musicPosition / secPerBeat;
             if (_musicPositionInBeats >= (completedLoops + 1))
             {
@@ -73,13 +81,10 @@ public partial class InGameMusicManager_s //game system
             }
         }
     }
-
-}
-public partial class InGameMusicManager_s //music manage
-{
     public void AudioPlay(AudioClip clip)
     {
         GetComponent<StudioEventEmitter>().Play();
+        isPause = false;
         _curMusicEventInstance = GetComponent<StudioEventEmitter>().EventInstance;
     }
     public void AudioStop(AudioClip clip)
@@ -88,11 +93,18 @@ public partial class InGameMusicManager_s //music manage
     }
     public void AudioPause()
     {
-       GetComponent<StudioEventEmitter>().EventInstance.setPaused(true);
+        _previousPausePosition = _getPosition;
+        GetComponent<StudioEventEmitter>().EventInstance.setPaused(true);
+        isPause = true ;
+        Debug.Log("bb");
     }
     public void AudioUnPause()
     {
+        GetComponent<StudioEventEmitter>().EventInstance.setTimelinePosition((_previousPausePosition));
         GetComponent<StudioEventEmitter>().EventInstance.setPaused(false);
+        isPause = false;
+        Debug.Log("aa");
+
     }
     public void ChangeVolume(float volume) { }
 }

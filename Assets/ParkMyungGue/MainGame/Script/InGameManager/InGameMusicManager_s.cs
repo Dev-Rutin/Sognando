@@ -96,15 +96,12 @@ public partial class InGameMusicManager_s //game system
         _previousPausePosition = _getPosition;
         GetComponent<StudioEventEmitter>().EventInstance.setPaused(true);
         isPause = true ;
-        Debug.Log("bb");
     }
     public void AudioUnPause()
     {
         GetComponent<StudioEventEmitter>().EventInstance.setTimelinePosition((_previousPausePosition));
         GetComponent<StudioEventEmitter>().EventInstance.setPaused(false);
         isPause = false;
-        Debug.Log("aa");
-
     }
     public void ChangeVolume(float volume) { }
 }

@@ -15,6 +15,7 @@ public class SystemUI_s : Singleton<SystemUI_s>
     [SerializeField] private Sprite _missSprite;
     [SerializeField] private Sprite _goodSprite;
     [SerializeField] private Sprite _perfectSprite;
+    [SerializeField] private Animator _songNoteAnimator;
 
     [Header("main game canvas")]
     [SerializeField] private Transform _beatJudgeTsf;
@@ -85,5 +86,17 @@ public class SystemUI_s : Singleton<SystemUI_s>
             }
         }
         StartCoroutine(ObjectAction.MovingObj(Camera.main.gameObject, Vector2.zero, 0.03f));
+    }
+    public void AnimationPlay(bool Parameter)
+    {
+        if (Parameter)
+        {
+            _songNoteAnimator.Play("PlayR");
+        }
+        else
+        {
+            _songNoteAnimator.Play("PlayL");
+        }
+     
     }
 }

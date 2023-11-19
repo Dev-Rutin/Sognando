@@ -88,12 +88,14 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
             _beatShowLerpValue1.value = 0;
            _beatObjList[1].SetActive(false);
             _beatObjList[0].SetActive(true);
+            SystemUI_s.Instance.AnimationPlay(true);
         }
         else
         {
             _beatShowLerpValue2.value = 0;
             _beatObjList[0].SetActive(false);
             _beatObjList[1].SetActive(true);
+            SystemUI_s.Instance.AnimationPlay(false);
         }
         if (GhostPattern.Instance.isGhostPlay)
         {

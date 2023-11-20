@@ -72,11 +72,6 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Diss_color: {r: 2, g: 2, b: 2, a: 0}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
-<<<<<<< HEAD
-    - _Main_color: {r: 5.992157, g: 5.992157, b: 5.992157, a: 0}
-=======
-    - _Main_color: {r: 2, g: 2, b: 2, a: 0}
->>>>>>> origin/feature-VFX
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &6707378852117460097

@@ -205,7 +205,7 @@ public class StorySceneManager : Singleton<StorySceneManager>
                 _icon.SetActive(true);
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    SoundUtility.Instance.StopSound(ESoundTypes.Bgm);
+                    SoundUtility.Instance.StopSound(ESoundTypes.BGM);
                     SceneManager.LoadScene("GameScene");
                 }
             }

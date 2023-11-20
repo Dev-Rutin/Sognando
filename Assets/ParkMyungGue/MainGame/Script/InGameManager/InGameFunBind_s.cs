@@ -8,6 +8,8 @@ public class InGameFunBind_s:Singleton<InGameFunBind_s>
     public event voidHandler EgameStart;
     public event voidHandler EgamePlay;
     public event voidHandler EgameEnd;
+    public event voidHandler Epause;
+    public event voidHandler EunPause;
     public delegate void NextBitHandler(EInGameStatus curInGameStatus);
     public event NextBitHandler EmoveNextBit;
     public delegate void ChangeInGameStateHandler(EInGameStatus changeTargets);
@@ -31,5 +33,13 @@ public class InGameFunBind_s:Singleton<InGameFunBind_s>
     public void ChangeInGameStatus(EInGameStatus changeTarget)
     {
         EchangeInGameState(changeTarget);
+    }
+    public void Pause()
+    {
+        Epause();
+    }
+    public void UnPause()
+    {
+        EunPause();
     }
 }

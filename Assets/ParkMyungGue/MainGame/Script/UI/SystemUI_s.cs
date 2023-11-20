@@ -1,5 +1,6 @@
 using System.Collections;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +15,7 @@ public class SystemUI_s : Singleton<SystemUI_s>
     [SerializeField] private Sprite _missSprite;
     [SerializeField] private Sprite _goodSprite;
     [SerializeField] private Sprite _perfectSprite;
+    [SerializeField] private Animator _songNoteAnimator;
 
     [Header("main game canvas")]
     [SerializeField] private Transform _beatJudgeTsf;
@@ -25,6 +27,7 @@ public class SystemUI_s : Singleton<SystemUI_s>
 
     [Header("camera")]
     WaitForEndOfFrame waitUpdate;
+    [SerializeField] private int _cameraShakeCount;
     private void Start()
     {
         waitUpdate = new WaitForEndOfFrame();
@@ -34,8 +37,8 @@ public class SystemUI_s : Singleton<SystemUI_s>
         if (value !=0)
         {
             StartCoroutine(ObjectAction.ObjectScalePump(_comboTsf, new Vector3(1.2f, 1.2f, 1.2f), 0.08f));
-            StartCoroutine(ObjectAction.ObjectScalePump(_scoreTsf, new Vector3(1.2f, 1.2f, 1.2f), 0.08f));
-            StartCoroutine(ObjectAction.ObjectScalePump(_beatJudgeTsf, new Vector3(1.2f, 1.2f, 1.2f), 0.08f));
+            //StartCoroutine(ObjectAction.ObjectScalePump(_scoreTsf, new Vector3(1.2f, 1.2f, 1.2f), 0.08f));
+            //StartCoroutine(ObjectAction.ObjectScalePump(_beatJudgeTsf, new Vector3(1.2f, 1.2f, 1.2f), 0.08f));
         }
         _comboText.text = value.ToString();
     }
@@ -66,24 +69,34 @@ public class SystemUI_s : Singleton<SystemUI_s>
     }
     public IEnumerator CameraShake()
     {
-        float startTime = InGameMusicManager_s.Instance.musicPosition;
-        StartCoroutine(ObjectAction.MovingObj(Camera.main.gameObject, new Vector2(-0.11f, -0.05f), 0.03f));
-        while(InGameMusicManager_s.Instance.musicPosition-startTime<=0.1f)
+        float startTime;
+        bool lastShakeIsLeft = false;
+        bool lastShakeIsDown = false;
+        Vector2 shakeTarget = Vector2.zero;
+        for (int i=0;i<_cameraShakeCount;i++)
         {
-            yield return waitUpdate;
+            shakeTarget.x = Random.Range(0, lastShakeIsLeft ? -0.2f : 0.2f);
+            shakeTarget.y = Random.Range(0, lastShakeIsDown ? -0.2f : 0.2f);
+            startTime = InGameMusicManager_s.Instance.musicPosition;
+            Debug.Log(shakeTarget);
+            StartCoroutine(ObjectAction.MovingObj(Camera.main.gameObject, shakeTarget, 0.03f));
+            while (InGameMusicManager_s.Instance.musicPosition - startTime <= 0.1f)
+            {
+                yield return waitUpdate;
+            }
         }
-        startTime = InGameMusicManager_s.Instance.musicPosition;
-        StartCoroutine(ObjectAction.MovingObj(Camera.main.gameObject, new Vector2(0.08f, 0.08f), 0.03f));
-        while (InGameMusicManager_s.Instance.musicPosition - startTime <= 0.1f)
+        StartCoroutine(ObjectAction.MovingObj(Camera.main.gameObject, Vector2.zero, 0.03f));
+    }
+    public void AnimationPlay(bool Parameter)
+    {
+        if (Parameter)
         {
-            yield return waitUpdate;
+            _songNoteAnimator.Play("PlayR");
         }
-        startTime = InGameMusicManager_s.Instance.musicPosition;
-        StartCoroutine(ObjectAction.MovingObj(Camera.main.gameObject, new Vector2(0.08f, -0.8f), 0.03f));
-        while (InGameMusicManager_s.Instance.musicPosition - startTime <= 0.1f)
+        else
         {
-            yield return waitUpdate;
+            _songNoteAnimator.Play("PlayL");
         }
-        Camera.main.transform.position = Vector2.zero;
+     
     }
 }

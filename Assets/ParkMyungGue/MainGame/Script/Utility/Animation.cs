@@ -1,26 +1,28 @@
-using System.Collections;
+using Spine.Unity;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class Animation
+public static class Animation 
 {
-    public static float ShowCharacterAnimation(List<string> animationNames, GameObject characterImageObj)
+    public static float ShowCharacterAnimation(List<string> animationNames, SkeletonAnimation characterSkeleton)
     {
-        /*float animationTime = 0f;
+        float animationTime = 0f;
         foreach (var data in animationNames)
         {
             if (animationNames.IndexOf(data) == 0)
             {
-                characterImageObj.GetComponent<SkeletonAnimation>().AnimationState.SetAnimation(0, data, false);
+                characterSkeleton.AnimationState.SetAnimation(0, data, false);
+            }
+            else if(animationNames.IndexOf(data)==animationNames.Count-1)
+            {
+                characterSkeleton.AnimationState.AddAnimation(0, data, true, 0f);
             }
             else
             {
-                characterImageObj.GetComponent<SkeletonAnimation>().AnimationState.AddAnimation(0, data, false, 0f);
+                characterSkeleton.AnimationState.AddAnimation(0, data, false, 0f);
             }
-            animationTime += characterImageObj.GetComponent<SkeletonAnimation>().Skeleton.Data.FindAnimation(data).Duration;
+            animationTime += characterSkeleton.Skeleton.Data.FindAnimation(data).Duration;
         }
-        characterImageObj.GetComponent<SkeletonAnimation>().AnimationState.AddAnimation(0, "idle", true, 0f);
-        return animationTime;*/
-        return 0;
+        return animationTime;
     }
 }

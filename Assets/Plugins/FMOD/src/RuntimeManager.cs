@@ -1,3 +1,4 @@
+// Define FMOD Plus
 using System;
 using System.Collections.Generic;
 using System.Collections;
@@ -207,7 +208,13 @@ namespace FMODUnity
             }
         }
 
-        public static FMOD.Studio.System StudioSystem
+        
+#if FMODPlus
+        public static Action UpdateActiveAudioSource;
+#endif
+
+
+		public static FMOD.Studio.System StudioSystem
         {
             get { return Instance.studioSystem; }
         }
@@ -444,7 +451,12 @@ retry:
                     RuntimeUtils.DebugLogWarning("[FMOD] Please add an 'FMOD Studio Listener' component to your camera in the scene for correct 3D positioning of sounds.");
                 }
 
-                StudioEventEmitter.UpdateActiveEmitters();
+                
+#if FMODPlus
+                UpdateActiveAudioSource?.Invoke();
+#endif
+
+				StudioEventEmitter.UpdateActiveEmitters();
 
                 for (int i = 0; i < attachedInstances.Count; i++)
                 {

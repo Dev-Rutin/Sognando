@@ -20,12 +20,9 @@ public enum ECharacterType
 
 public enum ESoundTypes
 {
-    Master,
-    Bgm,
-    Bit,
-    Interaction,
-    Interface,
-    Se
+    BGM,
+    AMB,
+    SFX
 }
 
 public enum ESettingsValue

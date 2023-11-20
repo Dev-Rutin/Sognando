@@ -1,7 +1,5 @@
-using Spine.Unity;
+using FMOD;
 using System.Collections;
-using System.Runtime.CompilerServices;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,6 +17,7 @@ public partial class InGamePlayer_s : Singleton<InGamePlayer_s>, IInGame//data
     private int _playerHitBlock;
     [SerializeField] private ParticleSystem _moveEffect;
     [SerializeField] private ParticleSystem _noiseDissolveEffect;
+    [SerializeField] private Image _flickerImage;
     private void Start()
     {
         _playerImage = _playerObj.GetComponent<Image>();
@@ -44,9 +43,12 @@ public partial class InGamePlayer_s//game system
     }
     public void GamePlay()
     {
+        ObjectAction.ImageAlphaChange(_flickerImage, 0);
         PlayerUI_s.Instance.PlayerHPUpdate(_curPlayerHP);
         _playerObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[playerPos.x, playerPos.y].transform;
         PlayerUI_s.Instance.AttackChange(_playerAttackLevel);
+        DoremiUI_s.Instance.SingleDoremiAnimation("idle",true);
+
     }
     public void GameEnd()
     {
@@ -132,13 +134,17 @@ public partial class InGamePlayer_s  //move
         yield return new WaitForSeconds(_movingTime);
         _moveEffect.Play();
         PlayerPositionCheck();
+        StartCoroutine(InGameCube_s.Instance.QuakeCube(0.1f));
+        StartCoroutine(ObjectAction.ImageFade(_flickerImage, 0.05f, true,0,1));
+        yield return new WaitForSeconds(0.05f);
+        StartCoroutine(ObjectAction.ImageFade(_flickerImage, 0.05f, true,1,0));
+
     }
     public void PlayerPositionCheck()
     {
         if (InGameSideData_s.Instance.sideDatas[playerPos.x, playerPos.y].noise != null)
         {
             InGameEnemy_s.Instance.RemoveTargetObj("noise", playerPos.x, playerPos.y, true);
-            DoremiUI_s.Instance.DoremiAnimation("ready");
             _noiseDissolveEffect.Play();
         }
     }

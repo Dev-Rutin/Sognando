@@ -136,6 +136,6 @@ public class LineAttackPattern : Singleton<LineAttackPattern>
         target.SetActive(true);
         StartCoroutine(ObjectAction.MovingObj(target, _attackEndPos, _attackTime));
         yield return new WaitUntil(() => target.transform.localPosition.y == _attackEndPos.y);
-        StartCoroutine(ObjectAction.ImageFade(target.GetComponent<Image>(), InGameMusicManager_s.Instance.secPerBeat-_attackTime,true ));
+        StartCoroutine(ObjectAction.ImageFade(target.GetComponent<Image>(), InGameMusicManager_s.Instance.secPerBeat-_attackTime,true,1,0 ));
     }
 }

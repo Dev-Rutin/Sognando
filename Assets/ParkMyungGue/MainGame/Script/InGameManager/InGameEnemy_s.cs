@@ -2,6 +2,7 @@ using Spine.Unity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,6 +18,8 @@ public partial class InGameEnemy_s : Singleton<InGameEnemy_s>, IInGame//data
     private int _curEnemyATKGauge;
     private int _curEnemyATKGaugeCount;
     [SerializeField]private EEnemyPhase _curEnemyPhase;
+    public ECubeFace curPumpTarget { get; private set; }
+    private int _destroyCount;
     private void Start()
     {
         _curEnemyMods = new List<EEnemyMode>();
@@ -55,6 +58,8 @@ public partial class InGameEnemy_s //game system
         _curEnemyATKGauge = 0;
         _curEnemyATKGaugeCount = 0;
         _curEnemyPhase = EEnemyPhase.None;
+        _destroyCount = 0;
+        curPumpTarget = (ECubeFace)_destroyCount;
     }
     public void GamePlay()
     {
@@ -96,6 +101,11 @@ public partial class InGameEnemy_s //game system
                 break;
             default:
                 break;
+        }
+        curPumpTarget = curPumpTarget+1;
+        if((int)curPumpTarget>=Enum.GetValues(typeof(ECubeFace)).Length)
+        {
+            curPumpTarget = (ECubeFace)_destroyCount;
         }
     }
     public void ChangeInGameStatus(EInGameStatus changeTarget) //change to changeTarget
@@ -162,11 +172,23 @@ public partial class InGameEnemy_s //game system
     }
     private void DoEnemyMode()
     {
-        foreach (var data in _curEnemyMods)
+        if(_curEnemyMods.Contains(EEnemyMode.NOISE))
         {
-            if (_enemyModBinds[data]!= null)
+            _enemyModBinds[EEnemyMode.NOISE]();
+        }
+        if (_curEnemyMods.Contains(EEnemyMode.LINEATTACK) && _curEnemyMods.Contains(EEnemyMode.LINKLINEATTACK))
+        {
+            _enemyModBinds[UnityEngine.Random.Range(0, 2) == 0 ? EEnemyMode.LINEATTACK : EEnemyMode.LINKLINEATTACK]();
+        }
+        else
+        {
+            if (_curEnemyMods.Contains(EEnemyMode.LINEATTACK))
             {
-                _enemyModBinds[data]();
+                _enemyModBinds[EEnemyMode.LINEATTACK]();
+            }
+            if (_curEnemyMods.Contains(EEnemyMode.LINKLINEATTACK))
+            {
+                _enemyModBinds[EEnemyMode.LINKLINEATTACK]();
             }
         }
         if (_curEnemyATKGauge >= _enemyAttackGaugeMax)
@@ -207,6 +229,11 @@ public partial class InGameEnemy_s //game system
                 }
                 _curEnemyMods.Add(EEnemyMode.LINEATTACK);
                 break;
+            case EEnemyPhase.Phase4:
+                _curEnemyMods.Add(EEnemyMode.LINKLINEATTACK);
+                break;
+            default:
+                break;
         }
         _curEnemyPhase = target;
     }
@@ -224,6 +251,7 @@ public partial class InGameEnemy_s //data change
     private void EnemyHPDown()
     {
         EnemyUI_s.Instance.EnemyHPDown(InGameCube_s.Instance.curFace);
+        _destroyCount++;
         if (_curEnemyHP <= 0)
         {
             InGameManager_s.Instance.GameOverByEnemy();

@@ -9,7 +9,7 @@ public partial class InGameManager_s : Singleton<InGameManager_s>//Data
     public EInGameStatus curInGameStatus { get; private set; }
     public EStage curStage { get; private set; }
     public int beatFreezeCount { get; private set; }
-    private bool _isPause;
+    public bool isPause { get; private set; }
     public void Start()
     {
         InGameMusicManager_s.Instance.InGameBind();
@@ -39,9 +39,9 @@ public partial class InGameManager_s : Singleton<InGameManager_s>//Data
             curInGameStatus = EInGameStatus.NONE;
             curStage = EStage.NONE;
             beatFreezeCount = 0;
-            _isPause = false;
             _score = 0;
             combo = 0;
+        isPause = false;
             GamePlay();
         }
         private void GamePlay()
@@ -50,24 +50,22 @@ public partial class InGameManager_s : Singleton<InGameManager_s>//Data
             ChangeInGameState(EInGameStatus.SHOWPATH);
             curGameStatus = EGameStatus.PLAYING;//need last
         }
-        public void GamePause()
+    public void GamePause()
+    {
+        if (curGameStatus == EGameStatus.PLAYING)
         {
-            if (curGameStatus == EGameStatus.PLAYING)
+            if (!isPause)
             {
-                if (_isPause)
-                {
-                    Time.timeScale = 1f;
-                    InGameMusicManager_s.Instance.AudioUnPause();
-                    _isPause = !_isPause;
-                }
-                else
-                {
-                    Time.timeScale = 0f;
-                    InGameMusicManager_s.Instance.AudioPause();
-                    _isPause = !_isPause;
-                }
+                InGameFunBind_s.Instance.Pause();
+                isPause = !isPause;
+            }
+            else
+            {
+                InGameFunBind_s.Instance.UnPause();
+                isPause = !isPause;
             }
         }
+    }
         public void GameEnd()
         {
             curGameStatus = EGameStatus.END;
@@ -153,7 +151,7 @@ public partial class InGameManager_s //update
                 beatFreezeCount = 3;
                 break;
             case EInGameStatus.TIMEWAIT:
-                beatFreezeCount = 5;
+                beatFreezeCount = 8;
                 break;
         }
         curInGameStatus = target;
@@ -164,7 +162,10 @@ public partial class InGameManager_s //data Change
 {
     public void DefaultShow()
     {
-        UpdateCombo(combo * -1);
+        if (curInGameStatus == EInGameStatus.PLAYERMOVE)
+        {
+            UpdateCombo(combo * -1);
+        }
         SystemUI_s.Instance.DefaultShow();
     }
     public void GoodScroe()

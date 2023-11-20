@@ -14,7 +14,6 @@ public class GhostPattern : Singleton<GhostPattern>
     public bool isGhostPlay {  get; private set; }
     public void SetGhost() //1,3
     {
-        Debug.Log("aa");
         _curGhostObj = Instantiate(_ghostPrefab, _ghostTsf);
         _curGhostObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[0, 0].transform;
         _curGhostPos = 0;

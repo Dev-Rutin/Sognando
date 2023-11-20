@@ -1,152 +1,141 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using FMOD.Studio;
+using FMODUnity;
+using FMODPlus;
 using UnityEngine;
 
 public class SoundUtility : Singleton<SoundUtility>
 {
-    private readonly Dictionary<string, AudioClip> _bgmClips = new Dictionary<string, AudioClip>();
-    private readonly Dictionary<string, AudioClip> _seClips = new Dictionary<string, AudioClip>();
-    
-    // 용도별 오디오 소스
-    [Header("SFX Sound Sources")]
-    // 배경음 오디오 소스
-    [SerializeField] private AudioSource _bgmSource;
-    // 박자 재생용 오디오 소스
-    [SerializeField] private AudioSource _bitSeSource;
-    // 플레이어 상호작용 오디오 소스
-    [SerializeField] private AudioSource _interactionSeSource;
-    // UI 상호작용 오디오 소스
-    [SerializeField] private AudioSource _interfaceSeSource;
+    public FMODAudioSource AMBAudioSource;
+    public FMODAudioSource BGMAudioSource;
+    public FMODAudioSource SFXAudioSource;
 
-    private void Start()
+    public string[] Buses;
+
+    private Bus _masterBus;
+    private Bus _ambBus;
+    private Bus _bgmBus;
+    private Bus _sfxBus;
+
+    private void Awake()
     {
+        _masterBus = RuntimeManager.GetBus(Buses[0]);
+        _ambBus = RuntimeManager.GetBus(Buses[1]);
+        _bgmBus = RuntimeManager.GetBus(Buses[2]);
+        _sfxBus = RuntimeManager.GetBus(Buses[3]);
         DontDestroyOnLoad(gameObject);
     }
 
-    public void PlaySound(ESoundTypes types, string soundKey)
+    public void PlaySound(ESoundTypes types)
     {
         switch(types)
         {
-            case ESoundTypes.Bgm:
-                if(_bgmClips.ContainsKey(soundKey))
-                {
-                    _bgmSource.clip = _bgmClips[soundKey];
-                    _bgmSource.Play();
-                }
+            case ESoundTypes.BGM:
+                BGMAudioSource.Play();
                 break;
-            case ESoundTypes.Interaction:
-                if (_seClips.ContainsKey(soundKey))
-                {
-                    _interactionSeSource.PlayOneShot(_seClips[soundKey]);
-                }
+            case ESoundTypes.AMB:
+                AMBAudioSource.Play();
                 break;
-            case ESoundTypes.Interface:
-                if (_seClips.ContainsKey(soundKey))
-                {
-                    _interfaceSeSource.PlayOneShot(_seClips[soundKey]);
-                }
-                break;
-            case ESoundTypes.Bit:
-                if (_seClips.ContainsKey(soundKey) && !_bitSeSource.isPlaying)
-                {
-                    _bitSeSource.PlayOneShot(_seClips[soundKey]);
-                }
+            case ESoundTypes.SFX:
+                SFXAudioSource.Play();
                 break;
             default:
-                Debug.LogError("Check Select AudioSource is Null or " + soundKey + " Has Sound Clips");
-                break;
+                throw new ArgumentOutOfRangeException(nameof(types), types, null);
         }
     }
     
-    public void StopSound(ESoundTypes Etypes)
+    public void StopSound(ESoundTypes types, bool fadeOut = false)
     {
-        switch(Etypes)
+        switch(types)
         {
-            case ESoundTypes.Bgm:
-                _bgmSource.Stop();
+            case ESoundTypes.BGM:
+                BGMAudioSource.AllowFadeout = fadeOut;
+                BGMAudioSource.Stop();
                 break;
-            case ESoundTypes.Se:
-                /*if (_seClips.ContainsKey(soundKey))
-                {
-                    _interactionSeSource.PlayOneShot(_seClips[soundKey]);
-                }*/
+            case ESoundTypes.AMB:
+                AMBAudioSource.AllowFadeout = fadeOut;
+                AMBAudioSource.Stop();
+                break;
+            case ESoundTypes.SFX:
+                SFXAudioSource.AllowFadeout = fadeOut;
+                SFXAudioSource.Stop();
                 break;
             default:
-                Debug.LogError("Check Select AudioSource is Null or " + Etypes + " Has Sound Clips");
-                break;
+                throw new ArgumentOutOfRangeException(nameof(types), types, null);
+        }
+    }
+
+    public void SetPause(ESoundTypes types, bool pause)
+    {
+        if (pause)
+        {
+            switch (types)
+            {
+                case ESoundTypes.BGM:
+                    BGMAudioSource.Pause();
+                    break;
+                case ESoundTypes.AMB:
+                    AMBAudioSource.Pause();
+                    break;
+                case ESoundTypes.SFX:
+                    SFXAudioSource.Pause();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(types), types, null);
+            }
+        }
+        else
+        {
+            switch (types)
+            {
+                case ESoundTypes.BGM:
+                    BGMAudioSource.UnPause();
+                    break;
+                case ESoundTypes.AMB:
+                    AMBAudioSource.UnPause();
+                    break;
+                case ESoundTypes.SFX:
+                    SFXAudioSource.UnPause();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(types), types, null);
+            }
         }
     }
     
-    // 오디오 클립 저장
-    public void RegistBgm(string sceneBgmName, AudioClip bgm)
-    {
-        Debug.Assert(bgm != null, "BGM AudioCilp is missing");
-        if(_bgmClips.ContainsKey(sceneBgmName))
-        {
-            Debug.Log(sceneBgmName + "Key Already Registed");
-            return;
-        }
-        _bgmClips.Add(sceneBgmName, bgm);
+    /// <summary>
+    /// Adjust the Master's volume.
+    /// </summary>
+    /// <param name="value">0~1사이의 값, 0이면 뮤트됩니다.</param>
+    public void SetMasterVolume(float value) => _masterBus.setVolume(value);
 
-    }
-    public void RegistSe(string sceneSeName, AudioClip se)
-    {
-        Debug.Assert(se != null, "SE AudioCilp is missing");
-        if(_seClips.ContainsKey(sceneSeName))
-        {
-            Debug.Log(sceneSeName + "Key Already Registed");
-            return;
-        }
-        _seClips.Add(sceneSeName, se);
-    }
-    // 사운드 활성화, 비활성화
-    public void EnableVolume(ESoundTypes type)
-    {
-        switch (type)
-        {
-            case ESoundTypes.Bgm:
-                _bgmSource.mute = false;
-                break;
-            case ESoundTypes.Se:
-                _bitSeSource.mute = false;
-                _interfaceSeSource.mute = false;
-                _interactionSeSource.mute = false;
-                break;
-            default:
-                Debug.Assert(false);
-                break;
-        }
-    }
-    public void DisableVolume(ESoundTypes type)
-    {
-        switch (type)
-        {
-            case ESoundTypes.Bgm:
-                _bgmSource.mute = true;
-                break;
-            case ESoundTypes.Se:
-                _bitSeSource.mute = true;
-                _interfaceSeSource.mute = true;
-                _interactionSeSource.mute = true;
-                break;
-            default:
-                Debug.Assert(false);
-                break;
-        }
-    }
+    /// <summary>
+    /// Adjust the volume of the AMB.
+    /// </summary>
+    /// <param name="value">0~1사이의 값, 0이면 뮤트됩니다.</param>
+    public void SetAMBVolume(float value) => _ambBus.setVolume(value);
 
-    public void UnPauseSeSound()
-    {
-        _bitSeSource.UnPause();
-        _interfaceSeSource.UnPause();
-        _interactionSeSource.UnPause();
-    }
+    /// <summary>
+    /// Adjust the volume of the BGM.
+    /// </summary>
+    /// <param name="value">0~1사이의 값, 0이면 뮤트됩니다.</param>
+    public void SetBGMVolume(float value) => _bgmBus.setVolume(value);
 
-    public void PauseSeSound()
+    /// <summary>
+    /// Adjusts the volume of SFX.
+    /// </summary>
+    /// <param name="value">0~1사이의 값, 0이면 뮤트됩니다.</param>
+    public void SetSFXVolume(float value) => _sfxBus.setVolume(value);
+    
+    /// <summary>
+    /// Create an instance in-place, play a sound effect, and destroy it immediately.
+    /// </summary>
+    /// <param name="path">재생할 효과음 경로</param>
+    /// <param name="position">해당 위치에서 소리를 재생합니다.</param>
+    public void PlayOneShot(EventReference path, Vector3 position = default)
     {
-        _bitSeSource.Pause();
-        _interfaceSeSource.Pause();
-        _interactionSeSource.Pause();
+        RuntimeManager.PlayOneShot(path, position);
     }
 }

@@ -9,6 +9,12 @@ public class StageDataController : Singleton<StageDataController>
     public int perfectCount;
     public int goodCount;
     public int missCount;
+    //score
+    public int totalValue;
+    public int judgementValue;
+    public float loseValuel;
+    public int totalScroe;
+    public float rankScore;
 
     private void Start()
     {

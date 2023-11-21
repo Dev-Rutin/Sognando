@@ -27,7 +27,7 @@ public class IntroManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        SceneSoundManager.Instance.PlaySound(ESoundTypes.Bgm, SceneSoundNames.INTRO_BGM);
+        SceneSoundManager.Instance.PlaySound(ESoundTypes.BGM, SceneSoundNames.INTRO_BGM);
         _playerColor = _playerObject.GetComponent<SkeletonAnimation>().skeleton;
         _playerColor.A = 0;
         _IsPlayerFading = true;

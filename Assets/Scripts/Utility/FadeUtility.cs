@@ -85,7 +85,7 @@ public class FadeUtlity : Singleton<FadeUtlity>
         }
     }
     
-    private IEnumerator FadeOutSkeleton(float fadeTime, GameObject gObject)
+    private IEnumerator FadeOutGameObject(float fadeTime, GameObject gObject)
     {
         Color color = gObject.GetComponent<SpriteRenderer>().color;
         float time = 0f;
@@ -98,32 +98,30 @@ public class FadeUtlity : Singleton<FadeUtlity>
             yield return null;
         }
     }
-    private IEnumerator FadeInSkeleton(float fadeTime, GameObject gObject)
+    
+    private IEnumerator FadeOutSkeleton(float fadeTime, GameObject gObject)
     {
-        Spine.Skeleton playerSkeleton = gObject.GetComponent<SkeletonAnimation>().Skeleton;
-        float color = playerSkeleton.A;
+        Spine.Skeleton color = gObject.GetComponent<SkeletonAnimation>().skeleton;
         float time = 0f;
         
-        while (playerSkeleton.A > 0f)
+        while (gObject.GetComponent<SkeletonAnimation>().skeleton.A < 1f)
         {
             time += Time.deltaTime;
-            color = math.lerp(1f, 0f, time / fadeTime);
-            playerSkeleton.A = color;
+            color.A = math.lerp(0f, 1f, time / fadeTime);
+            gObject.GetComponent<SkeletonAnimation>().skeleton = color;
             yield return null;
         }
     }
-    
-    private IEnumerator FadeOutGameObject(float fadeTime, GameObject gObject)
+    private IEnumerator FadeInSkeleton(float fadeTime, GameObject gObject)
     {
-        Spine.Skeleton playerSkeleton = gObject.GetComponent<SkeletonAnimation>().Skeleton;
-        float color = playerSkeleton.A;
+        Spine.Skeleton color = gObject.GetComponent<SkeletonAnimation>().skeleton;
         float time = 0f;
         
-        while (playerSkeleton.A < 1f)
+        while (gObject.GetComponent<SkeletonAnimation>().skeleton.A > 0f)
         {
             time += Time.deltaTime;
-            color = math.lerp(0f, 1f, time / fadeTime);
-            playerSkeleton.A = color;
+            color.A = math.lerp(1f, 0f, time / fadeTime);
+            gObject.GetComponent<SkeletonAnimation>().skeleton = color;
             yield return null;
         }
     }

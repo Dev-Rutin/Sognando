@@ -498,12 +498,8 @@ retry:
                         else
                         {
                             var position = attachedInstances[i].transform.position;
-                            var velocity = Vector3.zero;
-                            if (Time.deltaTime != 0)
-                            {
-                                velocity = (position - attachedInstances[i].lastFramePosition) / Time.deltaTime;
-                                velocity = Vector3.ClampMagnitude(velocity, 20.0f); // Stops pitch fluttering when moving too quickly
-                            }
+                            var velocity = (position - attachedInstances[i].lastFramePosition) / Time.deltaTime;
+                            velocity = Vector3.ClampMagnitude(velocity, 20.0f); // Stops pitch fluttering when moving too quickly
                             attachedInstances[i].lastFramePosition = position;
                             attachedInstances[i].instance.set3DAttributes(RuntimeUtils.To3DAttributes(attachedInstances[i].transform, velocity));
                         }

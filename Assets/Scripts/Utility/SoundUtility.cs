@@ -21,11 +21,11 @@ public class SoundUtility : Singleton<SoundUtility>
 
     private void Awake()
     {
+        DontDestroyOnLoad(gameObject);
         _masterBus = RuntimeManager.GetBus(Buses[0]);
         _ambBus = RuntimeManager.GetBus(Buses[1]);
         _bgmBus = RuntimeManager.GetBus(Buses[2]);
         _sfxBus = RuntimeManager.GetBus(Buses[3]);
-        DontDestroyOnLoad(gameObject);
     }
 
     public void PlaySound(ESoundTypes types)

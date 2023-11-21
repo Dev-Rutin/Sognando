@@ -72,7 +72,6 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Diss_color: {r: 2, g: 2, b: 2, a: 0}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _Main_color: {r: 2, g: 2, b: 2, a: 0}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &6707378852117460097

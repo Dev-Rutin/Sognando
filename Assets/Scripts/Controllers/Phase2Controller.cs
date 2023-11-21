@@ -7,6 +7,7 @@ public class Phase2Controller : MonoBehaviour
     [SerializeField] private float _fadeTime;
     [SerializeField] private float _windowLightAlpha;
     [SerializeField] private GameObject _windowLight;
+    [SerializeField] private GameObject _moon;
     private SpriteRenderer[] _childs;
     // Start is called before the first frame update
     void Start()
@@ -22,6 +23,8 @@ public class Phase2Controller : MonoBehaviour
 
     private IEnumerator PhaseStartCorutine()
     {
+        _moon.gameObject.GetComponent<MoonController>().isMoving = true;
+        _moon.gameObject.GetComponent<MoonController>().MoveToLevel(2);
         foreach (var child in _childs)
         {
             Debug.Log($"name : {child.name}");

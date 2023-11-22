@@ -1,7 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using UnityEngine;
+using UnityEngine.Rendering;
+
 class BeatStruct
 {
     public float value;
@@ -33,8 +36,8 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
     void Start()
     {
         _beatObjList = new List<GameObject>();
-        _beatObjList.Add(Instantiate(_beatPrefabVertical2, _playerBeatTsf));
-        _beatObjList.Add(Instantiate(_beatPrefabHorizontal2, _playerBeatTsf));
+        _beatObjList.Add(Instantiate(_beatPrefabVertical,_beatTsf));
+        _beatObjList.Add(Instantiate(_beatPrefabHorizontal, _beatTsf));
         _waitUpdate = new WaitForEndOfFrame();
         _beatShowLerpValue1 = new BeatStruct();
         _beatShowLerpValue2 = new BeatStruct();
@@ -83,9 +86,10 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
                 break;
         }
     }
-    private bool _beatSelect;
+    [SerializeField] private bool _beatSelect;
     public void NextBit()
     {
+        _beatSelect = UnityEngine.Random.Range(0, 2) == 1 ? true : false;
         if (_beatSelect)
         {
             _beatShowLerpValue1.value = 0;
@@ -104,9 +108,11 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
         {
             GhostPattern.Instance.Action(InGameManager_s.Instance.curInGameStatus);
         }
-        _beatSelect = !_beatSelect;
     }
-
+    public void ShowHitEffect()
+    {
+        CubeUI_s.Instance.HitEffect(_beatSelect);
+    }
     private IEnumerator BeatShowVetrical(GameObject beatObj,BeatStruct data)
     {
         yield return new WaitUntil(() => InGameMusicManager_s.Instance.completedLoops < 1);
@@ -149,11 +155,15 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
         StageDataController.Instance.totalValue += 2;
         if (InGameMusicManager_s.Instance.loopPositionInBeats <= beatJudgeMax|| InGameMusicManager_s.Instance.loopPositionInBeats >= beatJudgeMin)
         {
-            AutoCalibration(true, false);
+            //AutoCalibration(true, false);
             BeatScoreCount(InGameMusicManager_s.Instance.loopPositionInBeats);
             return true;
         }
         else
+        {
+            return false;
+        }
+        /*else
         {
             if (InGameMusicManager_s.Instance.loopPositionInBeats + _autoCalibrationValue <= beatJudgeMax || InGameMusicManager_s.Instance.loopPositionInBeats + _autoCalibrationValue >= beatJudgeMin)
             {
@@ -166,9 +176,9 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
                 AutoCalibration(false, true);
                 return false;
             }
-        }
+        }*/
     }
-    private void AutoCalibration(bool check, bool isAuto)
+    /*private void AutoCalibration(bool check, bool isAuto)
     {
         float distance = InGameMusicManager_s.Instance.loopPositionInBeats > beatJudgeMax + 0.1f ? beatJudgeMin - InGameMusicManager_s.Instance.loopPositionInBeats : beatJudgeMax - InGameMusicManager_s.Instance.loopPositionInBeats;
 
@@ -227,10 +237,10 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
 
             }
         }
-    }
+    }*/
     private void BeatScoreCount(float postionValue)
     {
-        if (postionValue <= beatJudgeMax - 0.2f || postionValue >= beatJudgeMin + 0.2f)
+        if (postionValue <= beatJudgeMax - 0.15f || postionValue >= beatJudgeMin + 0.2f)
         {
             InGameManager_s.Instance.PerfectScroe();
         }

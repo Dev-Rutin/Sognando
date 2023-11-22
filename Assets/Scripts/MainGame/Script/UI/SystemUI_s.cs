@@ -50,7 +50,6 @@ public class SystemUI_s : Singleton<SystemUI_s>
     {
         _beatImage.sprite = _beatMissSprite;
         _beatImage_UI.sprite = _missSprite;
-        StartCoroutine(CameraShake());
     }
     public void Good()
     {

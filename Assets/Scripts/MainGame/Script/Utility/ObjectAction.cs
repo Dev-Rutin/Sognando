@@ -61,29 +61,32 @@ public static class ObjectAction
             yield return waitUpdate;
         }
     }
-    public static IEnumerator ImageFade(SpriteRenderer target, float time, bool isAllFade,float startValue, float endValue = 0)
+    public static IEnumerator ImageFade(SpriteRenderer target, float time, bool isAllFade,float startValue, float endValue = 0,int repeat = 0)
     {
-        float lerpValue = 0;
-        float startTime = InGameMusicManager_s.Instance.musicPosition;
-        while (lerpValue <= 1)
+        for (int i = 0; i < repeat; i++)
         {
-            lerpValue = (InGameMusicManager_s.Instance.musicPosition - startTime) * 1 / time;
-            if (isAllFade)
+            float lerpValue = 0;
+            float startTime = InGameMusicManager_s.Instance.musicPosition;
+            while (lerpValue <= 1)
             {
-                ImageAlphaChange(target, Mathf.Lerp(startValue, endValue, lerpValue));
-            }
-            else
-            {
-                if (lerpValue < time / 2)
+                lerpValue = (InGameMusicManager_s.Instance.musicPosition - startTime) * 1 / time;
+                if (isAllFade)
                 {
-                    ImageAlphaChange(target, Mathf.Lerp(startValue, 0.5f, 0.5f / lerpValue));
+                    ImageAlphaChange(target, Mathf.Lerp(startValue, endValue, lerpValue));
                 }
                 else
                 {
-                    ImageAlphaChange(target, Mathf.Lerp(0.5f, startValue, 0.5f / lerpValue - 1));
+                    if (lerpValue < time / 2)
+                    {
+                        ImageAlphaChange(target, Mathf.Lerp(startValue, 0.5f, 0.5f / lerpValue));
+                    }
+                    else
+                    {
+                        ImageAlphaChange(target, Mathf.Lerp(0.5f, startValue, 0.5f / lerpValue - 1));
+                    }
                 }
+                yield return waitUpdate;
             }
-            yield return waitUpdate;
         }
     }
     public static void ImageAlphaChange(Image target, float value)

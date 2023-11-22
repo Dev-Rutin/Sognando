@@ -17,7 +17,7 @@ public partial class InGameEnemy_s : Singleton<InGameEnemy_s>, IInGame//data
     [SerializeField] private int _enemyAttackGaugeMax;
     private int _curEnemyATKGauge;
     private int _curEnemyATKGaugeCount;
-    [SerializeField]private EEnemyPhase _curEnemyPhase;
+    public EEnemyPhase curEnemyPhase { get; private set; }
     public ECubeFace curPumpTarget { get; private set; }
     private int _destroyCount;
     private void Start()
@@ -57,13 +57,13 @@ public partial class InGameEnemy_s //game system
         _curEnemyHP = _enemyMaxHP;
         _curEnemyATKGauge = 0;
         _curEnemyATKGaugeCount = 0;
-        _curEnemyPhase = EEnemyPhase.None;
+        curEnemyPhase = EEnemyPhase.None;
         _destroyCount = 0;
         curPumpTarget = (ECubeFace)_destroyCount;
     }
     public void GamePlay()
     {
-        EnemyUI_s.Instance.HPReset();
+
     }
     public void GameEnd()
     {
@@ -113,7 +113,7 @@ public partial class InGameEnemy_s //game system
         switch (changeTarget)
         {
             case EInGameStatus.SHOWPATH:
-                switch(_curEnemyPhase)
+                switch(curEnemyPhase)
                 {
                     case EEnemyPhase.None:
                         EnemyPhaseChange(EEnemyPhase.Ghost);
@@ -235,7 +235,7 @@ public partial class InGameEnemy_s //game system
             default:
                 break;
         }
-        _curEnemyPhase = target;
+        curEnemyPhase = target;
     }
 }
 public partial class InGameEnemy_s //data change
@@ -277,20 +277,26 @@ public partial class InGameEnemy_s //pattern
             }
         }
     }
+    public void SetObj(string dataName, GameObject instTarget, bool isStack, Transform parent,Vector2Int position)
+    {
+        int x = position.x;
+        int y = position.y;
+        if (new Vector2(x, y) == InGamePlayer_s.Instance.playerPos || !InGameSideData_s.Instance.sideDatas[x, y].isCanMakeCheck(isStack, dataName))
+        {
+            return;
+        }
+        else
+        {
+            GameObject instObj = Instantiate(instTarget, parent);
+            instObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[x, y].transform;
+            TypedReference tr = __makeref(InGameSideData_s.Instance.sideDatas[x, y]);
+            InGameSideData_s.Instance.sideDatas[x, y].GetType().GetField(dataName).SetValueDirect(tr, instObj);
+        }
+    }
     public void GetRandomeObjs(string dataName, GameObject instTarget, bool isStack, Transform parent, int makeCount)
     {
         for (int i = 0; i < makeCount; i++)
         {
-            if (_curEnemyPhase == EEnemyPhase.Ghost && i == 0 && dataName == "noise")
-            {
-                int x = 2;
-                int y = 1;
-                GameObject instObj = Instantiate(instTarget, parent);
-                instObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[x, y].transform;
-                TypedReference tr = __makeref(InGameSideData_s.Instance.sideDatas[x, y]);
-                InGameSideData_s.Instance.sideDatas[x, y].GetType().GetField(dataName).SetValueDirect(tr, instObj);
-                continue;
-            }
             bool isCreate = false;
             int block = 0;
             while (!isCreate)

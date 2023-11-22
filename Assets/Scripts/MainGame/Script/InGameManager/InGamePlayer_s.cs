@@ -134,7 +134,7 @@ public partial class InGamePlayer_s  //move
         yield return new WaitForSeconds(_movingTime);
         _moveEffect.Play();
         PlayerPositionCheck();
-        StartCoroutine(InGameCube_s.Instance.QuakeCube(0.1f));
+        //StartCoroutine(InGameCube_s.Instance.QuakeCube(0.1f));
         StartCoroutine(ObjectAction.ImageFade(_flickerImage, 0.05f, true,0,1));
         yield return new WaitForSeconds(0.05f);
         StartCoroutine(ObjectAction.ImageFade(_flickerImage, 0.05f, true,1,0));

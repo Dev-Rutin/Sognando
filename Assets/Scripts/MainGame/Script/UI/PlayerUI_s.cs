@@ -23,6 +23,7 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
     [SerializeField] private ParticleSystem _attackIncrease;
     [SerializeField] private ParticleSystem _attackTrail;
     [SerializeField] private Transform _playerAttackStartPos;
+    [SerializeField] private Transform _playerAttackMiddlePos;
     [SerializeField] private Transform _playerAttackEndPos;
     [SerializeField] float _attackAnimationTime;
     [SerializeField] private ParticleSystem _curAttackParticle;
@@ -36,6 +37,34 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
         }
         _curAttackParticle = null;
         _waitUpdate = new WaitForEndOfFrame();
+        InGameFunBind_s.Instance.Epause += Pause;
+        InGameFunBind_s.Instance.EunPause += UnPause;
+    }
+    private void Pause()
+    {
+        foreach (ParticleSystem p in _playerHealEffect.GetComponentsInChildren<ParticleSystem>())
+        {
+            var main = p.main;
+            main.simulationSpeed = 0;
+        }
+        foreach (ParticleSystem p in _playerHurtEffect.GetComponentsInChildren<ParticleSystem>())
+        {
+            var main = p.main;
+            main.simulationSpeed = 0;
+        }
+    }
+    private void UnPause()
+    {
+        foreach (ParticleSystem p in _playerHealEffect.GetComponentsInChildren<ParticleSystem>())
+        {
+            var main = p.main;
+            main.simulationSpeed = 1;
+        }
+        foreach (ParticleSystem p in _playerHurtEffect.GetComponentsInChildren<ParticleSystem>())
+        {
+            var main = p.main;
+            main.simulationSpeed = 1;
+        }
     }
     public void PlayerHPUp()
     {
@@ -101,8 +130,15 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
         float lerpValue = 0;
         while (curTimeCount<=_attackAnimationTime-2.4f)
         {
-            lerpValue = curTimeCount/(_attackAnimationTime-2.4f);
-            _attackTsf.localPosition = Vector3.Slerp(_playerAttackStartPos.localPosition, _playerAttackEndPos.localPosition, lerpValue);
+            lerpValue = (curTimeCount/(_attackAnimationTime-2.4f));
+            if (lerpValue <= 0.5f)
+            {
+                _attackTsf.localPosition = Vector3.Slerp(_playerAttackStartPos.localPosition, _playerAttackMiddlePos.localPosition, lerpValue/0.5f);
+            }
+            else
+            {
+                _attackTsf.localPosition = Vector3.Slerp(_playerAttackMiddlePos.localPosition, _playerAttackEndPos.localPosition, (lerpValue-0.5f)/0.5f);
+            }
             curTimeCount = InGameMusicManager_s.Instance.musicPosition - startPosition;
             yield return _waitUpdate;
         }

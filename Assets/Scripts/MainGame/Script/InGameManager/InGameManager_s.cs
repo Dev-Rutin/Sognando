@@ -14,7 +14,6 @@ public partial class InGameManager_s : Singleton<InGameManager_s>//Data
     {
         InGameMusicManager_s.Instance.InGameBind();
         InGameBeatManager_s.Instance.InGameBind();
-        InGameSideData_s.Instance.InGameBind();
         KeyInputManager_s.Instance.InGameBind();
         InGamePlayer_s.Instance.InGameBind();
         InGameEnemy_s.Instance.InGameBind();

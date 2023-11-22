@@ -87,6 +87,7 @@ public class LinkLineAttackPattern : Singleton<LinkLineAttackPattern>
         else if (_curLinkLineAttackDirection == Vector2.right)
         {
             direction = new Vector2(-150f, 0);
+            _attackDirection.transform.localEulerAngles = new Vector3(0, 0, 0);
         }
         _attackDirection.transform.localPosition = InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform + direction;
         _attackObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform;

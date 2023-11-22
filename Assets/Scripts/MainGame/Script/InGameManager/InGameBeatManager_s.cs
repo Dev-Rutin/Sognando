@@ -11,6 +11,7 @@ class BeatStruct
 }
 public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGame
 {
+    [SerializeField] private CameraShake _cameraShake;
     [Header("data")]
     [SerializeField] private GameObject _beatPrefabVertical;
     [SerializeField] private GameObject _beatPrefabHorizontal;
@@ -30,6 +31,8 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
 
     BeatStruct _beatShowLerpValue1;
     BeatStruct _beatShowLerpValue2;
+
+    [SerializeField] private ParticleSystem _moveEffectBad;
     [Header("auto")]
     private bool _isAutoCalibrationOn;
     private float _autoCalibrationValue;
@@ -41,6 +44,8 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
         _waitUpdate = new WaitForEndOfFrame();
         _beatShowLerpValue1 = new BeatStruct();
         _beatShowLerpValue2 = new BeatStruct();
+        _beatObjList[0].SetActive(false);
+        _beatObjList[1].SetActive(false);
     }
     public void InGameBind()
     {
@@ -72,15 +77,15 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
     {
         switch (changeTarget)
         {
-            case EInGameStatus.TIMEWAIT:
-                for(int i=0;i<_beatObjList.Count;i++)
-                {
-                    _beatObjList[i].SetActive(false);
-                }
-                break;
             case EInGameStatus.SHOWPATH:
                 _isAutoCalibrationOn = false;
                 _autoCalibrationValue = 0f;
+                break;
+            case EInGameStatus.TIMEWAIT:
+                for (int i = 0; i < _beatObjList.Count; i++)
+                {
+                    _beatObjList[i].SetActive(false);
+                }
                 break;
             default:
                 break;
@@ -89,20 +94,26 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
     [SerializeField] private bool _beatSelect;
     public void NextBit()
     {
-        _beatSelect = UnityEngine.Random.Range(0, 2) == 1 ? true : false;
+        _beatSelect = UnityEngine.Random.Range(0, 2) == 1 ? true : false;//
+        _beatSelect = true;
+
         if (_beatSelect)
         {
             _beatShowLerpValue1.value = 0;
-           _beatObjList[1].SetActive(false);
-            _beatObjList[0].SetActive(true);
-            SystemUI_s.Instance.AnimationPlay(true);
+            if (InGameManager_s.Instance.curInGameStatus != EInGameStatus.TIMEWAIT)
+            {
+                _beatObjList[1].SetActive(false);
+                _beatObjList[0].SetActive(true);
+            }
         }
         else
         {
             _beatShowLerpValue2.value = 0;
-            _beatObjList[0].SetActive(false);
-            _beatObjList[1].SetActive(true);
-            SystemUI_s.Instance.AnimationPlay(false);
+            if (InGameManager_s.Instance.curInGameStatus != EInGameStatus.TIMEWAIT)
+            {
+                _beatObjList[0].SetActive(false);
+                _beatObjList[1].SetActive(true);
+            }
         }
         if (GhostPattern.Instance.isGhostPlay)
         {
@@ -161,6 +172,9 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
         }
         else
         {
+            _moveEffectBad.Play();
+            _cameraShake.ShakeStart();
+            SoundUtility.Instance.PlaySound(ESoundTypes.SFX);
             return false;
         }
         /*else

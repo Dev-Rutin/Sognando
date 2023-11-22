@@ -123,6 +123,7 @@ public partial class KeyInputManager_s //InGame Setting
                 break;
             case EInGameStatus.CUBEROTATE:
                 cubeRotateClear = false;
+                _isInput = true;
                 break;
             default:
                 break;

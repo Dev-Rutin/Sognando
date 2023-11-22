@@ -15,7 +15,7 @@ public partial class InGamePlayer_s : Singleton<InGamePlayer_s>, IInGame//data
     private EPlayerAttackLevel _playerAttackLevel;
     private bool _isGracePeriod;
     private int _playerHitBlock;
-    [SerializeField] private ParticleSystem _moveEffect;
+    [SerializeField] private ParticleSystem _moveEffectGood;
     [SerializeField] private ParticleSystem _noiseDissolveEffect;
     [SerializeField] private Image _flickerImage;
     private void Start()
@@ -100,7 +100,10 @@ public partial class InGamePlayer_s//game system
                 {
                     UpdatePlayerHP(1);
                 }
-                PlayerUI_s.Instance.PlayerAttack();
+                if (_playerAttackLevel == EPlayerAttackLevel.THREE)
+                {
+                    PlayerUI_s.Instance.PlayerAttack();
+                }
                 break;
         }
     }
@@ -132,9 +135,9 @@ public partial class InGamePlayer_s  //move
     {
         StartCoroutine(ObjectAction.MovingObj(_playerObj, InGameSideData_s.Instance.sideDatas[playerPos.x, playerPos.y].transform, _movingTime));
         yield return new WaitForSeconds(_movingTime);
-        _moveEffect.Play();
+        _moveEffectGood.Play();
         PlayerPositionCheck();
-        StartCoroutine(InGameCube_s.Instance.QuakeCube(0.1f));
+        //StartCoroutine(InGameCube_s.Instance.QuakeCube(0.1f));
         StartCoroutine(ObjectAction.ImageFade(_flickerImage, 0.05f, true,0,1));
         yield return new WaitForSeconds(0.05f);
         StartCoroutine(ObjectAction.ImageFade(_flickerImage, 0.05f, true,1,0));

@@ -12,18 +12,16 @@ public partial class InGameCube_s : Singleton<InGameCube_s>, IInGame //data
     public ECubeFace curFace { get; private set; }
     private Queue<ERotatePosition> _rotateQueue;
     private ERotatePosition _rotateTarget;
-    private Sprite _rotateTargetImage;
-    [SerializeField] private SpriteRenderer _rotateSprite;
-    [SerializeField] private Sprite _upImage;
-    [SerializeField] private Sprite _downImage;
-    [SerializeField] private Sprite _leftImage;
-    [SerializeField] private Sprite _rightImage;
+    [SerializeField] private Transform _rotateSpriteRendererTsf;
+    private SpriteRenderer _rotateSpriteRenderer;
+    [SerializeField] private Sprite _rotateSprite;
     [SerializeField] private float _rotateTime;
     private WaitForEndOfFrame _waitUpdate;
     private void Start()
     {
         _rotateQueue = new Queue<ERotatePosition>();
         _waitUpdate = new WaitForEndOfFrame();
+        _rotateSpriteRenderer = _rotateSpriteRendererTsf.GetComponent<SpriteRenderer>();
     }
 }
 public partial class InGameCube_s//game system
@@ -50,7 +48,7 @@ public partial class InGameCube_s//game system
     {
         _gameCubeTsf.localEulerAngles = Vector3.zero;
         _cubeSideUI.SetActive(true);
-        _rotateSprite.sprite = null;
+        _rotateSpriteRenderer.sprite = null;
     }
     public void GameEnd()
     {
@@ -79,16 +77,15 @@ public partial class InGameCube_s//game system
                     switch (_rotateTarget)
                     {
                         case ERotatePosition.UP:
-                            _rotateTargetImage = _upImage;
+                            _rotateSpriteRendererTsf.localEulerAngles = new Vector3(0,0,-90);
                             break;
                         case ERotatePosition.DOWN:
-                            _rotateTargetImage = _downImage;
+                            _rotateSpriteRendererTsf.localEulerAngles = new Vector3(0, 0, 90);
                             break;
                         case ERotatePosition.LEFT:
-                            _rotateTargetImage = _leftImage;
                             break;
                         case ERotatePosition.RIGHT:
-                            _rotateTargetImage = _rightImage;
+                            _rotateSpriteRendererTsf.localEulerAngles = new Vector3(0, 0, 180);
                             break;
                     }
                 }
@@ -134,15 +131,15 @@ public partial class InGameCube_s //rotate
     }
     IEnumerator ShowRotateImage()
     {
-        _rotateSprite.sprite = _rotateTargetImage;
+        _rotateSpriteRenderer.sprite = _rotateSprite;
         float waitTime = InGameManager_s.Instance.beatFreezeCount * InGameMusicManager_s.Instance.secPerBeat;
-        StartCoroutine(ObjectAction.ImageFade(_rotateSprite, waitTime,false,1));
+        StartCoroutine(ObjectAction.ImageFade(_rotateSpriteRenderer, InGameMusicManager_s.Instance.secPerBeat, false,1,0, InGameManager_s.Instance.beatFreezeCount));
         float startTime = InGameMusicManager_s.Instance.musicPosition;
         while (InGameMusicManager_s.Instance.musicPosition - startTime <= waitTime)
         {
             yield return _waitUpdate;
         }
-        _rotateSprite.sprite = null;
+        _rotateSpriteRenderer.sprite = null;
     }
     private void GetRandomeRotate()
     {

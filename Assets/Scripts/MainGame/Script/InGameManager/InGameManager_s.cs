@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 public partial class InGameManager_s : Singleton<InGameManager_s>//Data
 {
+    public static Vector2 throwVector2 = new Vector2(10000, 10000);
     [Header("main system")]
     private int _score;
     public int combo { get; private set; }
@@ -14,7 +15,6 @@ public partial class InGameManager_s : Singleton<InGameManager_s>//Data
     {
         InGameMusicManager_s.Instance.InGameBind();
         InGameBeatManager_s.Instance.InGameBind();
-        InGameSideData_s.Instance.InGameBind();
         KeyInputManager_s.Instance.InGameBind();
         InGamePlayer_s.Instance.InGameBind();
         InGameEnemy_s.Instance.InGameBind();
@@ -61,10 +61,15 @@ public partial class InGameManager_s : Singleton<InGameManager_s>//Data
             }
             else
             {
-                InGameFunBind_s.Instance.UnPause();
-                isPause = !isPause;
+                StartCoroutine(UnPuaseWait());
             }
         }
+    }
+    IEnumerator UnPuaseWait()
+    {
+        yield return new WaitForSeconds(3);
+        InGameFunBind_s.Instance.UnPause();
+        isPause = !isPause;
     }
         public void GameEnd()
         {
@@ -151,7 +156,7 @@ public partial class InGameManager_s //update
                 beatFreezeCount = 3;
                 break;
             case EInGameStatus.TIMEWAIT:
-                beatFreezeCount = 8;
+                beatFreezeCount = 2;
                 break;
         }
         curInGameStatus = target;

@@ -37,8 +37,6 @@ public class SystemUI_s : Singleton<SystemUI_s>
         if (value !=0)
         {
             StartCoroutine(ObjectAction.ObjectScalePump(_comboTsf, new Vector3(1.2f, 1.2f, 1.2f), 0.08f));
-            //StartCoroutine(ObjectAction.ObjectScalePump(_scoreTsf, new Vector3(1.2f, 1.2f, 1.2f), 0.08f));
-            //StartCoroutine(ObjectAction.ObjectScalePump(_beatJudgeTsf, new Vector3(1.2f, 1.2f, 1.2f), 0.08f));
         }
         _comboText.text = value.ToString();
     }
@@ -50,7 +48,6 @@ public class SystemUI_s : Singleton<SystemUI_s>
     {
         _beatImage.sprite = _beatMissSprite;
         _beatImage_UI.sprite = _missSprite;
-        StartCoroutine(CameraShake());
     }
     public void Good()
     {
@@ -86,17 +83,5 @@ public class SystemUI_s : Singleton<SystemUI_s>
             }
         }
         StartCoroutine(ObjectAction.MovingObj(Camera.main.gameObject, Vector2.zero, 0.03f));
-    }
-    public void AnimationPlay(bool Parameter)
-    {
-        if (Parameter)
-        {
-            _songNoteAnimator.Play("PlayR");
-        }
-        else
-        {
-            _songNoteAnimator.Play("PlayL");
-        }
-     
     }
 }

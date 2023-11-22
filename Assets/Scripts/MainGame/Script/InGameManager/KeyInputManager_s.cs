@@ -123,6 +123,7 @@ public partial class KeyInputManager_s //InGame Setting
                 break;
             case EInGameStatus.CUBEROTATE:
                 cubeRotateClear = false;
+                _isInput = true;
                 break;
             default:
                 break;
@@ -157,6 +158,7 @@ public partial class KeyInputManager_s //InGame Setting
                             {
                                 cubeRotateClear= _cubeKeyBinds[_inGameInputQueue.Peek()]();
                             }
+                            InGameBeatManager_s.Instance.ShowHitEffect();
                         }
                         else if(InGameManager_s.Instance.curInGameStatus == EInGameStatus.PLAYERMOVE)
                         {

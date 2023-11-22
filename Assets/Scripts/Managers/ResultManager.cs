@@ -3,18 +3,20 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class ResultManager : MonoBehaviour
 {
     [Header("Score")] 
     [SerializeField] private float _textFadeTime;
     [SerializeField] private TextMeshProUGUI _clearText;
-    [SerializeField] private TextMeshProUGUI _rankText;
     [SerializeField] private TextMeshProUGUI _scoreText;
     [SerializeField] private TextMeshProUGUI _maxComboText;
     [SerializeField] private TextMeshProUGUI _perfectText;
     [SerializeField] private TextMeshProUGUI _goodText;
     [SerializeField] private TextMeshProUGUI _missText;
+    [SerializeField] private Image _rankImage;
+    [SerializeField] private Sprite[] _ranks;
     
     [Header("SceneFade")]
     [SerializeField] private float _fadeTime;
@@ -38,7 +40,6 @@ public class ResultManager : MonoBehaviour
         _missText.text = StageDataController.Instance.missCount.ToString();
         _isPenalFading = true;
         FadeUtlity.Instance.CallFade(_fadeTime, _fadePenal, EGameObjectType.UI, EFadeType.FadeIn);
-        
     }
 
     // Update is called once per frame

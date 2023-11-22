@@ -12,6 +12,9 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
     [SerializeField] private GameObject _beatPrefabVertical;
     [SerializeField] private GameObject _beatPrefabHorizontal;
     [SerializeField] private Transform _beatTsf;
+    [SerializeField] private GameObject _beatPrefabVertical2;
+    [SerializeField] private GameObject _beatPrefabHorizontal2;
+    [SerializeField] private Transform _playerBeatTsf;
 
     [SerializeField] private float m_beatJudgeMax;
     public float beatJudgeMax { get => m_beatJudgeMax; }
@@ -30,8 +33,8 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
     void Start()
     {
         _beatObjList = new List<GameObject>();
-        _beatObjList.Add(Instantiate(_beatPrefabVertical, _beatTsf));
-        _beatObjList.Add(Instantiate(_beatPrefabHorizontal, _beatTsf));
+        _beatObjList.Add(Instantiate(_beatPrefabVertical2, _playerBeatTsf));
+        _beatObjList.Add(Instantiate(_beatPrefabHorizontal2, _playerBeatTsf));
         _waitUpdate = new WaitForEndOfFrame();
         _beatShowLerpValue1 = new BeatStruct();
         _beatShowLerpValue2 = new BeatStruct();
@@ -116,8 +119,8 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
         while (InGameManager_s.Instance.curGameStatus == EGameStatus.PLAYING)
         {
             data.value += (InGameMusicManager_s.Instance.musicPosition - lastPos) / (InGameMusicManager_s.Instance.secPerBeat);
-            leftBeat.transform.localPosition = leftStartPos + new Vector2(-1*Mathf.Lerp(0, 100, data.value), 0);
-            rightBeat.transform.localPosition = rightStartPos + new Vector2(Mathf.Lerp(0, 100, data.value), 0);
+            leftBeat.transform.localPosition = leftStartPos + new Vector2(-1*Mathf.Lerp(0, 120, data.value), 0);
+            rightBeat.transform.localPosition = rightStartPos + new Vector2(Mathf.Lerp(0, 120, data.value), 0);
             lastPos = InGameMusicManager_s.Instance.musicPosition;
             yield return _waitUpdate;
         }
@@ -134,8 +137,8 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
         while (InGameManager_s.Instance.curGameStatus == EGameStatus.PLAYING)
         {
             data.value += (InGameMusicManager_s.Instance.musicPosition - lastPos) / (InGameMusicManager_s.Instance.secPerBeat);
-            upBeat.transform.localPosition = upStartPos + new Vector2(0, -1 * Mathf.Lerp(0, 100, data.value));
-            downBeat.transform.localPosition = downStartPos + new Vector2(0, Mathf.Lerp(0, 100, data.value));
+            upBeat.transform.localPosition = upStartPos + new Vector2(0, -1 * Mathf.Lerp(0, 120, data.value));
+            downBeat.transform.localPosition = downStartPos + new Vector2(0, Mathf.Lerp(0, 120, data.value));
             lastPos = InGameMusicManager_s.Instance.musicPosition;
             yield return _waitUpdate;
         }

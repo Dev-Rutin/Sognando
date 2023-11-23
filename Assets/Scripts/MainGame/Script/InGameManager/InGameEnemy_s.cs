@@ -250,7 +250,6 @@ public partial class InGameEnemy_s //data change
     }
     private void EnemyHPDown()
     {
-        EnemyUI_s.Instance.EnemyHPDown(InGameCube_s.Instance.curFace);
         _destroyCount++;
         if (_curEnemyHP <= 0)
         {

@@ -10743,7 +10743,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerObj: {fileID: 2046360921}
   _movingTime: 0.1
-  _playerMaxHP: 999
+  _playerMaxHP: 6
   _curPlayerHP: 0
   _moveEffectGood: {fileID: 976582474}
   _noiseDissolveEffect: {fileID: 747828226}
@@ -27210,7 +27210,7 @@ MonoBehaviour:
   _comboText: {fileID: 1089028258485303006}
   _scoreTsf: {fileID: 6402038570033147685}
   _scoreText: {fileID: 8725125715439576918}
-  _beatImage_UI: {fileID: 1805238466}
+  _beatImageUIObj: {fileID: 1805238464}
   _missSprite: {fileID: 21300000, guid: 5bddd272f42d9b4479d63ac2db0f9996, type: 3}
   _goodSprite: {fileID: 21300000, guid: a3f9a5de3b6e60b419ef925232969473, type: 3}
   _perfectSprite: {fileID: 21300000, guid: 5a974cccab1041e40b23227cc625d640, type: 3}
@@ -53675,9 +53675,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3da7d77919a7bb44932445c3cfddff2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _hpOn: {fileID: 21300000, guid: 3883b4a52df380a419d82b824111193c, type: 3}
-  _hpOff: {fileID: 21300000, guid: 590aac12dd4a85842989496558ceb628, type: 3}
-  _hpUITsf: {fileID: 1223270466}
+  _playerHPSlider: {fileID: 631815762}
   _playerHealEffect: {fileID: 1574898589}
   _playerHurtEffect: {fileID: 1258470233}
   _attackTsf: {fileID: 1564582881}
@@ -54424,6 +54422,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1486661270}
   - component: {fileID: 1486661272}
+  - component: {fileID: 1486661273}
   m_Layer: 0
   m_Name: InGameMusic
   m_TagString: Untagged
@@ -54458,9 +54457,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aefec6266a96bd24798102dba189128d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _bgmSender: {fileID: 1918203098}
-  _musicClip: {fileID: 8300000, guid: d6455b9902ec12849a993969cc0c6b0a, type: 3}
   _bpm: 100
+--- !u!114 &1486661273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1486661269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -890654228
+      Data2: 1143184807
+      Data3: -2029791597
+      Data4: -616678529
+    Path: event:/BGM/BGM_1Stage
+  Event: 
+  PlayEvent: 0
+  StopEvent: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  AllowNonRigidbodyDoppler: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &1499075863
 GameObject:
   m_ObjectHideFlags: 0
@@ -54507,119 +54535,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _animation: {fileID: 4911114621847249818}
   _doremiText: {fileID: 1720634193}
---- !u!1001 &1509635064
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 2719063213531730830, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1.1078794
-      objectReference: {fileID: 0}
-    - target: {fileID: 2719063213531730830, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1.1078794
-      objectReference: {fileID: 0}
-    - target: {fileID: 2719063213531730830, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 1.1078794
-      objectReference: {fileID: 0}
-    - target: {fileID: 2719063213531730830, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 10.64834
-      objectReference: {fileID: 0}
-    - target: {fileID: 2719063213531730830, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.4520876
-      objectReference: {fileID: 0}
-    - target: {fileID: 2719063213531730830, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0.19493306
-      objectReference: {fileID: 0}
-    - target: {fileID: 2719063213531730830, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.9990347
-      objectReference: {fileID: 0}
-    - target: {fileID: 2719063213531730830, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2719063213531730830, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2719063213531730830, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0.043929473
-      objectReference: {fileID: 0}
-    - target: {fileID: 2719063213531730830, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2719063213531730830, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2719063213531730830, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: Clip.Path
-      value: event:/BGM/BackgroundMusic
-      objectReference: {fileID: 0}
-    - target: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: SendOnAwake
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: BehaviourStyle
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: Clip.Guid.Data1
-      value: -1352816589
-      objectReference: {fileID: 0}
-    - target: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: Clip.Guid.Data2
-      value: 1306433055
-      objectReference: {fileID: 0}
-    - target: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: Clip.Guid.Data3
-      value: -968922192
-      objectReference: {fileID: 0}
-    - target: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: Clip.Guid.Data4
-      value: -931697370
-      objectReference: {fileID: 0}
-    - target: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: Params.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: Params.Array.data[0].Name
-      value: BGM
-      objectReference: {fileID: 0}
-    - target: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: Params.Array.data[0].Value
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4668352979243032242, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: m_Name
-      value: FMOD Sound Sender BGM
-      objectReference: {fileID: 0}
-    - target: {fileID: 5910919648529410482, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-      propertyPath: audioType
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
 --- !u!1 &1517866785 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 6e7fdad94e4a9e24ab1aedf7c682fc20, type: 3}
@@ -80905,17 +80820,6 @@ ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 504288707907416311, guid: 132ddc90eb5059e4c8fcc08364c8bead, type: 3}
   m_PrefabInstance: {fileID: 1564582880}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1918203098 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
-  m_PrefabInstance: {fileID: 1509635064}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1fa131d2be3348a8bd8940d0037f6bfb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1972241803
 GameObject:
   m_ObjectHideFlags: 0
@@ -93695,7 +93599,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 1705841361507700122}
   - {fileID: 1317822311}
-  - {fileID: 1509635064}
   - {fileID: 2037257994}
   - {fileID: 8061307991294498559}
   - {fileID: 5663502656446454845}

@@ -135,6 +135,7 @@ public partial class InGameManager_s //update
                 }
                 if (beatFreezeCount == 0)
                 {
+                    InGameEnemy_s.Instance.UpdateEnemyHP(-1);
                     ChangeInGameState(EInGameStatus.SHOWPATH);
                 }
                 break;
@@ -156,7 +157,14 @@ public partial class InGameManager_s //update
                 beatFreezeCount = 3;
                 break;
             case EInGameStatus.TIMEWAIT:
-                beatFreezeCount = 2;
+                if (curStage == EStage.STAGE_SIX)
+                {
+                    beatFreezeCount = 8;
+                }
+                else
+                {
+                    beatFreezeCount = 2;
+                }
                 break;
         }
         curInGameStatus = target;
@@ -171,7 +179,6 @@ public partial class InGameManager_s //data Change
         {
             UpdateCombo(combo * -1);
         }
-        SystemUI_s.Instance.DefaultShow();
     }
     public void GoodScroe()
     {

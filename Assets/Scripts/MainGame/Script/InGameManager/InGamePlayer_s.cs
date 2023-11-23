@@ -44,6 +44,7 @@ public partial class InGamePlayer_s//game system
     public void GamePlay()
     {
         ObjectAction.ImageAlphaChange(_flickerImage, 0);
+        PlayerUI_s.Instance.PlayerHPInitialize(_playerMaxHP);
         PlayerUI_s.Instance.PlayerHPUpdate(_curPlayerHP);
         _playerObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[playerPos.x, playerPos.y].transform;
         PlayerUI_s.Instance.AttackChange(_playerAttackLevel);
@@ -59,6 +60,7 @@ public partial class InGamePlayer_s//game system
         switch (curInGameStatus)
         {
             case EInGameStatus.SHOWPATH:
+                DoremiUI_s.Instance.SingleDoremiAnimation("idle", true);
                 break;
             case EInGameStatus.PLAYERMOVE:
                 if (_isGracePeriod && _playerHitBlock == 0)
@@ -166,7 +168,7 @@ public partial class InGamePlayer_s  //data change
                 _playerAttackLevel = EPlayerAttackLevel.TWO;
                 PlayerUI_s.Instance.AttackChange(_playerAttackLevel);
                 break;
-            case EStage.STAGE_FIVE:
+            case EStage.STAGE_SIX:
                 _playerAttackLevel = EPlayerAttackLevel.THREE;
                 PlayerUI_s.Instance.AttackChange(_playerAttackLevel);
                 break;

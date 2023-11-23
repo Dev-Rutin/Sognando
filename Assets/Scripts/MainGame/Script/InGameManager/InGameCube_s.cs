@@ -115,7 +115,7 @@ public partial class InGameCube_s //rotate
     }
     private IEnumerator RotateTimeLock(Vector3 rotateposition)
     {
-        DoremiUI_s.Instance.SingleDoremiAnimation("ready", true);
+        DoremiUI_s.Instance.SingleDoremiAnimation("ready",true);
         while (InGameManager_s.Instance.curInGameStatus == EInGameStatus.CUBEROTATE)
         {
             yield return _waitUpdate;

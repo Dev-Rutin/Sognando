@@ -148,22 +148,37 @@ public partial class KeyInputManager_s //InGame Setting
                             _isFirstInput = true;
                             InGameEnemy_s.Instance.EnemyPhaseChange(EEnemyPhase.Phase1);
                         }
-                        if (InGameBeatManager_s.Instance.BeatJudgement())
+                        if (InGameManager_s.Instance.curInGameStatus == EInGameStatus.PLAYERMOVE)
                         {
-                            if (InGameManager_s.Instance.curInGameStatus == EInGameStatus.PLAYERMOVE)
+                            if (InGameBeatManager_s.Instance.BeatJudgement())
                             {
                                 _playerKeyBinds[_inGameInputQueue.Peek()]();
+                                InGameBeatManager_s.Instance.ShowHitEffect();
                             }
-                            else if (InGameManager_s.Instance.curInGameStatus == EInGameStatus.CUBEROTATE)
+                            else
                             {
-                                cubeRotateClear= _cubeKeyBinds[_inGameInputQueue.Peek()]();
+                                InGameManager_s.Instance.MissScore();
                             }
-                            InGameBeatManager_s.Instance.ShowHitEffect();
                         }
-                        else if(InGameManager_s.Instance.curInGameStatus == EInGameStatus.PLAYERMOVE)
+                        else if (InGameManager_s.Instance.curInGameStatus == EInGameStatus.CUBEROTATE)
                         {
-                            InGameManager_s.Instance.MissScore();
-                        }
+                            cubeRotateClear = _cubeKeyBinds[_inGameInputQueue.Peek()]();
+                            if (cubeRotateClear)
+                            {
+                                if(InGameBeatManager_s.Instance.BeatJudgement())
+                                {
+                                    InGameBeatManager_s.Instance.ShowHitEffect();
+                                }
+                                else
+                                {
+                                    InGameManager_s.Instance.MissScore();
+                                }
+                            }
+                            else
+                            {
+                                InGameManager_s.Instance.MissScore();
+                            }
+                         }                 
                         _inGameInputQueue.Clear();
                     }
                 }

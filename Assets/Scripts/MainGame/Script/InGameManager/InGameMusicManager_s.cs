@@ -9,16 +9,13 @@ public partial class InGameMusicManager_s : Singleton<InGameMusicManager_s>//dat
     [Header("fmod")]
     private int _masterSampleRate;
     private float _currentSample;
-    //private StudioEventEmitter _eventEmitter;
+    private StudioEventEmitter _eventEmitter;
     private ulong _startDspClock;
     private ulong _dspClock;
     private ulong _parent;
     private FMOD.Channel _requestdChannel;
     private FMOD.ChannelGroup _channelsGroup;
-    private FMOD.ChannelGroup _masterChannelsGroup;
-    [SerializeField] private CommandSender _bgmSender;
     [Header("data")]
-    [SerializeField] private AudioClip _musicClip;
     [SerializeField] private int _bpm;
     private WaitForEndOfFrame _waitUpdate;
     public float secPerBeat { get; private set; }
@@ -32,10 +29,9 @@ public partial class InGameMusicManager_s : Singleton<InGameMusicManager_s>//dat
     {
         secPerBeat = 60f / _bpm;
         isPause = true;
-        //_eventEmitter = GetComponent<StudioEventEmitter>();
+        _eventEmitter = GetComponent<StudioEventEmitter>();
         _waitUpdate = new WaitForEndOfFrame();
         FMODUnity.RuntimeManager.CoreSystem.getSoftwareFormat(out _masterSampleRate, out FMOD.SPEAKERMODE speakerMode, out int numRawSpeakers);
-        FMODUnity.RuntimeManager.CoreSystem.getMasterChannelGroup(out _masterChannelsGroup);
         SoundUtility.Instance.SFXAudioSource.Stop();
     }
 }
@@ -59,11 +55,11 @@ public partial class InGameMusicManager_s //main system
     }
     public void GamePlay()
     {
-        AudioPlay(_musicClip); //need last
+        AudioPlay(); //need last
     }
     public void GameEnd()
     {
-        AudioStop(_musicClip);//need first   
+        AudioStop();//need first   
     }
 }
 public partial class InGameMusicManager_s //game system
@@ -71,13 +67,11 @@ public partial class InGameMusicManager_s //game system
     int positionTest;
     private void Update()
     {
-        if (!isPause)
+        if (!isPause&&InGameManager_s.Instance.curGameStatus==EGameStatus.PLAYING)
         {
-            GetCurrentDSPClock(_masterChannelsGroup, out _dspClock, out _parent);
+            GetCurrentDSPClock(_channelsGroup, out _dspClock, out _parent);
             musicPosition = (_currentSample-_startDspClock) / _masterSampleRate;
             SoundUtility.Instance.BGMAudioSource.EventInstance.getTimelinePosition(out positionTest);
-            Debug.Log(positionTest);
-            Debug.Log(musicPosition);
             _musicPositionInBeats = musicPosition / secPerBeat;
             if (_musicPositionInBeats >= (completedLoops + 1))
             {
@@ -92,50 +86,45 @@ public partial class InGameMusicManager_s //game system
             }
         }
     }
-    public void AudioPlay(AudioClip clip)
+    public void AudioPlay()
     {
-        _bgmSender.SendCommand();
-        GetCurrentDSPClock(_masterChannelsGroup, out _dspClock, out _parent);
-        _startDspClock = _dspClock;
-        isPause = false;
-        //StartCoroutine(GetChannelAndStart());
+        _eventEmitter.Play();
+        StartCoroutine(GetChannelAndStart());
     }
-    /*IEnumerator GetChannelAndStart()
+    IEnumerator GetChannelAndStart()
     {
-        while (ReturnEventChannel(_masterChannelsGroup, out _requestdChannel, out _channelsGroup)!=FMOD.RESULT.OK)
+        while (ReturnEventChannel(_eventEmitter, out _requestdChannel, out _channelsGroup)!=FMOD.RESULT.OK)
         {
             yield return _waitUpdate;
         }
-        GetCurrentDSPClock(_masterChannelsGroup, out _dspClock, out _parent);
+        GetCurrentDSPClock(_channelsGroup, out _dspClock, out _parent);
         _startDspClock = _dspClock;
         isPause = false;
-    }*/
-    public void AudioStop(AudioClip clip)
+    }
+    public void AudioStop()
     {
-        SoundUtility.Instance.StopSound(ESoundTypes.BGM);
+        _eventEmitter.Stop();
     }
     public void AudioPause()
     {
-        _masterChannelsGroup.setPaused(true);
-        GetCurrentDSPClock(_masterChannelsGroup, out _dspClock, out _parent);
+        _channelsGroup.setPaused(true);
+        GetCurrentDSPClock(_channelsGroup, out _dspClock, out _parent);
         isPause = true;
     }
     public void AudioUnPause()
     {
-        /*_masterChannelsGroup.getChannel(0, out _requestdChannel);
-        _requestdChannel.setPosition((uint)_dspClock, FMOD.TIMEUNIT.PCM);*/
-        _masterChannelsGroup.setPaused(false);
-        GetCurrentDSPClock(_masterChannelsGroup, out _dspClock, out _parent);
+        _requestdChannel.setPosition((uint)_dspClock, FMOD.TIMEUNIT.PCM);
+        _channelsGroup.setPaused(false);
         isPause = false;
     }
     public void ChangeVolume(float volume) { }
 
-    /*private FMOD.RESULT ReturnEventChannel(FMOD.ChannelGroup eventEmitter, out FMOD.Channel requestedChannel, out FMOD.ChannelGroup channelsGroup)
+    private FMOD.RESULT ReturnEventChannel(FMODUnity.StudioEventEmitter eventEmitter, out FMOD.Channel requestedChannel, out FMOD.ChannelGroup channelsGroup)
     {
         requestedChannel = new FMOD.Channel();
         channelsGroup = new FMOD.ChannelGroup();
 
-        FMOD.RESULT result = eventEmitter.getChannelGroup(out FMOD.ChannelGroup newgroup);
+        FMOD.RESULT result = eventEmitter.EventInstance.getChannelGroup(out FMOD.ChannelGroup newgroup);
 
         //Checking at every step if there is an error which will return a invalid result 
         if (result != FMOD.RESULT.OK)
@@ -164,7 +153,7 @@ public partial class InGameMusicManager_s //game system
             Debug.Log("Failed to find the right channel with error: " + result);
             return result;
         }
-    }*/
+    }
     private FMOD.RESULT GetCurrentDSPClock(FMOD.ChannelGroup cG, out ulong dspClock, out ulong parent)
     {
         FMOD.RESULT result = cG.getDSPClock(out dspClock, out parent);

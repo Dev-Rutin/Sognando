@@ -6,10 +6,7 @@ using UnityEngine.UI;
 public class PlayerUI_s : Singleton<PlayerUI_s>
 {
     [Header("HP")]
-    private List<Image> _hpImages;
-    [SerializeField] private Sprite _hpOn;
-    [SerializeField] private Sprite _hpOff;
-    [SerializeField] private Transform _hpUITsf;
+    [SerializeField] private Slider _playerHPSlider;
 
     [Header("Effect")]
     [SerializeField] private ParticleSystem _playerHealEffect;
@@ -30,11 +27,6 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
     private WaitForEndOfFrame _waitUpdate;
     private void Start()
     {
-        _hpImages = new List<Image>();
-        foreach(Transform data in _hpUITsf)
-        {
-            _hpImages.Add(data.GetComponent<Image>());
-        }
         _curAttackParticle = null;
         _waitUpdate = new WaitForEndOfFrame();
         InGameFunBind_s.Instance.Epause += Pause;
@@ -66,6 +58,10 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
             main.simulationSpeed = 1;
         }
     }
+    public void PlayerHPInitialize(int maxValue)
+    {
+        _playerHPSlider.maxValue = maxValue;
+    }
     public void PlayerHPUp()
     {
         _playerHealEffect.Play();
@@ -76,17 +72,7 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
     }
     public void PlayerHPUpdate(int curPlayerHP)
     {
-        for (int i = 0; i < _hpImages.Count;i++)
-        {
-            if(i<curPlayerHP)
-            {
-                _hpImages[i].sprite = _hpOn;
-            }
-            else
-            {
-                _hpImages[i].sprite = _hpOff;
-            }
-        }
+        _playerHPSlider.value = curPlayerHP;
     }
     public void AttackChange(EPlayerAttackLevel level)
     {
@@ -142,9 +128,9 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
             curTimeCount = InGameMusicManager_s.Instance.musicPosition - startPosition;
             yield return _waitUpdate;
         }
+        EnemyUI_s.Instance.EnemyHit(InGameCube_s.Instance.curFace);
         _attackTrail.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
         _curAttackParticle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-       InGameEnemy_s.Instance.UpdateEnemyHP(-1);
         DoremiUI_s.Instance.SingleDoremiAnimation("idle", true);
         yield return new WaitForSeconds(1f);
         _attackTsf.localPosition = _playerAttackStartPos.localPosition;

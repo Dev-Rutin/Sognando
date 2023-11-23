@@ -8,7 +8,7 @@ public class EnemyUI_s : Singleton<EnemyUI_s>
 {
     [Header("Effect")]
     [SerializeField] private ParticleSystem _enemyHitEffect;
-    public void EnemyHPDown(ECubeFace face)
+    public void EnemyHit(ECubeFace face)
     {
         _enemyHitEffect.Play();
     }

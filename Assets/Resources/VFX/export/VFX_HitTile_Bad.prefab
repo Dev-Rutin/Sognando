@@ -5931,18 +5931,18 @@ ParticleSystem:
         m_Curve:
         - serializedVersion: 3
           time: 0
-          value: 0.31347534
-          inSlope: 0.6865246
-          outSlope: 0.6865246
+          value: 0.6513126
+          inSlope: 0.9874962
+          outSlope: 0.9874962
           tangentMode: 34
           weightedMode: 0
           inWeight: 0
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 1
+          time: 0.35310254
           value: 1
-          inSlope: 0.6865246
-          outSlope: 0.6865246
+          inSlope: 0.9874962
+          outSlope: 0.9874962
           tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
@@ -6312,7 +6312,7 @@ ParticleSystem:
         m_NumAlphaKeys: 2
   UVModule:
     serializedVersion: 2
-    enabled: 0
+    enabled: 1
     mode: 0
     timeMode: 0
     fps: 30
@@ -6327,21 +6327,21 @@ ParticleSystem:
         - serializedVersion: 3
           time: 0
           value: 0
-          inSlope: 0
-          outSlope: 1
-          tangentMode: 0
+          inSlope: 1.5645161
+          outSlope: 1.5645161
+          tangentMode: 34
           weightedMode: 0
-          inWeight: 0.33333334
+          inWeight: 0
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 1
+          time: 0.6391753
           value: 1
-          inSlope: 1
-          outSlope: 0
-          tangentMode: 0
+          inSlope: 1.5645161
+          outSlope: 1.5645161
+          tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
-          outWeight: 0.33333334
+          outWeight: 0
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
@@ -6423,7 +6423,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     speedRange: {x: 0, y: 1}
-    tilesX: 1
+    tilesX: 2
     tilesY: 1
     animationType: 0
     rowIndex: 0
@@ -9721,7 +9721,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 58d597cda95aade4f926ce904758d50c, type: 2}
+  - {fileID: 2100000, guid: 31adb0e2818fb9e4e84c6c1e7b1b49b0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -35069,7 +35069,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 1
+      value: 1.69
       mode: 0
       spread: 0
       speed:

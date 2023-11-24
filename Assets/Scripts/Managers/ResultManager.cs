@@ -32,6 +32,8 @@ public class ResultManager : MonoBehaviour
 
     [SerializeField] private GameObject _restartText;
 
+    [SerializeField] private float _maxfloat;
+
     private bool _isPenalFading;
 
     private bool _isTextFading;

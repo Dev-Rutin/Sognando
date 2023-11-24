@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <objects serializationModel="Studio.02.02.00">
-	<object class="AudioFile" id="{d5ca51a7-29b5-4979-a01f-399f694e57e9}">
+	<object class="AudioFile" id="{20d489e5-795e-4585-8670-7ee781c3cb72}">
 		<property name="assetPath">
 			<value>SFX/Rank.wav</value>
 		</property>
@@ -11,7 +11,7 @@
 			<value>2</value>
 		</property>
 		<property name="length">
-			<value>6</value>
+			<value>2</value>
 		</property>
 		<relationship name="masterAssetFolder">
 			<destination>{51620df4-56e1-47dd-99e7-5174b727a3f4}</destination>

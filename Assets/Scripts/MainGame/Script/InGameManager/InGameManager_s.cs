@@ -135,7 +135,6 @@ public partial class InGameManager_s //update
                 }
                 if (beatFreezeCount == 0)
                 {
-                    InGameEnemy_s.Instance.UpdateEnemyHP(-1);
                     ChangeInGameState(EInGameStatus.SHOWPATH);
                 }
                 break;
@@ -157,14 +156,9 @@ public partial class InGameManager_s //update
                 beatFreezeCount = 3;
                 break;
             case EInGameStatus.TIMEWAIT:
-                if (curStage == EStage.STAGE_SIX)
-                {
                     beatFreezeCount = 8;
-                }
-                else
-                {
-                    beatFreezeCount = 2;
-                }
+                break;
+            default:
                 break;
         }
         curInGameStatus = target;
@@ -186,6 +180,7 @@ public partial class InGameManager_s //data Change
         UpdateScore(50);
         SystemUI_s.Instance.Good();
         StageDataController.Instance.judgementValue++;
+        InGamePlayer_s.Instance.AttackValueIncrease(EBeatJudgement.Good);
     }
     public void PerfectScroe()
     {
@@ -194,6 +189,7 @@ public partial class InGameManager_s //data Change
         UpdateScore(100);
         SystemUI_s.Instance.Perfect();
         StageDataController.Instance.judgementValue += 2;
+        InGamePlayer_s.Instance.AttackValueIncrease(EBeatJudgement.Perfect);
     }
     public void MissScore()
     {

@@ -10,7 +10,7 @@ public partial class InGameCube_s : Singleton<InGameCube_s>, IInGame //data
     [SerializeField] private Transform _gameCubeTsf;
     [SerializeField] private GameObject _cubeSideUI;
     public ECubeFace curFace { get; private set; }
-    private Queue<ERotatePosition> _rotateQueue;
+    //private Queue<ERotatePosition> _rotateQueue;
     private ERotatePosition _rotateTarget;
     [SerializeField] private Transform _rotateSpriteRendererTsf;
     private SpriteRenderer _rotateSpriteRenderer;
@@ -19,7 +19,7 @@ public partial class InGameCube_s : Singleton<InGameCube_s>, IInGame //data
     private WaitForEndOfFrame _waitUpdate;
     private void Start()
     {
-        _rotateQueue = new Queue<ERotatePosition>();
+        //_rotateQueue = new Queue<ERotatePosition>();
         _waitUpdate = new WaitForEndOfFrame();
         _rotateSpriteRenderer = _rotateSpriteRendererTsf.GetComponent<SpriteRenderer>();
     }
@@ -36,12 +36,12 @@ public partial class InGameCube_s//game system
     }
     public void GameStart()
     {
-        _rotateQueue.Clear();
+        /*_rotateQueue.Clear();
         _rotateQueue.Enqueue(ERotatePosition.RIGHT); //need fun
         _rotateQueue.Enqueue(ERotatePosition.UP);
         _rotateQueue.Enqueue(ERotatePosition.UP);
         _rotateQueue.Enqueue(ERotatePosition.UP);
-        _rotateQueue.Enqueue(ERotatePosition.RIGHT);
+        _rotateQueue.Enqueue(ERotatePosition.RIGHT);*/
         _rotateTarget = ERotatePosition.NONE;
     }
     public void GamePlay()
@@ -71,27 +71,24 @@ public partial class InGameCube_s//game system
                 break;
             case EInGameStatus.CUBEROTATE:
                 _cubeSideUI.SetActive(false);
-                if (_rotateQueue.Count != 0)
+                /*if (_rotateQueue.Count != 0)
                 {
                     _rotateTarget = _rotateQueue.Dequeue();
-                    switch (_rotateTarget)
-                    {
-                        case ERotatePosition.UP:
-                            _rotateSpriteRendererTsf.localEulerAngles = new Vector3(0,0,-90);
-                            break;
-                        case ERotatePosition.DOWN:
-                            _rotateSpriteRendererTsf.localEulerAngles = new Vector3(0, 0, 90);
-                            break;
-                        case ERotatePosition.LEFT:
-                            break;
-                        case ERotatePosition.RIGHT:
-                            _rotateSpriteRendererTsf.localEulerAngles = new Vector3(0, 0, 180);
-                            break;
-                    }
-                }
-                else
+                }*/
+                GetRandomeRotate();
+                switch (_rotateTarget)
                 {
-                    GetRandomeRotate();
+                    case ERotatePosition.UP:
+                        _rotateSpriteRendererTsf.localEulerAngles = new Vector3(0, 0, -90);
+                        break;
+                    case ERotatePosition.DOWN:
+                        _rotateSpriteRendererTsf.localEulerAngles = new Vector3(0, 0, 90);
+                        break;
+                    case ERotatePosition.LEFT:
+                        break;
+                    case ERotatePosition.RIGHT:
+                        _rotateSpriteRendererTsf.localEulerAngles = new Vector3(0, 0, 180);
+                        break;
                 }
                 StartCoroutine(ShowRotateImage());
                 StartCoroutine(RotateTimeLock(DataConverter.GetERotatePositionToVec3(_rotateTarget)));

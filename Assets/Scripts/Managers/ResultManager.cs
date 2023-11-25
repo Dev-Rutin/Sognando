@@ -32,8 +32,7 @@ public class ResultManager : MonoBehaviour
 
     [SerializeField] private GameObject _restartText;
 
-    [SerializeField] private int _maxCountSpeed;
-    [SerializeField] private int _minCountSpeed;
+    [SerializeField] private float _maxfloat;
 
     private bool _isPenalFading;
 
@@ -84,7 +83,7 @@ public class ResultManager : MonoBehaviour
         _scoreSoundSender.SendCommand();
         while (Scoredata < maxscore)
         {
-            Scoredata += Random.Range(_maxCountSpeed, _minCountSpeed);
+            Scoredata += Random.Range(20, 10);
             ETCData++;
             if (Scoredata >= maxscore)
             {

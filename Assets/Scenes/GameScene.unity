@@ -1290,10 +1290,6 @@ PrefabInstance:
       propertyPath: m_Color.a
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6086562587528629557, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6094358344281947676, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
       propertyPath: m_Color.a
       value: 0
@@ -23941,7 +23937,7 @@ MonoBehaviour:
   _movingTime: 0
   _playerMaxHP: 0
   _curPlayerHP: 0
-  _moveEffectGood: {fileID: 0}
+  _moveEffect: {fileID: 0}
   _noiseDissolveEffect: {fileID: 0}
   _flickerImage: {fileID: 0}
 --- !u!4 &3587482760631103874
@@ -34188,8 +34184,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gameCubeTsf: {fileID: 0}
   _cubeSideUI: {fileID: 0}
-  _rotateSpriteRendererTsf: {fileID: 0}
   _rotateSprite: {fileID: 0}
+  _upImage: {fileID: 0}
+  _downImage: {fileID: 0}
+  _leftImage: {fileID: 0}
+  _rightImage: {fileID: 0}
   _rotateTime: 0
 --- !u!224 &4386989964317064459
 RectTransform:
@@ -44459,7 +44458,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aefec6266a96bd24798102dba189128d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _bgmSender: {fileID: 0}
   _musicClip: {fileID: 0}
   _bpm: 0
 --- !u!4 &5112904983034898081
@@ -60644,6 +60642,7 @@ MonoBehaviour:
   _enemyMaxHP: 0
   _curEnemyHP: 0
   _enemyAttackGaugeMax: 0
+  _curEnemyPhase: 0
 --- !u!1 &6570461572709634006
 GameObject:
   m_ObjectHideFlags: 0

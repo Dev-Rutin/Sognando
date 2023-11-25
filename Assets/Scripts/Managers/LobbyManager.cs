@@ -17,7 +17,7 @@ public class LobbyManager : Singleton<LobbyManager>
     void Start()
     {
         FadeUtlity.Instance.CallFade(_fadeTime, _fadePenal, EGameObjectType.UI, EFadeType.FadeIn);
-        
+        //_continueStage = PlayerPrefs.GetInt("continueStage");
     }
 
     // Update is called once per frame
@@ -34,7 +34,7 @@ public class LobbyManager : Singleton<LobbyManager>
         FadeUtlity.Instance.CallFade(_fadeTime, _fadePenal, EGameObjectType.UI, EFadeType.FadeOut);
         _dataObject.GetComponent<StageDataController>().stage = 1;
         _isFade = true;
-        
+        //SoundUtility.Instance.StopSound(ESoundTypes.Bgm);
     }
 
 }

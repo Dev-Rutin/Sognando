@@ -36,7 +36,7 @@ public class GameSceneManager : Singleton<GameSceneManager>
             yield return null;
         }
         
-        BackGroundController.Instance.StartPhase1();
+        /*BackGroundController.Instance.StartPhase1();
 
         while (!Phase1Controller.Instance.isPhaseEnd)
         {
@@ -50,7 +50,12 @@ public class GameSceneManager : Singleton<GameSceneManager>
 
         
         yield return new WaitForSeconds(6.0f);
+        _cube.SetActive(true);
+        _cube.GetComponent<Animation>().Play();
+
+        yield return new WaitForSeconds(3.5f);
         
+        _cube.GetComponent<Animation>().Stop();*/
         _cube.SetActive(true);
         FadeUtlity.Instance.CallFade(_fadeTime - 2.5f, _systemBGCanvas, EGameObjectType.UI, EFadeType.FadeOut);
         yield return new WaitForSeconds(_fadeTime - 2.0f);

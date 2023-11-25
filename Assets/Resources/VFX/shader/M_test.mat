@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M_test
-  m_Shader: {fileID: -6465566751694194690, guid: 2a900bc9d30ad60459b859098838ac15, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 8febb2bc030118b488e3125ca63fe8a8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -118,7 +118,7 @@ Material:
     - _ZWrite: 0
     m_Colors:
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
-    - _Color: {r: 2, g: 2, b: 2, a: 1}
+    - _Color: {r: 2.670157, g: 1.095772, b: 1.095772, a: 1}
     - _Color01: {r: 4.438133, g: 1.192157, b: 11.984314, a: 0}
     - _Color02: {r: 0.007843137, g: 0.017348623, b: 0.0625, a: 0}
     - _ColorAddSubDiff: {r: 1, g: 0, b: 0, a: 0}

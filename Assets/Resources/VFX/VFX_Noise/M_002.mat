@@ -17,7 +17,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 2999
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -26,6 +26,10 @@ Material:
     m_TexEnvs:
     - _AlphaTex:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _CrackTex:
+        m_Texture: {fileID: 2800000, guid: 724d8ce3803836247a9b49da2e21f667, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Diss_tex:
@@ -37,7 +41,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Main_tex:
-        m_Texture: {fileID: 2800000, guid: 2eda763399bf5c046841babd1e7be454, type: 3}
+        m_Texture: {fileID: 2800000, guid: 1d9a00471679e4c44871f6d5fa4bb024, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskTex:
@@ -46,6 +50,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Texture2DAsset_0110a3f564474cf4ae59fba68e686466_Out_0_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 724d8ce3803836247a9b49da2e21f667, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -66,13 +74,15 @@ Material:
     - _Dissolve: 0
     - _EnableExternalAlpha: 0
     - _QueueControl: 0
-    - _QueueOffset: 0
+    - _QueueOffset: -1
     - _SWI: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Diss_color: {r: 2, g: 2, b: 2, a: 0}
+    - _CrackColor: {r: 1, g: 1, b: 1, a: 0}
+    - _Diss_color: {r: 21.361256, g: 5.9207826, b: 0, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _Main_color: {r: 2, g: 2, b: 2, a: 0}
+    - _Main_color: {r: 0.2830189, g: 0.21493416, b: 0.21758634, a: 1}
+    - _NoiseColor: {r: 1, g: 1, b: 1, a: 0}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &6707378852117460097

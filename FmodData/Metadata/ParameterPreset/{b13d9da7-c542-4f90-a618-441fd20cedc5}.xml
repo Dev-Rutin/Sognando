@@ -16,7 +16,7 @@
 			<value>2</value>
 		</property>
 		<property name="maximum">
-			<value>8</value>
+			<value>9</value>
 		</property>
 		<property name="enumerationLabels">
 			<value>Start</value>
@@ -27,6 +27,7 @@
 			<value>GameClear</value>
 			<value>GameOver</value>
 			<value>Archive</value>
+			<value>Credit</value>
 		</property>
 		<property name="initialValue">
 			<value>0</value>

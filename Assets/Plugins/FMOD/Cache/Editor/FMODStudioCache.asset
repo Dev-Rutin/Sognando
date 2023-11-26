@@ -121,7 +121,7 @@ MonoBehaviour:
   Name: BGM
   StudioPath: 
   Min: 0
-  Max: 7
+  Max: 8
   Default: 0
   ID:
     data1: 2386466426
@@ -137,6 +137,7 @@ MonoBehaviour:
   - GameClear
   - GameOver
   - Archive
+  - Credit
   Exists: 1
 --- !u!114 &-8145156917831984235
 MonoBehaviour:
@@ -153,7 +154,7 @@ MonoBehaviour:
   Name: UI
   StudioPath: 
   Min: 0
-  Max: 0
+  Max: 1
   Default: 0
   ID:
     data1: 2043479639
@@ -161,7 +162,8 @@ MonoBehaviour:
   Type: 2
   IsGlobal: 0
   Labels:
-  - Click
+  - A
+  - B
   Exists: 1
 --- !u!114 &-8025671390041635720
 MonoBehaviour:
@@ -431,33 +433,6 @@ MonoBehaviour:
   IsGlobal: 0
   Labels: []
   Exists: 1
---- !u!114 &-5350239797926659274
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/SFX/SFX_PlayerHealth
-  m_EditorClassIdentifier: 
-  Path: event:/SFX/SFX_PlayerHealth
-  Guid:
-    Data1: 44419240
-    Data2: 1114534848
-    Data3: -925406840
-    Data4: -924761804
-  Banks:
-  - {fileID: 8385436130389840712}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 0
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 1000
 --- !u!114 &-5078416341619844729
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -476,7 +451,7 @@ MonoBehaviour:
   lastModified: 638365638901571280
   FileSizes:
   - Name: Desktop
-    Value: 9823488
+    Value: 9577600
   Exists: 1
 --- !u!114 &-4745529267483324108
 MonoBehaviour:
@@ -530,62 +505,6 @@ MonoBehaviour:
   - Name: Desktop
     Value: 231616
   Exists: 1
---- !u!114 &-4473463112249189205
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/SFX/SFX-Score
-  m_EditorClassIdentifier: 
-  Path: event:/SFX/SFX-Score
-  Guid:
-    Data1: -1402960600
-    Data2: 1116540755
-    Data3: 351998116
-    Data4: -1697141597
-  Banks:
-  - {fileID: 8385436130389840712}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 0
-  Parameters:
-  - {fileID: 3039783228518911900}
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 1440
---- !u!114 &-4205566928791050652
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/SFX/SFX-Combo
-  m_EditorClassIdentifier: 
-  Path: event:/SFX/SFX-Combo
-  Guid:
-    Data1: -787561430
-    Data2: 1099414840
-    Data3: -1833393481
-    Data4: 139260186
-  Banks:
-  - {fileID: 8385436130389840712}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters:
-  - {fileID: 2584007489031489163}
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
 --- !u!114 &-4108548116058671948
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1163,7 +1082,7 @@ MonoBehaviour:
   lastModified: 638365638901581548
   FileSizes:
   - Name: Desktop
-    Value: 1748
+    Value: 1670
   Exists: 1
 --- !u!114 &-943629372506961228
 MonoBehaviour:
@@ -1285,12 +1204,11 @@ MonoBehaviour:
   - {fileID: 2847079683491546836}
   - {fileID: 1787035069992730812}
   - {fileID: -3535136369857569557}
-  - {fileID: -4473463112249189205}
-  - {fileID: -4205566928791050652}
   - {fileID: -8285352988301021084}
-  - {fileID: -5350239797926659274}
   - {fileID: 411239182551923935}
   - {fileID: 8386741567353217242}
+  - {fileID: 1039717135244222451}
+  - {fileID: 1621636787970863439}
   EditorParameters: []
   MasterBanks:
   - {fileID: 2808107962254031061}
@@ -1407,6 +1325,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
+--- !u!114 &1039717135244222451
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/SFX/SFX_MagicCircle
+  m_EditorClassIdentifier: 
+  Path: event:/SFX/SFX_MagicCircle
+  Guid:
+    Data1: 995791906
+    Data2: 1301206566
+    Data3: 2114077839
+    Data4: -831111644
+  Banks:
+  - {fileID: 8385436130389840712}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 1038
 --- !u!114 &1211170121935121637
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1486,6 +1431,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
+--- !u!114 &1621636787970863439
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/SFX/SFX-MagicAttack
+  m_EditorClassIdentifier: 
+  Path: event:/SFX/SFX-MagicAttack
+  Guid:
+    Data1: -75455341
+    Data2: 1296716352
+    Data3: 1177807511
+    Data4: -1664550033
+  Banks:
+  - {fileID: 8385436130389840712}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 2000
 --- !u!114 &1787035069992730812
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1508,7 +1480,7 @@ MonoBehaviour:
   - {fileID: -5078416341619844729}
   IsStream: 1
   Is3D: 0
-  IsOneShot: 0
+  IsOneShot: 1
   Parameters:
   - {fileID: 4919270390827113617}
   MinDistance: 1
@@ -1612,33 +1584,6 @@ MonoBehaviour:
   IsGlobal: 0
   Labels: []
   Exists: 1
---- !u!114 &2584007489031489163
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
-  m_Name: parameter:/SFX-Combo/Combo
-  m_EditorClassIdentifier: 
-  Name: Combo
-  StudioPath: 
-  Min: 0
-  Max: 2
-  Default: 0
-  ID:
-    data1: 557129130
-    data2: 2956821857
-  Type: 2
-  IsGlobal: 0
-  Labels:
-  - First
-  - Secomd
-  - Third
-  Exists: 1
 --- !u!114 &2808107962254031061
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1733,31 +1678,6 @@ MonoBehaviour:
   FileSizes:
   - Name: Desktop
     Value: 9823488
-  Exists: 1
---- !u!114 &3039783228518911900
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
-  m_Name: parameter:/SFX-Score/Result
-  m_EditorClassIdentifier: 
-  Name: Result
-  StudioPath: 
-  Min: 0
-  Max: 0
-  Default: 0
-  ID:
-    data1: 2954676220
-    data2: 575015685
-  Type: 2
-  IsGlobal: 0
-  Labels:
-  - Rank
   Exists: 1
 --- !u!114 &3606777166612646396
 MonoBehaviour:
@@ -2045,7 +1965,7 @@ MonoBehaviour:
   lastModified: 638365638900224882
   FileSizes:
   - Name: Desktop
-    Value: 1721344
+    Value: 1721216
   Exists: 1
 --- !u!114 &7058219998603894146
 MonoBehaviour:
@@ -2212,7 +2132,7 @@ MonoBehaviour:
   lastModified: 638365638901621154
   FileSizes:
   - Name: Desktop
-    Value: 174208
+    Value: 198720
   Exists: 1
 --- !u!114 &8386741567353217242
 MonoBehaviour:

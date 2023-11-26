@@ -64342,7 +64342,7 @@ GameObject:
   - component: {fileID: 8343661380317803349}
   - component: {fileID: 2476653781620187971}
   m_Layer: 0
-  m_Name: VFX_CubeHit_TB
+  m_Name: VFX_CubeHit_TB_NotUse
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

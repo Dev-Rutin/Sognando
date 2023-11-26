@@ -156,7 +156,9 @@ public partial class InGameManager_s //update
                 beatFreezeCount = 3;
                 break;
             case EInGameStatus.TIMEWAIT:
-                beatFreezeCount = 2;
+                    beatFreezeCount = 8;
+                break;
+            default:
                 break;
         }
         curInGameStatus = target;
@@ -171,7 +173,6 @@ public partial class InGameManager_s //data Change
         {
             UpdateCombo(combo * -1);
         }
-        SystemUI_s.Instance.DefaultShow();
     }
     public void GoodScroe()
     {
@@ -179,6 +180,7 @@ public partial class InGameManager_s //data Change
         UpdateScore(50);
         SystemUI_s.Instance.Good();
         StageDataController.Instance.judgementValue++;
+        InGamePlayer_s.Instance.AttackValueIncrease(EBeatJudgement.Good);
     }
     public void PerfectScroe()
     {
@@ -187,6 +189,7 @@ public partial class InGameManager_s //data Change
         UpdateScore(100);
         SystemUI_s.Instance.Perfect();
         StageDataController.Instance.judgementValue += 2;
+        InGamePlayer_s.Instance.AttackValueIncrease(EBeatJudgement.Perfect);
     }
     public void MissScore()
     {

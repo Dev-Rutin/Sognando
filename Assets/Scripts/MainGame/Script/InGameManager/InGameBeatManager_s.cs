@@ -162,7 +162,6 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
     }
     public bool BeatJudgement()
     {
-        Debug.Log(InGameMusicManager_s.Instance.loopPositionInBeats);
         StageDataController.Instance.totalValue += 2;
         if (InGameMusicManager_s.Instance.loopPositionInBeats <= beatJudgeMax|| InGameMusicManager_s.Instance.loopPositionInBeats >= beatJudgeMin)
         {

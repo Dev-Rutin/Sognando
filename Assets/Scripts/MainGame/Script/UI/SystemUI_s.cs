@@ -11,12 +11,12 @@ public class SystemUI_s : Singleton<SystemUI_s>
     [SerializeField] private TextMeshProUGUI _comboText;
     [SerializeField] private Transform _scoreTsf;
     [SerializeField] private TextMeshProUGUI _scoreText;
-    [SerializeField] private SpriteRenderer _beatImage_UI;
+    [SerializeField] private GameObject _beatImageUIObj;
+    private SpriteRenderer _beatImageUI;
     [SerializeField] private Sprite _missSprite;
     [SerializeField] private Sprite _goodSprite;
     [SerializeField] private Sprite _perfectSprite;
     [SerializeField] private Animator _songNoteAnimator;
-
     [Header("main game canvas")]
     [SerializeField] private Transform _beatJudgeTsf;
     [SerializeField] private Image _beatImage;
@@ -31,6 +31,8 @@ public class SystemUI_s : Singleton<SystemUI_s>
     private void Start()
     {
         waitUpdate = new WaitForEndOfFrame();
+        _beatImageUI = _beatImageUIObj.GetComponent<SpriteRenderer>();
+        _beatImageUIObj.SetActive(false);
     }
     public void UpdateCombo(int value)
     {
@@ -47,22 +49,30 @@ public class SystemUI_s : Singleton<SystemUI_s>
     public void Miss()
     {
         _beatImage.sprite = _beatMissSprite;
-        _beatImage_UI.sprite = _missSprite;
+        _beatImageUI.sprite = _missSprite;
+        StartCoroutine(BeatUIShow());
     }
     public void Good()
     {
         _beatImage.sprite = _beatGoodSprite;
-        _beatImage_UI.sprite = _goodSprite;
+        _beatImageUI.sprite = _goodSprite;
+        StartCoroutine(BeatUIShow());
     }
     public void Perfect()
     {
         _beatImage.sprite = _beatPerfectSprite;
-        _beatImage_UI.sprite = _perfectSprite;
+        _beatImageUI.sprite = _perfectSprite;
+        StartCoroutine(BeatUIShow());
     }
-    public void DefaultShow()
+    private IEnumerator BeatUIShow()
     {
-        _beatImage.sprite = _beatDefaultSprite;
-        _beatImage_UI.sprite = null;
+        _beatImageUIObj.SetActive(true);
+        float startTime = InGameMusicManager_s.Instance.musicPosition;
+        while(InGameMusicManager_s.Instance.musicPosition-startTime<=InGameMusicManager_s.Instance.secPerBeat/2)
+        {
+            yield return waitUpdate;
+        }
+        _beatImageUIObj.SetActive(false);
     }
     public IEnumerator CameraShake()
     {

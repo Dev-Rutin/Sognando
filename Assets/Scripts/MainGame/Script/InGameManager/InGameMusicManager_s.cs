@@ -18,12 +18,12 @@ public partial class InGameMusicManager_s : Singleton<InGameMusicManager_s>//dat
     [Header("data")]
     [SerializeField] private int _bpm;
     private WaitForEndOfFrame _waitUpdate;
-    public float secPerBeat { get; private set; }
-    public float musicPosition { get; private set; }
-    private float _musicPositionInBeats;
+    public double secPerBeat { get; private set; }
+    public double musicPosition { get; private set; }
+    private double _musicPositionInBeats;
     public int completedLoops { get; private set; }
-    private float _lastBeatCount;
-    public float loopPositionInBeats { get; private set; }
+    private double _lastBeatCount;
+    public double loopPositionInBeats { get; private set; }
     public bool isPause { get; private set; }
     private void Start()
     {
@@ -77,7 +77,7 @@ public partial class InGameMusicManager_s //game system
             {
                 completedLoops++;
                 InGameBeatManager_s.Instance.NextBit();
-                Debug.Log("move next bit"+_musicPositionInBeats+"and comple"+completedLoops);
+                Debug.Log(musicPosition);
             }
             loopPositionInBeats = _musicPositionInBeats - completedLoops;
             if(loopPositionInBeats>InGameBeatManager_s.Instance.beatJudgeMax&&_lastBeatCount<completedLoops)

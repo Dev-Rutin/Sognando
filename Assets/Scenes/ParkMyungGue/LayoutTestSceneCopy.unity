@@ -54322,7 +54322,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aefec6266a96bd24798102dba189128d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _bpm: 130
+  _bpm: 100
 --- !u!114 &1486661273
 MonoBehaviour:
   m_ObjectHideFlags: 0

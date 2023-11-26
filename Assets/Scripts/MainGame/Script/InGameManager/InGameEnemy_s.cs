@@ -19,7 +19,6 @@ public partial class InGameEnemy_s : Singleton<InGameEnemy_s>, IInGame//data
     private int _curEnemyATKGaugeCount;
     public EEnemyPhase curEnemyPhase { get; private set; }
     public ECubeFace curPumpTarget { get; private set; }
-    private int _destroyCount;
     private void Start()
     {
         _curEnemyMods = new List<EEnemyMode>();
@@ -54,16 +53,15 @@ public partial class InGameEnemy_s //game system
     public void GameStart()
     {
         _curEnemyMods.Clear();
+        EnemyUI_s.Instance.EnemyHPInitialize(_enemyMaxHP);
         _curEnemyHP = _enemyMaxHP;
         _curEnemyATKGauge = 0;
         _curEnemyATKGaugeCount = 0;
         curEnemyPhase = EEnemyPhase.None;
-        _destroyCount = 0;
-        curPumpTarget = (ECubeFace)_destroyCount;
     }
     public void GamePlay()
     {
-
+        EnemyUI_s.Instance.EnemyHPUpdate(_curEnemyHP);
     }
     public void GameEnd()
     {
@@ -103,10 +101,6 @@ public partial class InGameEnemy_s //game system
                 break;
         }
         curPumpTarget = curPumpTarget+1;
-        if((int)curPumpTarget>=Enum.GetValues(typeof(ECubeFace)).Length)
-        {
-            curPumpTarget = (ECubeFace)_destroyCount;
-        }
     }
     public void ChangeInGameStatus(EInGameStatus changeTarget) //change to changeTarget
     {
@@ -125,7 +119,7 @@ public partial class InGameEnemy_s //game system
                         EnemyPhaseChange(EEnemyPhase.Phase3);
                         break;
                     case EEnemyPhase.Phase3:
-                        EnemyPhaseChange(EEnemyPhase.Phase2);
+                        EnemyPhaseChange(EEnemyPhase.Phase4);
                         break;
                 }
                 break;
@@ -150,25 +144,26 @@ public partial class InGameEnemy_s //game system
     }
     public bool EnemyPatternEndCheck()
     {
+        bool rValue = true;
         foreach(var data in _curEnemyMods)
         {
             switch(data)
             {
                 case EEnemyMode.LINEATTACK:
-                    if(LineAttackPattern.Instance.curLineAttackMod==ELineAttackMode.NONE)
+                    if(LineAttackPattern.Instance.curLineAttackMod!=ELineAttackMode.NONE)
                     {
-                        return true;
+                        rValue = false;
                     }                       
                     break;
                 case EEnemyMode.LINKLINEATTACK:
-                    if (LinkLineAttackPattern.Instance.curLinkLineAttackMode==ELinkLineAttackMode.NONE)
+                    if (LinkLineAttackPattern.Instance.curLinkLineAttackMode!=ELinkLineAttackMode.NONE)
                     {
-                        return true;
+                        rValue = false;
                     }
                     break;
             }
         }
-        return false;
+        return rValue;
     }
     private void DoEnemyMode()
     {
@@ -178,7 +173,21 @@ public partial class InGameEnemy_s //game system
         }
         if (_curEnemyMods.Contains(EEnemyMode.LINEATTACK) && _curEnemyMods.Contains(EEnemyMode.LINKLINEATTACK))
         {
-            _enemyModBinds[UnityEngine.Random.Range(0, 2) == 0 ? EEnemyMode.LINEATTACK : EEnemyMode.LINKLINEATTACK]();
+            if(EnemyPatternEndCheck())
+            {
+                _enemyModBinds[UnityEngine.Random.Range(0, 2) == 0 ? EEnemyMode.LINEATTACK : EEnemyMode.LINKLINEATTACK]();
+            }
+            else
+            {
+                if (LineAttackPattern.Instance.curLineAttackMod != ELineAttackMode.NONE)
+                {
+                    _enemyModBinds[EEnemyMode.LINEATTACK]();
+                }
+                else
+                {
+                    _enemyModBinds[EEnemyMode.LINKLINEATTACK]();
+                }
+            }
         }
         else
         {
@@ -250,7 +259,8 @@ public partial class InGameEnemy_s //data change
     }
     private void EnemyHPDown()
     {
-        _destroyCount++;
+        EnemyUI_s.Instance.EnemyHPDown();
+        EnemyUI_s.Instance.EnemyHPUpdate(_curEnemyHP);
         if (_curEnemyHP <= 0)
         {
             InGameManager_s.Instance.GameOverByEnemy();

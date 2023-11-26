@@ -80,3 +80,9 @@ public enum EEnemyPhase
     Phase3,
     Phase4
 }
+public enum EBeatJudgement
+{
+    Miss,
+    Good,
+    Perfect
+}

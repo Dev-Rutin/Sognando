@@ -1,12 +1,14 @@
 cube.png
-size:1974,1118
+size:1977,1118
 filter:Linear,Linear
 pma:true
 cube
-bounds:2,267,849,983
+bounds:5,267,849,983
 rotate:90
 cubelight
-bounds:987,2,985,1114
+bounds:990,2,985,1114
+white
+bounds:2,1115,1,1
 
 cube_2.png
 size:1823,1823

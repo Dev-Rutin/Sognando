@@ -76,8 +76,8 @@ Material:
     - _QueueOffset: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Color01: {r: 20.387543, g: 4.523559, b: 31.999996, a: 0}
-    - _Color02: {r: 0, g: 0.0037096853, b: 0.0754717, a: 0}
+    - _Color01: {r: 8, g: 5.628527, b: 2.8301888, a: 0}
+    - _Color02: {r: 1, g: 0.2554498, b: 0.10849059, a: 0}
     - _DissolveSpeed: {r: -0.8, g: 0, b: 0, a: 0}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
     - _Main_Tex_speed: {r: -0.9, g: 0, b: 0, a: 0}

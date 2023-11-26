@@ -1,9 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using FMODPlus;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class ResultManager : MonoBehaviour
 {
@@ -15,15 +18,12 @@ public class ResultManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _perfectText;
     [SerializeField] private TextMeshProUGUI _goodText;
     [SerializeField] private TextMeshProUGUI _missText;
-    [SerializeField] private Image _rankImage;
-    [SerializeField] private Sprite[] _ranks;
+    [SerializeField] private CommandSender _scoreSoundSender;
     
     [Header("SceneFade")]
     [SerializeField] private float _fadeTime;
     [SerializeField] private GameObject _fadePenal;
 
-<<<<<<< HEAD
-=======
     [Header("RankParameter")] 
     [SerializeField] private Image _rankImage;
     [SerializeField] private float _scaleLerpTime;
@@ -32,16 +32,17 @@ public class ResultManager : MonoBehaviour
 
     [SerializeField] private GameObject _restartText;
 
-    [SerializeField] private float _maxfloat;
+    [SerializeField] private int _maxCountSpeed;
+    [SerializeField] private int _minCountSpeed;
 
->>>>>>> origin/feature-ResultSceneFix
     private bool _isPenalFading;
 
     private bool _isTextFading;
+
     // Start is called before the first frame update
     void Start()
     {
-        if (!StageDataController.Instance.isClear)
+        /*if (!StageDataController.Instance.isClear)
         {
             _clearText.text = "Fail...";
         }
@@ -51,18 +52,18 @@ public class ResultManager : MonoBehaviour
         _perfectText.text = StageDataController.Instance.perfectCount.ToString();
         _goodText.text = StageDataController.Instance.goodCount.ToString();
         _missText.text = StageDataController.Instance.missCount.ToString();
-        _isPenalFading = true;
-        FadeUtlity.Instance.CallFade(_fadeTime, _fadePenal, EGameObjectType.UI, EFadeType.FadeIn);
+        _isPenalFading = true;*/
+        
+        CalcRank();
+        StartCoroutine(StartCount());
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (_isPenalFading && !_isTextFading && Input.GetKeyDown(KeyCode.Return))
+        /*if (_isPenalFading && !_isTextFading && Input.GetKeyDown(KeyCode.Return))
         {
             SceneManager.LoadScene("GameScene");
-<<<<<<< HEAD
-=======
         }*/
     }
 
@@ -83,7 +84,7 @@ public class ResultManager : MonoBehaviour
         _scoreSoundSender.SendCommand();
         while (Scoredata < maxscore)
         {
-            Scoredata += Random.Range(20, 10);
+            Scoredata += Random.Range(_maxCountSpeed, _minCountSpeed);
             ETCData++;
             if (Scoredata >= maxscore)
             {
@@ -162,7 +163,6 @@ public class ResultManager : MonoBehaviour
         else
         {
             _rankImage.sprite = _ranks[5];
->>>>>>> origin/feature-ResultSceneFix
         }
     }
     

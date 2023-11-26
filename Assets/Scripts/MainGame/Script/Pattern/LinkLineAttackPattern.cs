@@ -22,7 +22,7 @@ public class LinkLineAttackPattern : Singleton<LinkLineAttackPattern>
     private void Start()
     {
         _totalAttackObj = Instantiate(_linkLineAttackPrefab, _linkLineAttackTsf);
-        _totalAttackObj.transform.localPosition = Vector3.zero;
+        _totalAttackObj.transform.localPosition = InGameManager_s.throwVector2;
         _attackDirection = _totalAttackObj.transform.GetChild(0).gameObject;
         _attackObj = _totalAttackObj.transform.GetChild(1).gameObject;
         _warningTile = _totalAttackObj.transform.GetChild(2).gameObject;
@@ -32,6 +32,7 @@ public class LinkLineAttackPattern : Singleton<LinkLineAttackPattern>
     private void GameStart()
     {
         _totalAttackObj.SetActive(false);
+        _totalAttackObj.transform.localPosition = Vector2.zero;
     }
     private void GetRandomeLinkLineAttack()
     {
@@ -87,6 +88,7 @@ public class LinkLineAttackPattern : Singleton<LinkLineAttackPattern>
         else if (_curLinkLineAttackDirection == Vector2.right)
         {
             direction = new Vector2(-150f, 0);
+            _attackDirection.transform.localEulerAngles = new Vector3(0, 0, 0);
         }
         _attackDirection.transform.localPosition = InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform + direction;
         _attackObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform;
@@ -149,7 +151,9 @@ public class LinkLineAttackPattern : Singleton<LinkLineAttackPattern>
                             }
                             _curLinkLineAttackPos += new Vector2Int((int)_curLinkLineAttackDirection.x, (int)_curLinkLineAttackDirection.y);
                             InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack = temp;
-                            _attackObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform;
+                            Vector2 moveTarget = InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform;
+                            StartCoroutine(ObjectAction.MovingObj(_attackObj, moveTarget, InGameMusicManager_s.Instance.secPerBeat*0.5f));
+                            //_attackObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform;
                             if (_curLinkLineAttackPos != _curLinkLineAttackEndPos)
                             {
                                 _warningTile.transform.localPosition =

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+
 public class LineAttackPattern : Singleton<LineAttackPattern>
 {
     [Header("data")]
@@ -22,6 +24,7 @@ public class LineAttackPattern : Singleton<LineAttackPattern>
         {
             _lineAttackObjList.Add(Instantiate(_lineAttackPrefab, _lineAttackTsf));
             _lineAttackParticleList.Add(_lineAttackObjList[i].transform.GetChild(1).GetChild(0).GetComponent<ParticleSystem>());
+            _lineAttackObjList[i].transform.position= InGameManager_s.throwVector2;
         }
         InGameFunBind_s.Instance.EgameStart+= GameStart;
        InGameFunBind_s.Instance.EgameEnd+= GameEnd;

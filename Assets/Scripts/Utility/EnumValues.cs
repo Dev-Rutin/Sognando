@@ -30,3 +30,12 @@ public enum ESettingsValue
     Off,
     On
 }
+
+public enum ERankValue
+{
+    D = 44,
+    C = 59,
+    B = 74,
+    A = 89,
+    S = 100
+}

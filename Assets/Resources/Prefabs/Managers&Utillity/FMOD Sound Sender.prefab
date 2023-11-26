@@ -62,11 +62,11 @@ MonoBehaviour:
   Value: 0
   Clip:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: -890654228
+      Data2: 1143184807
+      Data3: -2029791597
+      Data4: -616678529
+    Path: event:/BGM/BGM_1Stage
   Params: []
   Key: 
   Fade: 0
@@ -83,3 +83,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9129450ccbd94b54b978c191fb479974, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audioType: 0

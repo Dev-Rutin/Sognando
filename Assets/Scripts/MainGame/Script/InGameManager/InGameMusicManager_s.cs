@@ -1,32 +1,38 @@
 using FMOD.Studio;
+using FMODPlus;
 using FMODUnity;
-using Unity.VisualScripting;
-using UnityEditor.Rendering;
+using System.Collections;
 using UnityEngine;
 
 public partial class InGameMusicManager_s : Singleton<InGameMusicManager_s>//data 
 {
     [Header("fmod")]
-    private EventInstance _curMusicEventInstance;
-    private int _getPosition;
+    private int _masterSampleRate;
+    private float _currentSample;
+    private StudioEventEmitter _eventEmitter;
+    private ulong _startDspClock;
+    private ulong _dspClock;
+    private ulong _parent;
+    private FMOD.Channel _requestdChannel;
+    private FMOD.ChannelGroup _channelsGroup;
     [Header("data")]
-    private AudioSource _audioSource;
-    [SerializeField] private AudioClip _musicClip;
     [SerializeField] private int _bpm;
+    private WaitForEndOfFrame _waitUpdate;
     public float secPerBeat { get; private set; }
     public float musicPosition { get; private set; }
     private float _musicPositionInBeats;
     public int completedLoops { get; private set; }
     private float _lastBeatCount;
     public float loopPositionInBeats { get; private set; }
-    private float _pauseValue;
-    private int _previousPausePosition;
     public bool isPause { get; private set; }
     private void Start()
     {
-        _audioSource = GetComponent<AudioSource>();
         secPerBeat = 60f / _bpm;
         isPause = true;
+        _eventEmitter = GetComponent<StudioEventEmitter>();
+        _waitUpdate = new WaitForEndOfFrame();
+        FMODUnity.RuntimeManager.CoreSystem.getSoftwareFormat(out _masterSampleRate, out FMOD.SPEAKERMODE speakerMode, out int numRawSpeakers);
+        SoundUtility.Instance.SFXAudioSource.Stop();
     }
 }
 public partial class InGameMusicManager_s //main system
@@ -46,32 +52,31 @@ public partial class InGameMusicManager_s //main system
         completedLoops = 0;
         _lastBeatCount = 0;
         loopPositionInBeats = 0;
-        _pauseValue = 0;
-        _previousPausePosition = 0;
     }
     public void GamePlay()
     {
-        AudioPlay(_musicClip); //need last
+        AudioPlay(); //need last
     }
     public void GameEnd()
     {
-        AudioStop(_musicClip);//need first   
+        AudioStop();//need first   
     }
 }
 public partial class InGameMusicManager_s //game system
 {
+    int positionTest;
     private void Update()
     {
-        if (!isPause)
+        if (!isPause&&InGameManager_s.Instance.curGameStatus==EGameStatus.PLAYING)
         {
-            _curMusicEventInstance.getTimelinePosition(out _getPosition);
-            musicPosition = (_getPosition*0.001f) - _pauseValue;
+            GetCurrentDSPClock(_channelsGroup, out _dspClock, out _parent);
+            musicPosition = (_currentSample-_startDspClock) / _masterSampleRate;
+            SoundUtility.Instance.BGMAudioSource.EventInstance.getTimelinePosition(out positionTest);
             _musicPositionInBeats = musicPosition / secPerBeat;
             if (_musicPositionInBeats >= (completedLoops + 1))
             {
                 completedLoops++;
                 InGameBeatManager_s.Instance.NextBit();
-                EnemyUI_s.Instance.PumpHP(InGameEnemy_s.Instance.curPumpTarget);
             }
             loopPositionInBeats = _musicPositionInBeats - completedLoops;
             if(loopPositionInBeats>InGameBeatManager_s.Instance.beatJudgeMax&&_lastBeatCount<completedLoops)
@@ -81,27 +86,86 @@ public partial class InGameMusicManager_s //game system
             }
         }
     }
-    public void AudioPlay(AudioClip clip)
+    public void AudioPlay()
     {
-        GetComponent<StudioEventEmitter>().Play();
-        isPause = false;
-        _curMusicEventInstance = GetComponent<StudioEventEmitter>().EventInstance;
+        _eventEmitter.Play();
+        StartCoroutine(GetChannelAndStart());
     }
-    public void AudioStop(AudioClip clip)
+    IEnumerator GetChannelAndStart()
     {
-        GetComponent<StudioEventEmitter>().Stop();
+        while (ReturnEventChannel(_eventEmitter, out _requestdChannel, out _channelsGroup)!=FMOD.RESULT.OK)
+        {
+            yield return _waitUpdate;
+        }
+        GetCurrentDSPClock(_channelsGroup, out _dspClock, out _parent);
+        _startDspClock = _dspClock;
+        isPause = false;
+    }
+    public void AudioStop()
+    {
+        _eventEmitter.Stop();
     }
     public void AudioPause()
     {
-        _previousPausePosition = _getPosition;
-        GetComponent<StudioEventEmitter>().EventInstance.setPaused(true);
-        isPause = true ;
+        _channelsGroup.setPaused(true);
+        GetCurrentDSPClock(_channelsGroup, out _dspClock, out _parent);
+        isPause = true;
     }
     public void AudioUnPause()
     {
-        GetComponent<StudioEventEmitter>().EventInstance.setTimelinePosition((_previousPausePosition));
-        GetComponent<StudioEventEmitter>().EventInstance.setPaused(false);
+        _requestdChannel.setPosition((uint)_dspClock, FMOD.TIMEUNIT.PCM);
+        _channelsGroup.setPaused(false);
         isPause = false;
     }
     public void ChangeVolume(float volume) { }
+
+    private FMOD.RESULT ReturnEventChannel(FMODUnity.StudioEventEmitter eventEmitter, out FMOD.Channel requestedChannel, out FMOD.ChannelGroup channelsGroup)
+    {
+        requestedChannel = new FMOD.Channel();
+        channelsGroup = new FMOD.ChannelGroup();
+
+        FMOD.RESULT result = eventEmitter.EventInstance.getChannelGroup(out FMOD.ChannelGroup newgroup);
+
+        //Checking at every step if there is an error which will return a invalid result 
+        if (result != FMOD.RESULT.OK)
+        {
+            Debug.Log("Failed to retrieeve parent channel group with error: " + result);
+            return result;
+        }
+
+        result = newgroup.getGroup(0, out channelsGroup);
+
+        if (result != FMOD.RESULT.OK)
+        {
+            Debug.Log("Failed to retrieve child channel group with error: " + result);
+            return result;
+        }
+
+        result = channelsGroup.getChannel(0, out requestedChannel);
+
+        if (result == FMOD.RESULT.OK)
+        {
+            Debug.Log("Retrieved the correct channel");
+            return result;
+        }
+        else
+        {
+            Debug.Log("Failed to find the right channel with error: " + result);
+            return result;
+        }
+    }
+    private FMOD.RESULT GetCurrentDSPClock(FMOD.ChannelGroup cG, out ulong dspClock, out ulong parent)
+    {
+        FMOD.RESULT result = cG.getDSPClock(out dspClock, out parent);
+
+        if (result != FMOD.RESULT.OK)
+        {
+            Debug.Log("Failed to retrieve DSP clock with error: " + result);
+            dspClock = 0;
+            parent = 0;
+            return result;
+        }
+        _currentSample = _dspClock;
+        return result;
+    }
 }

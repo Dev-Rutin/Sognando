@@ -85,6 +85,7 @@ public partial class InGameCube_s//game system
                         _rotateSpriteRendererTsf.localEulerAngles = new Vector3(0, 0, 90);
                         break;
                     case ERotatePosition.LEFT:
+                        _rotateSpriteRendererTsf.localEulerAngles = new Vector3(0, 0, 0);
                         break;
                     case ERotatePosition.RIGHT:
                         _rotateSpriteRendererTsf.localEulerAngles = new Vector3(0, 0, 180);
@@ -104,6 +105,7 @@ public partial class InGameCube_s //rotate
 {
     public bool RotateCube(Vector3 rotateposition)
     {
+        Debug.Log("rotateInput first = " + DataConverter.GetERotatePositionToVec3(_rotateTarget) + "and =" + rotateposition);
         if (DataConverter.GetERotatePositionToVec3(_rotateTarget)==rotateposition)
         {
             return true;

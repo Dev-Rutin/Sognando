@@ -17,9 +17,8 @@ public partial class InGameEnemy_s : Singleton<InGameEnemy_s>, IInGame//data
     [SerializeField] private int _enemyAttackGaugeMax;
     private int _curEnemyATKGauge;
     private int _curEnemyATKGaugeCount;
-    [SerializeField]private EEnemyPhase _curEnemyPhase;
+    public EEnemyPhase curEnemyPhase { get; private set; }
     public ECubeFace curPumpTarget { get; private set; }
-    private int _destroyCount;
     private void Start()
     {
         _curEnemyMods = new List<EEnemyMode>();
@@ -54,16 +53,15 @@ public partial class InGameEnemy_s //game system
     public void GameStart()
     {
         _curEnemyMods.Clear();
+        EnemyUI_s.Instance.EnemyHPInitialize(_enemyMaxHP);
         _curEnemyHP = _enemyMaxHP;
         _curEnemyATKGauge = 0;
         _curEnemyATKGaugeCount = 0;
-        _curEnemyPhase = EEnemyPhase.None;
-        _destroyCount = 0;
-        curPumpTarget = (ECubeFace)_destroyCount;
+        curEnemyPhase = EEnemyPhase.None;
     }
     public void GamePlay()
     {
-        EnemyUI_s.Instance.HPReset();
+        EnemyUI_s.Instance.EnemyHPUpdate(_curEnemyHP);
     }
     public void GameEnd()
     {
@@ -103,17 +101,13 @@ public partial class InGameEnemy_s //game system
                 break;
         }
         curPumpTarget = curPumpTarget+1;
-        if((int)curPumpTarget>=Enum.GetValues(typeof(ECubeFace)).Length)
-        {
-            curPumpTarget = (ECubeFace)_destroyCount;
-        }
     }
     public void ChangeInGameStatus(EInGameStatus changeTarget) //change to changeTarget
     {
         switch (changeTarget)
         {
             case EInGameStatus.SHOWPATH:
-                switch(_curEnemyPhase)
+                switch(curEnemyPhase)
                 {
                     case EEnemyPhase.None:
                         EnemyPhaseChange(EEnemyPhase.Ghost);
@@ -125,7 +119,7 @@ public partial class InGameEnemy_s //game system
                         EnemyPhaseChange(EEnemyPhase.Phase3);
                         break;
                     case EEnemyPhase.Phase3:
-                        EnemyPhaseChange(EEnemyPhase.Phase2);
+                        EnemyPhaseChange(EEnemyPhase.Phase4);
                         break;
                 }
                 break;
@@ -150,25 +144,26 @@ public partial class InGameEnemy_s //game system
     }
     public bool EnemyPatternEndCheck()
     {
+        bool rValue = true;
         foreach(var data in _curEnemyMods)
         {
             switch(data)
             {
                 case EEnemyMode.LINEATTACK:
-                    if(LineAttackPattern.Instance.curLineAttackMod==ELineAttackMode.NONE)
+                    if(LineAttackPattern.Instance.curLineAttackMod!=ELineAttackMode.NONE)
                     {
-                        return true;
+                        rValue = false;
                     }                       
                     break;
                 case EEnemyMode.LINKLINEATTACK:
-                    if (LinkLineAttackPattern.Instance.curLinkLineAttackMode==ELinkLineAttackMode.NONE)
+                    if (LinkLineAttackPattern.Instance.curLinkLineAttackMode!=ELinkLineAttackMode.NONE)
                     {
-                        return true;
+                        rValue = false;
                     }
                     break;
             }
         }
-        return false;
+        return rValue;
     }
     private void DoEnemyMode()
     {
@@ -178,7 +173,21 @@ public partial class InGameEnemy_s //game system
         }
         if (_curEnemyMods.Contains(EEnemyMode.LINEATTACK) && _curEnemyMods.Contains(EEnemyMode.LINKLINEATTACK))
         {
-            _enemyModBinds[UnityEngine.Random.Range(0, 2) == 0 ? EEnemyMode.LINEATTACK : EEnemyMode.LINKLINEATTACK]();
+            if(EnemyPatternEndCheck())
+            {
+                _enemyModBinds[UnityEngine.Random.Range(0, 2) == 0 ? EEnemyMode.LINEATTACK : EEnemyMode.LINKLINEATTACK]();
+            }
+            else
+            {
+                if (LineAttackPattern.Instance.curLineAttackMod != ELineAttackMode.NONE)
+                {
+                    _enemyModBinds[EEnemyMode.LINEATTACK]();
+                }
+                else
+                {
+                    _enemyModBinds[EEnemyMode.LINKLINEATTACK]();
+                }
+            }
         }
         else
         {
@@ -235,7 +244,7 @@ public partial class InGameEnemy_s //game system
             default:
                 break;
         }
-        _curEnemyPhase = target;
+        curEnemyPhase = target;
     }
 }
 public partial class InGameEnemy_s //data change
@@ -250,8 +259,8 @@ public partial class InGameEnemy_s //data change
     }
     private void EnemyHPDown()
     {
-        EnemyUI_s.Instance.EnemyHPDown(InGameCube_s.Instance.curFace);
-        _destroyCount++;
+        EnemyUI_s.Instance.EnemyHPDown();
+        EnemyUI_s.Instance.EnemyHPUpdate(_curEnemyHP);
         if (_curEnemyHP <= 0)
         {
             InGameManager_s.Instance.GameOverByEnemy();
@@ -277,20 +286,26 @@ public partial class InGameEnemy_s //pattern
             }
         }
     }
+    public void SetObj(string dataName, GameObject instTarget, bool isStack, Transform parent,Vector2Int position)
+    {
+        int x = position.x;
+        int y = position.y;
+        if (new Vector2(x, y) == InGamePlayer_s.Instance.playerPos || !InGameSideData_s.Instance.sideDatas[x, y].isCanMakeCheck(isStack, dataName))
+        {
+            return;
+        }
+        else
+        {
+            GameObject instObj = Instantiate(instTarget, parent);
+            instObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[x, y].transform;
+            TypedReference tr = __makeref(InGameSideData_s.Instance.sideDatas[x, y]);
+            InGameSideData_s.Instance.sideDatas[x, y].GetType().GetField(dataName).SetValueDirect(tr, instObj);
+        }
+    }
     public void GetRandomeObjs(string dataName, GameObject instTarget, bool isStack, Transform parent, int makeCount)
     {
         for (int i = 0; i < makeCount; i++)
         {
-            if (_curEnemyPhase == EEnemyPhase.Ghost && i == 0 && dataName == "noise")
-            {
-                int x = 2;
-                int y = 1;
-                GameObject instObj = Instantiate(instTarget, parent);
-                instObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[x, y].transform;
-                TypedReference tr = __makeref(InGameSideData_s.Instance.sideDatas[x, y]);
-                InGameSideData_s.Instance.sideDatas[x, y].GetType().GetField(dataName).SetValueDirect(tr, instObj);
-                continue;
-            }
             bool isCreate = false;
             int block = 0;
             while (!isCreate)

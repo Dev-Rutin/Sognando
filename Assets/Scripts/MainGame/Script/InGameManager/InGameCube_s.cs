@@ -10,20 +10,18 @@ public partial class InGameCube_s : Singleton<InGameCube_s>, IInGame //data
     [SerializeField] private Transform _gameCubeTsf;
     [SerializeField] private GameObject _cubeSideUI;
     public ECubeFace curFace { get; private set; }
-    private Queue<ERotatePosition> _rotateQueue;
+    //private Queue<ERotatePosition> _rotateQueue;
     private ERotatePosition _rotateTarget;
-    private Sprite _rotateTargetImage;
-    [SerializeField] private SpriteRenderer _rotateSprite;
-    [SerializeField] private Sprite _upImage;
-    [SerializeField] private Sprite _downImage;
-    [SerializeField] private Sprite _leftImage;
-    [SerializeField] private Sprite _rightImage;
+    [SerializeField] private Transform _rotateSpriteRendererTsf;
+    private SpriteRenderer _rotateSpriteRenderer;
+    [SerializeField] private Sprite _rotateSprite;
     [SerializeField] private float _rotateTime;
     private WaitForEndOfFrame _waitUpdate;
     private void Start()
     {
-        _rotateQueue = new Queue<ERotatePosition>();
+        //_rotateQueue = new Queue<ERotatePosition>();
         _waitUpdate = new WaitForEndOfFrame();
+        _rotateSpriteRenderer = _rotateSpriteRendererTsf.GetComponent<SpriteRenderer>();
     }
 }
 public partial class InGameCube_s//game system
@@ -38,19 +36,19 @@ public partial class InGameCube_s//game system
     }
     public void GameStart()
     {
-        _rotateQueue.Clear();
+        /*_rotateQueue.Clear();
         _rotateQueue.Enqueue(ERotatePosition.RIGHT); //need fun
         _rotateQueue.Enqueue(ERotatePosition.UP);
         _rotateQueue.Enqueue(ERotatePosition.UP);
         _rotateQueue.Enqueue(ERotatePosition.UP);
-        _rotateQueue.Enqueue(ERotatePosition.RIGHT);
+        _rotateQueue.Enqueue(ERotatePosition.RIGHT);*/
         _rotateTarget = ERotatePosition.NONE;
     }
     public void GamePlay()
     {
         _gameCubeTsf.localEulerAngles = Vector3.zero;
         _cubeSideUI.SetActive(true);
-        _rotateSprite.sprite = null;
+        _rotateSpriteRenderer.sprite = null;
     }
     public void GameEnd()
     {
@@ -73,28 +71,25 @@ public partial class InGameCube_s//game system
                 break;
             case EInGameStatus.CUBEROTATE:
                 _cubeSideUI.SetActive(false);
-                if (_rotateQueue.Count != 0)
+                /*if (_rotateQueue.Count != 0)
                 {
                     _rotateTarget = _rotateQueue.Dequeue();
-                    switch (_rotateTarget)
-                    {
-                        case ERotatePosition.UP:
-                            _rotateTargetImage = _upImage;
-                            break;
-                        case ERotatePosition.DOWN:
-                            _rotateTargetImage = _downImage;
-                            break;
-                        case ERotatePosition.LEFT:
-                            _rotateTargetImage = _leftImage;
-                            break;
-                        case ERotatePosition.RIGHT:
-                            _rotateTargetImage = _rightImage;
-                            break;
-                    }
-                }
-                else
+                }*/
+                GetRandomeRotate();
+                switch (_rotateTarget)
                 {
-                    GetRandomeRotate();
+                    case ERotatePosition.UP:
+                        _rotateSpriteRendererTsf.localEulerAngles = new Vector3(0, 0, -90);
+                        break;
+                    case ERotatePosition.DOWN:
+                        _rotateSpriteRendererTsf.localEulerAngles = new Vector3(0, 0, 90);
+                        break;
+                    case ERotatePosition.LEFT:
+                        _rotateSpriteRendererTsf.localEulerAngles = new Vector3(0, 0, 0);
+                        break;
+                    case ERotatePosition.RIGHT:
+                        _rotateSpriteRendererTsf.localEulerAngles = new Vector3(0, 0, 180);
+                        break;
                 }
                 StartCoroutine(ShowRotateImage());
                 StartCoroutine(RotateTimeLock(DataConverter.GetERotatePositionToVec3(_rotateTarget)));
@@ -110,6 +105,7 @@ public partial class InGameCube_s //rotate
 {
     public bool RotateCube(Vector3 rotateposition)
     {
+        Debug.Log("rotateInput first = " + DataConverter.GetERotatePositionToVec3(_rotateTarget) + "and =" + rotateposition);
         if (DataConverter.GetERotatePositionToVec3(_rotateTarget)==rotateposition)
         {
             return true;
@@ -118,7 +114,7 @@ public partial class InGameCube_s //rotate
     }
     private IEnumerator RotateTimeLock(Vector3 rotateposition)
     {
-        DoremiUI_s.Instance.SingleDoremiAnimation("ready", true);
+        DoremiUI_s.Instance.SingleDoremiAnimation("ready",true);
         while (InGameManager_s.Instance.curInGameStatus == EInGameStatus.CUBEROTATE)
         {
             yield return _waitUpdate;
@@ -134,15 +130,15 @@ public partial class InGameCube_s //rotate
     }
     IEnumerator ShowRotateImage()
     {
-        _rotateSprite.sprite = _rotateTargetImage;
+        _rotateSpriteRenderer.sprite = _rotateSprite;
         float waitTime = InGameManager_s.Instance.beatFreezeCount * InGameMusicManager_s.Instance.secPerBeat;
-        StartCoroutine(ObjectAction.ImageFade(_rotateSprite, waitTime,false,1));
+        StartCoroutine(ObjectAction.ImageFade(_rotateSpriteRenderer, InGameMusicManager_s.Instance.secPerBeat, false,1,0, InGameManager_s.Instance.beatFreezeCount));
         float startTime = InGameMusicManager_s.Instance.musicPosition;
         while (InGameMusicManager_s.Instance.musicPosition - startTime <= waitTime)
         {
             yield return _waitUpdate;
         }
-        _rotateSprite.sprite = null;
+        _rotateSpriteRenderer.sprite = null;
     }
     private void GetRandomeRotate()
     {

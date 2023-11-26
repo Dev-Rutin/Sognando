@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
@@ -9,6 +10,12 @@ public class NoisePattern_s : Singleton<NoisePattern_s>
     [SerializeField]private GameObject _noisePrefab;
     [SerializeField] private Transform _noiseTsf;
     [SerializeField] private int _noiseCreateCount;
+    public void GetFirstNoisePattern()
+    {
+        InGameEnemy_s.Instance.SetObj("noise", _noisePrefab, false, _noiseTsf, new Vector2Int(2, 1));
+        InGameEnemy_s.Instance.SetObj("noise", _noisePrefab, false, _noiseTsf, new Vector2Int(1, 2));
+        InGameEnemy_s.Instance.SetObj("noise", _noisePrefab, false, _noiseTsf, new Vector2Int(3, 3));
+    }
     public void GetNoisePattern()
     {
         InGameEnemy_s.Instance.GetRandomeObjs("noise", _noisePrefab, false, _noiseTsf, _noiseCreateCount);
@@ -22,7 +29,14 @@ public class NoisePattern_s : Singleton<NoisePattern_s>
     {
         if (status == EInGameStatus.SHOWPATH)
         {
-            GetNoisePattern();
+            if (InGameEnemy_s.Instance.curEnemyPhase == EEnemyPhase.Ghost)
+            {
+                GetFirstNoisePattern();
+            }
+            else
+            {
+                GetNoisePattern();
+            }
         }
     }
     public bool isPatternEnd()

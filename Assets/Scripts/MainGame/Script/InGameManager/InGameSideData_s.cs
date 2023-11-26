@@ -25,21 +25,7 @@ public class InGameSideData_s: Singleton<InGameSideData_s> // side data
         {
             for (int j = 0; j < divideSize.y; j++)
             {
-                sideDatas[i, j] = new SideData(new Vector2(i, j), new Vector2((CubePivot.x + xChange / 2) + i * xChange, (CubePivot.y - yChange / 2) - j * yChange));
-            }
-        }
-    }
-    public void InGameBind()
-    {
-        InGameFunBind_s.Instance.EgameEnd+=GameEnd;
-    }
-    public void GameEnd()
-    {
-        for (int i = 0; i < divideSize.x; i++)
-        {
-            for (int j = 0; j < divideSize.y; j++)
-            {
-                //sideDatas[i, j].Clear();
+                 sideDatas[i, j] = new SideData(new Vector2(i, j), new Vector2((CubePivot.x + xChange / 2) + i * xChange, (CubePivot.y - yChange / 2) - j * yChange));
             }
         }
     }

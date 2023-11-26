@@ -1,4 +1,5 @@
 using FMOD;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,12 +13,19 @@ public partial class InGamePlayer_s : Singleton<InGamePlayer_s>, IInGame//data
     [SerializeField] private float _movingTime;
     [SerializeField] private int _playerMaxHP;
     [SerializeField]private int _curPlayerHP;
-    private EPlayerAttackLevel _playerAttackLevel;
     private bool _isGracePeriod;
     private int _playerHitBlock;
-    [SerializeField] private ParticleSystem _moveEffect;
+    [SerializeField] private ParticleSystem _moveEffectGood;
     [SerializeField] private ParticleSystem _noiseDissolveEffect;
     [SerializeField] private Image _flickerImage;
+
+    [Header("player attack")]
+    private EPlayerAttackLevel _playerAttackLevel;
+    [SerializeField] int _attackIncreaseRequireValue;
+    [SerializeField] int _perfectAttackIncreaseValue;
+    [SerializeField] int _goodAttackIncreaseValue;
+    private int _curAttackIncreaseValue;
+
     private void Start()
     {
         _playerImage = _playerObj.GetComponent<Image>();
@@ -40,13 +48,15 @@ public partial class InGamePlayer_s//game system
         _playerAttackLevel = EPlayerAttackLevel.ONE;
         _isGracePeriod = false;
         _playerHitBlock = 0;
+        _curAttackIncreaseValue = 0;
     }
     public void GamePlay()
     {
         ObjectAction.ImageAlphaChange(_flickerImage, 0);
+        PlayerUI_s.Instance.PlayerHPInitialize(_playerMaxHP);
         PlayerUI_s.Instance.PlayerHPUpdate(_curPlayerHP);
         _playerObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[playerPos.x, playerPos.y].transform;
-        PlayerUI_s.Instance.AttackChange(_playerAttackLevel);
+        PlayerUI_s.Instance.StopAttackParticle();
         DoremiUI_s.Instance.SingleDoremiAnimation("idle",true);
 
     }
@@ -59,6 +69,7 @@ public partial class InGamePlayer_s//game system
         switch (curInGameStatus)
         {
             case EInGameStatus.SHOWPATH:
+                DoremiUI_s.Instance.SingleDoremiAnimation("idle", true);
                 break;
             case EInGameStatus.PLAYERMOVE:
                 if (_isGracePeriod && _playerHitBlock == 0)
@@ -84,7 +95,9 @@ public partial class InGamePlayer_s//game system
         switch(changeTarget)
         {
             case EInGameStatus.SHOWPATH:
-                AttackChange(InGameManager_s.Instance.curStage);
+                _curAttackIncreaseValue = 0;
+                _playerAttackLevel = EPlayerAttackLevel.NONE;
+                AttackLevelIncrease();
                 break;
             case EInGameStatus.CUBEROTATE:
                 if (_isGracePeriod)
@@ -96,11 +109,10 @@ public partial class InGamePlayer_s//game system
                 break;
             case EInGameStatus.TIMEWAIT:
                 MovePlayer(new Vector2Int(playerPos.x * -1, playerPos.y * -1), InGameSideData_s.Instance.divideSize);
-                if (KeyInputManager_s.Instance.cubeRotateClear)
-                {
-                    UpdatePlayerHP(1);
-                }
+                PlayerUI_s.Instance.ShowAttackParticle(_playerAttackLevel);
                 PlayerUI_s.Instance.PlayerAttack();
+                break;
+            default:
                 break;
         }
     }
@@ -132,9 +144,9 @@ public partial class InGamePlayer_s  //move
     {
         StartCoroutine(ObjectAction.MovingObj(_playerObj, InGameSideData_s.Instance.sideDatas[playerPos.x, playerPos.y].transform, _movingTime));
         yield return new WaitForSeconds(_movingTime);
-        _moveEffect.Play();
+        _moveEffectGood.Play();
         PlayerPositionCheck();
-        StartCoroutine(InGameCube_s.Instance.QuakeCube(0.1f));
+        //StartCoroutine(InGameCube_s.Instance.QuakeCube(0.1f));
         StartCoroutine(ObjectAction.ImageFade(_flickerImage, 0.05f, true,0,1));
         yield return new WaitForSeconds(0.05f);
         StartCoroutine(ObjectAction.ImageFade(_flickerImage, 0.05f, true,1,0));
@@ -151,23 +163,32 @@ public partial class InGamePlayer_s  //move
 }
 public partial class InGamePlayer_s  //data change
 {
-    public void AttackChange(EStage stage)
+    public void AttackValueIncrease(EBeatJudgement count)
     {
-        switch(stage)
+        if (_playerAttackLevel != EPlayerAttackLevel.THREE)
         {
-            case EStage.STAGE_ONE:
-                _playerAttackLevel = EPlayerAttackLevel.ONE;
-                PlayerUI_s.Instance.AttackChange(_playerAttackLevel);
-                break;
-            case EStage.STAGE_THREE:
-                _playerAttackLevel = EPlayerAttackLevel.TWO;
-                PlayerUI_s.Instance.AttackChange(_playerAttackLevel);
-                break;
-            case EStage.STAGE_FIVE:
-                _playerAttackLevel = EPlayerAttackLevel.THREE;
-                PlayerUI_s.Instance.AttackChange(_playerAttackLevel);
-                break;
+            switch (count)
+            {
+                case EBeatJudgement.Good:
+                    _curAttackIncreaseValue += _goodAttackIncreaseValue;
+                    break;
+                case EBeatJudgement.Perfect:
+                    _curAttackIncreaseValue += _perfectAttackIncreaseValue;
+                    break;
+                default:
+                    break;
+            }
+            if (_curAttackIncreaseValue >= _attackIncreaseRequireValue)
+            {
+                AttackLevelIncrease();
+                _curAttackIncreaseValue = 0;
+            }
         }
+    }
+    private void AttackLevelIncrease()
+    {
+        _playerAttackLevel = _playerAttackLevel.GetMoveNext();
+        PlayerUI_s.Instance.ShowAttackGuage(_playerAttackLevel);
     }
     public void UpdatePlayerHP(int changeValue)
     {

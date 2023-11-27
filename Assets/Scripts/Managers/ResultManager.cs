@@ -12,14 +12,14 @@ public class ResultManager : MonoBehaviour
 {
     [Header("Score")] 
     [SerializeField] private float _textFadeTime;
-    [SerializeField] private TextMeshProUGUI _clearText;
+    [SerializeField] private GameObject _clearLabel;
+    [SerializeField] private GameObject _gameoverLabel;
     [SerializeField] private TextMeshProUGUI _scoreText;
     [SerializeField] private TextMeshProUGUI _maxComboText;
     [SerializeField] private TextMeshProUGUI _perfectText;
     [SerializeField] private TextMeshProUGUI _goodText;
     [SerializeField] private TextMeshProUGUI _missText;
-    [SerializeField] private CommandSender _scoreSoundSender;
-    
+
     [Header("SceneFade")]
     [SerializeField] private float _fadeTime;
     [SerializeField] private GameObject _fadePenal;
@@ -81,7 +81,6 @@ public class ResultManager : MonoBehaviour
         int maxPerfect = Int32.Parse(_perfectText.text);
         int maxGood = Int32.Parse(_goodText.text);
         int maxMiss = Int32.Parse(_missText.text);
-        _scoreSoundSender.SendCommand();
         while (Scoredata < maxscore)
         {
             Scoredata += Random.Range(_maxCountSpeed, _minCountSpeed);
@@ -122,7 +121,7 @@ public class ResultManager : MonoBehaviour
         Vector3 targetScale = new Vector3(1, 1, 1);
         Vector3 startVector = imageScale;
         float time = 0;
-        _rankSoundSender.SendCommand();
+        
         while (imageScale != targetScale)
         {
             time += Time.deltaTime;
@@ -130,6 +129,7 @@ public class ResultManager : MonoBehaviour
             _rankImage.rectTransform.localScale = imageScale;
             yield return null;;
         }
+        _rankSoundSender.SendCommand();
         
         FadeUtlity.Instance.BlinkUI(_textFadeTime, _restartText);
     }

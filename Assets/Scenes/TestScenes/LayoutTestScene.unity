@@ -2278,6 +2278,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2918377789465786593, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6972671967979178766, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7373597597807372714, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.3
@@ -2322,9 +2330,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: BackGround
       objectReference: {fileID: 0}
+    - target: {fileID: 8130927101209298512, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603629094926510648, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8986980793160241588, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
       propertyPath: _notationLight
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 9054401357746610472, guid: bcf0d35cc02c21f46b81c36f94ae4b1a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2481,7 +2501,7 @@ SpriteRenderer:
   m_Size: {x: 14.200001, y: 21.605946}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &1852361952
@@ -24551,6 +24571,9 @@ MonoBehaviour:
   _moveEffectGood: {fileID: 0}
   _noiseDissolveEffect: {fileID: 0}
   _flickerImage: {fileID: 0}
+  _attackIncreaseRequireValue: 0
+  _perfectAttackIncreaseValue: 0
+  _goodAttackIncreaseValue: 0
 --- !u!224 &3589389717673433590
 RectTransform:
   m_ObjectHideFlags: 0
@@ -44841,9 +44864,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aefec6266a96bd24798102dba189128d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _bgmSender: {fileID: 0}
-  _musicClip: {fileID: 0}
   _bpm: 0
+  _offset: 0
 --- !u!4 &5112904983034898081
 Transform:
   m_ObjectHideFlags: 0

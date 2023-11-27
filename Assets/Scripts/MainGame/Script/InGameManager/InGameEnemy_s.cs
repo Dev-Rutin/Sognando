@@ -31,6 +31,8 @@ public partial class InGameEnemy_s : Singleton<InGameEnemy_s>, IInGame//data
         EnemyModBind(ref _enemyModBinds, EEnemyMode.NOISE,()=> NoisePattern_s.Instance.Action(InGameManager_s.Instance.curInGameStatus));
         EnemyModBind(ref _enemyModBinds, EEnemyMode.LINEATTACK, ()=>LineAttackPattern.Instance.Action(InGameManager_s.Instance.curInGameStatus,EnemyPhaseEndCheck(),(EnemyPatternEndCheck()&&_curEnemyATKGauge==_enemyAttackGaugeMax)||!EnemyPatternEndCheck()));
         EnemyModBind(ref _enemyModBinds, EEnemyMode.LINKLINEATTACK, ()=>LinkLineAttackPattern.Instance.Action(InGameManager_s.Instance.curInGameStatus, EnemyPhaseEndCheck(), EnemyPatternEndCheck() && _curEnemyATKGauge == _enemyAttackGaugeMax || !EnemyPatternEndCheck()));
+        EnemyModBind(ref _enemyModBinds, EEnemyMode.CROSSATTACK, () => CrossAttackPattern.Instance.Action(InGameManager_s.Instance.curInGameStatus, EnemyPhaseEndCheck(), (EnemyPatternEndCheck() && _curEnemyATKGauge == _enemyAttackGaugeMax) || !EnemyPatternEndCheck()));
+
     }
     public void EnemyModBind<T>(ref Dictionary<T, Action> binddic, T mod, Action action)
     {
@@ -161,6 +163,14 @@ public partial class InGameEnemy_s //game system
                         rValue = false;
                     }
                     break;
+                case EEnemyMode.CROSSATTACK:
+                    if (CrossAttackPattern.Instance.curCrossAttackMod != ELineAttackMode.NONE)
+                    {
+                        rValue = false;
+                    }
+                    break;
+                default:
+                    break;
             }
         }
         return rValue;
@@ -171,11 +181,25 @@ public partial class InGameEnemy_s //game system
         {
             _enemyModBinds[EEnemyMode.NOISE]();
         }
-        if (_curEnemyMods.Contains(EEnemyMode.LINEATTACK) && _curEnemyMods.Contains(EEnemyMode.LINKLINEATTACK))
+        if (_curEnemyMods.Contains(EEnemyMode.LINEATTACK) && _curEnemyMods.Contains(EEnemyMode.LINKLINEATTACK)&& _curEnemyMods.Contains(EEnemyMode.CROSSATTACK))
         {
             if(EnemyPatternEndCheck())
             {
-                _enemyModBinds[UnityEngine.Random.Range(0, 2) == 0 ? EEnemyMode.LINEATTACK : EEnemyMode.LINKLINEATTACK]();
+                int count = UnityEngine.Random.Range(0, 3);
+                switch(count)
+                {
+                    case 0:
+                        _enemyModBinds[EEnemyMode.LINEATTACK]();
+                        break;
+                    case 1:
+                        _enemyModBinds[EEnemyMode.LINKLINEATTACK]();
+                        break;
+                    case 2:
+                        _enemyModBinds[EEnemyMode.CROSSATTACK]();
+                        break;
+                    default:
+                        break;
+                }
             }
             else
             {
@@ -183,9 +207,13 @@ public partial class InGameEnemy_s //game system
                 {
                     _enemyModBinds[EEnemyMode.LINEATTACK]();
                 }
-                else
+                else if(LinkLineAttackPattern.Instance.curLinkLineAttackMode != ELinkLineAttackMode.NONE)
                 {
                     _enemyModBinds[EEnemyMode.LINKLINEATTACK]();
+                }
+                if (CrossAttackPattern.Instance.curCrossAttackMod != ELineAttackMode.NONE)
+                {
+                    _enemyModBinds[EEnemyMode.CROSSATTACK]();
                 }
             }
         }
@@ -198,6 +226,10 @@ public partial class InGameEnemy_s //game system
             if (_curEnemyMods.Contains(EEnemyMode.LINKLINEATTACK))
             {
                 _enemyModBinds[EEnemyMode.LINKLINEATTACK]();
+            }
+            if (_curEnemyMods.Contains(EEnemyMode.CROSSATTACK))
+            {
+                _enemyModBinds[EEnemyMode.CROSSATTACK]();
             }
         }
         if (_curEnemyATKGauge >= _enemyAttackGaugeMax)
@@ -225,21 +257,11 @@ public partial class InGameEnemy_s //game system
                 _curEnemyMods.Remove(EEnemyMode.GHOST);
                 break;
             case EEnemyPhase.Phase2:
-                if (_curEnemyMods.Contains(EEnemyMode.LINEATTACK))
-                {
-                    _curEnemyMods.Remove(EEnemyMode.LINEATTACK);
-                }
-                _curEnemyMods.Add(EEnemyMode.LINKLINEATTACK);
+                _curEnemyMods.Add(EEnemyMode.CROSSATTACK);
                 break;
             case EEnemyPhase.Phase3:
-                if (_curEnemyMods.Contains(EEnemyMode.LINKLINEATTACK))
-                {
-                    _curEnemyMods.Remove(EEnemyMode.LINKLINEATTACK);
-                }
-                _curEnemyMods.Add(EEnemyMode.LINEATTACK);
-                break;
-            case EEnemyPhase.Phase4:
                 _curEnemyMods.Add(EEnemyMode.LINKLINEATTACK);
+                _curEnemyMods.Add(EEnemyMode.LINEATTACK);
                 break;
             default:
                 break;
@@ -281,6 +303,13 @@ public partial class InGameEnemy_s //pattern
         if (_curEnemyMods.Contains(EEnemyMode.LINKLINEATTACK))
         {
             if (InGameSideData_s.Instance.sideDatas[playerPos.x, playerPos.y].linkLineAttack != null && LinkLineAttackPattern.Instance.curLinkLineAttackMode == ELinkLineAttackMode.ATTACK)
+            {
+                InGamePlayer_s.Instance.UpdatePlayerHP(-1);
+            }
+        }
+        if(_curEnemyMods.Contains(EEnemyMode.CROSSATTACK))
+        {
+            if (InGameSideData_s.Instance.sideDatas[playerPos.x, playerPos.y].crossAttack != null && CrossAttackPattern.Instance.curCrossAttackMod == ELineAttackMode.ATTACK)
             {
                 InGamePlayer_s.Instance.UpdatePlayerHP(-1);
             }

@@ -120,8 +120,8 @@ public partial class InGameCube_s //rotate
             yield return _waitUpdate;
         }
         CubeUI_s.Instance.ShowEffect(curFace);
-        float startTime = InGameMusicManager_s.Instance.musicPosition;
-        float waitTime = InGameManager_s.Instance.beatFreezeCount * InGameMusicManager_s.Instance.secPerBeat;
+        double startTime = InGameMusicManager_s.Instance.musicPosition;
+        double waitTime = InGameManager_s.Instance.beatFreezeCount * InGameMusicManager_s.Instance.secPerBeat;
         while (InGameMusicManager_s.Instance.musicPosition-startTime<=waitTime)
         {
             yield return _waitUpdate;
@@ -131,9 +131,9 @@ public partial class InGameCube_s //rotate
     IEnumerator ShowRotateImage()
     {
         _rotateSpriteRenderer.sprite = _rotateSprite;
-        float waitTime = InGameManager_s.Instance.beatFreezeCount * InGameMusicManager_s.Instance.secPerBeat;
+        double waitTime = InGameManager_s.Instance.beatFreezeCount * InGameMusicManager_s.Instance.secPerBeat;
         StartCoroutine(ObjectAction.ImageFade(_rotateSpriteRenderer, InGameMusicManager_s.Instance.secPerBeat, false,1,0, InGameManager_s.Instance.beatFreezeCount));
-        float startTime = InGameMusicManager_s.Instance.musicPosition;
+        double startTime = InGameMusicManager_s.Instance.musicPosition;
         while (InGameMusicManager_s.Instance.musicPosition - startTime <= waitTime)
         {
             yield return _waitUpdate;
@@ -155,7 +155,7 @@ public partial class InGameCube_s //rotate
     {
         Vector3 rotateTarget = new Vector3(UnityEngine.Random.Range(-150, 150) * 0.01f, UnityEngine.Random.Range(-150, 150) * 0.01f, UnityEngine.Random.Range(-150, 150) * 0.01f);
         StartCoroutine(ObjectAction.RotateObj(_gameCubeTsf.gameObject, rotateTarget, rotateTime));
-       float startTime = InGameMusicManager_s.Instance.musicPosition;
+        double startTime = InGameMusicManager_s.Instance.musicPosition;
         while (InGameMusicManager_s.Instance.musicPosition-startTime<=rotateTime)
         {
             yield return _waitUpdate;

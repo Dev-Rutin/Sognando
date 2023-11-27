@@ -55,7 +55,8 @@ public enum EEnemyMode
     GHOST,
     NOISE,
     LINEATTACK,
-    LINKLINEATTACK
+    LINKLINEATTACK,
+    CROSSATTACK
 }
 public enum ELineAttackMode
 {

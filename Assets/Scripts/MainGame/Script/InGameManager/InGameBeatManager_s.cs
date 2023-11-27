@@ -127,7 +127,7 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
     private IEnumerator BeatShowVetrical(GameObject beatObj,BeatStruct data)
     {
         yield return new WaitUntil(() => InGameMusicManager_s.Instance.completedLoops < 1);
-        float lastPos = InGameMusicManager_s.Instance.musicPosition;
+        double lastPos = InGameMusicManager_s.Instance.musicPosition;
         data.value = 0;
         Transform leftBeat = beatObj.transform.GetChild(0);
         Transform rightBeat = beatObj.transform.GetChild(1);
@@ -135,7 +135,7 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
         Vector2 rightStartPos = rightBeat.localPosition;
         while (InGameManager_s.Instance.curGameStatus == EGameStatus.PLAYING)
         {
-            data.value += (InGameMusicManager_s.Instance.musicPosition - lastPos) / (InGameMusicManager_s.Instance.secPerBeat);
+            data.value += (float)((InGameMusicManager_s.Instance.musicPosition - lastPos) / InGameMusicManager_s.Instance.secPerBeat);
             leftBeat.transform.localPosition = leftStartPos + new Vector2(-1*Mathf.Lerp(0, 120, data.value), 0);
             rightBeat.transform.localPosition = rightStartPos + new Vector2(Mathf.Lerp(0, 120, data.value), 0);
             lastPos = InGameMusicManager_s.Instance.musicPosition;
@@ -145,7 +145,7 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
     private IEnumerator BeatShowHorizontal(GameObject beatObj, BeatStruct data)
     {
         yield return new WaitUntil(() => InGameMusicManager_s.Instance.completedLoops < 1);
-        float lastPos = InGameMusicManager_s.Instance.musicPosition;
+        double lastPos = InGameMusicManager_s.Instance.musicPosition;
         data.value = 0;
         Transform upBeat = beatObj.transform.GetChild(0);
         Transform downBeat = beatObj.transform.GetChild(1);
@@ -153,7 +153,7 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
         Vector2 downStartPos = downBeat.localPosition;
         while (InGameManager_s.Instance.curGameStatus == EGameStatus.PLAYING)
         {
-            data.value += (InGameMusicManager_s.Instance.musicPosition - lastPos) / (InGameMusicManager_s.Instance.secPerBeat);
+            data.value += (float)((InGameMusicManager_s.Instance.musicPosition - lastPos) / InGameMusicManager_s.Instance.secPerBeat);
             upBeat.transform.localPosition = upStartPos + new Vector2(0, -1 * Mathf.Lerp(0, 120, data.value));
             downBeat.transform.localPosition = downStartPos + new Vector2(0, Mathf.Lerp(0, 120, data.value));
             lastPos = InGameMusicManager_s.Instance.musicPosition;
@@ -251,7 +251,7 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
             }
         }
     }*/
-    private void BeatScoreCount(float postionValue)
+    private void BeatScoreCount(double postionValue)
     {
         if (postionValue <= beatJudgeMax - 0.15f || postionValue >= beatJudgeMin + 0.2f)
         {

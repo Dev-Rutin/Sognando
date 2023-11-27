@@ -67,7 +67,7 @@ public class SystemUI_s : Singleton<SystemUI_s>
     private IEnumerator BeatUIShow()
     {
         _beatImageUIObj.SetActive(true);
-        float startTime = InGameMusicManager_s.Instance.musicPosition;
+        double startTime = InGameMusicManager_s.Instance.musicPosition;
         while(InGameMusicManager_s.Instance.musicPosition-startTime<=InGameMusicManager_s.Instance.secPerBeat/2)
         {
             yield return waitUpdate;
@@ -76,7 +76,7 @@ public class SystemUI_s : Singleton<SystemUI_s>
     }
     public IEnumerator CameraShake()
     {
-        float startTime;
+        double startTime;
         bool lastShakeIsLeft = false;
         bool lastShakeIsDown = false;
         Vector2 shakeTarget = Vector2.zero;

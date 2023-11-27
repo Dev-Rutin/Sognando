@@ -42,37 +42,37 @@ public class LineAttackPattern : Singleton<LineAttackPattern>
     }
     private void GetRandomeLineAttack()
     {
-        int count = UnityEngine.Random.Range(0, 2);
-        if (count == 0) // row attack
-        {
-            int y =  InGamePlayer_s.Instance.playerPos.y;
-            for (int i = 0; i < InGameSideData_s.Instance.divideSize.x; i++)
+            int count = UnityEngine.Random.Range(0, 2);
+            if (count == 0) // row attack
             {
-                if (InGameSideData_s.Instance.sideDatas[i, y].isCanMakeCheck(true, "lineAttack"))
+                int y = InGamePlayer_s.Instance.playerPos.y;
+                for (int i = 0; i < InGameSideData_s.Instance.divideSize.x; i++)
                 {
-                    _lineAttackObjList[i].transform.GetChild(0).gameObject.SetActive(false);
-                    _lineAttackObjList[i].transform.localPosition = InGameSideData_s.Instance.sideDatas[i, y].transform;
-                    InGameSideData_s.Instance.sideDatas[i, y].lineAttack = _lineAttackObjList[i];
+                    if (InGameSideData_s.Instance.sideDatas[i, y].isCanMakeCheck(true, "lineAttack"))
+                    {
+                        _lineAttackObjList[i].transform.GetChild(0).gameObject.SetActive(false);
+                        _lineAttackObjList[i].transform.localPosition = InGameSideData_s.Instance.sideDatas[i, y].transform;
+                        InGameSideData_s.Instance.sideDatas[i, y].lineAttack = _lineAttackObjList[i];
+                    }
                 }
             }
-        }
-        else // columns attack
-        {
-            int x = InGamePlayer_s.Instance.playerPos.x;
-            for (int i = 0; i < InGameSideData_s.Instance.divideSize.y; i++)
+            else // columns attack
             {
-                if (InGameSideData_s.Instance.sideDatas[x, i].isCanMakeCheck(true, "lineAttack"))
+                int x = InGamePlayer_s.Instance.playerPos.x;
+                for (int i = 0; i < InGameSideData_s.Instance.divideSize.y; i++)
                 {
-                    _lineAttackObjList[i].transform.GetChild(0).gameObject.SetActive(false);
-                    _lineAttackObjList[i].transform.localPosition = InGameSideData_s.Instance.sideDatas[x, i].transform;
-                    InGameSideData_s.Instance.sideDatas[x,i].lineAttack = _lineAttackObjList[i];
+                    if (InGameSideData_s.Instance.sideDatas[x, i].isCanMakeCheck(true, "lineAttack"))
+                    {
+                        _lineAttackObjList[i].transform.GetChild(0).gameObject.SetActive(false);
+                        _lineAttackObjList[i].transform.localPosition = InGameSideData_s.Instance.sideDatas[x, i].transform;
+                        InGameSideData_s.Instance.sideDatas[x, i].lineAttack = _lineAttackObjList[i];
+                    }
                 }
             }
-        }
-        for (int i = 0; i < _lineAttackObjList.Count; i++)
-        {
-            _lineAttackObjList[i].SetActive(true);
-        }
+            for (int i = 0; i < _lineAttackObjList.Count; i++)
+            {
+                _lineAttackObjList[i].SetActive(true);
+            }
     }
     private void EndRandomeLineAttack()
     {

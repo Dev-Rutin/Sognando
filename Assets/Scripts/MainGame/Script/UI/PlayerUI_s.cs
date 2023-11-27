@@ -141,8 +141,8 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
     {
         DoremiUI_s.Instance.MutipleDoremiAnimation(new List<string>() { "attack", "attack2" });
         _attackTrail.Play();
-        float startPosition = InGameMusicManager_s.Instance.musicPosition;
-        float curTimeCount = 0;
+        double startPosition = InGameMusicManager_s.Instance.musicPosition;
+        double curTimeCount = 0;
         while(curTimeCount<=2.4f)
         {
             curTimeCount = InGameMusicManager_s.Instance.musicPosition - startPosition;
@@ -153,7 +153,7 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
         float lerpValue = 0;
         while (curTimeCount<=_attackAnimationTime-2.4f)
         {
-            lerpValue = (curTimeCount/(_attackAnimationTime-2.4f));
+            lerpValue = (float)(curTimeCount/(_attackAnimationTime-2.4f));
             if (lerpValue <= 0.5f)
             {
                 _attackTsf.localPosition = Vector3.Slerp(_playerAttackStartPos.localPosition, _playerAttackMiddlePos.localPosition, lerpValue/0.5f);

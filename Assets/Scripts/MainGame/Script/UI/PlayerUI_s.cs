@@ -1,3 +1,4 @@
+using Spine.Unity;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,8 +10,8 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
     [SerializeField] private Slider _playerHPSlider;
 
     [Header("Effect")]
-    [SerializeField] private ParticleSystem _playerHealEffect;
-    [SerializeField] private ParticleSystem _playerHurtEffect;
+    //[SerializeField] private ParticleSystem _playerHealEffect;
+    //[SerializeField] private ParticleSystem _playerHurtEffect;
 
     [Header("Attack Particle")]
     [SerializeField] private Transform _attackTsf;
@@ -25,9 +26,11 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
     [SerializeField] float _attackAnimationTime;
     [SerializeField] private ParticleSystem _curAttackParticle;
     [Header("Attack UI")]
-    [SerializeField] private UnityEngine.UI.Image[] AttackGuageUIs;
+    [SerializeField] private GameObject _attackGuagesObj;
+    [SerializeField] private UnityEngine.UI.Image[] _attackGuageUIs;
     [SerializeField] private Sprite AttackGaugeOn;
     [SerializeField] private Sprite AttackGaugeOff;
+    [SerializeField] private ParticleSystem[] _attackGuageParticles;
 
     [Header("Attack Data")]
     [SerializeField] private int _level1DMG;
@@ -35,6 +38,9 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
     [SerializeField] private int _level3DMG;
     private int _curDMG;
     private WaitForEndOfFrame _waitUpdate;
+
+    [Header("Animation")]
+    [SerializeField] private SkeletonAnimation _animation;
     private void Start()
     {
         _curAttackParticle = null;
@@ -42,31 +48,41 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
         InGameFunBind_s.Instance.Epause += Pause;
         InGameFunBind_s.Instance.EunPause += UnPause;
     }
+    public void SinglePlayerAnimation(string name, bool isLoop)
+    {
+        _animation.AnimationState.SetAnimation(0, name, isLoop);
+    }
+    public void MutiplePlayerAnimation(List<string> data)
+    {
+        Animation.ShowCharacterAnimation(data, _animation);
+    }
     private void Pause()
     {
-        foreach (ParticleSystem p in _playerHealEffect.GetComponentsInChildren<ParticleSystem>())
-        {
-            var main = p.main;
-            main.simulationSpeed = 0;
-        }
-        foreach (ParticleSystem p in _playerHurtEffect.GetComponentsInChildren<ParticleSystem>())
-        {
-            var main = p.main;
-            main.simulationSpeed = 0;
-        }
+        _animation.timeScale = 0;
+        /* foreach (ParticleSystem p in _playerHealEffect.GetComponentsInChildren<ParticleSystem>())
+         {
+             var main = p.main;
+             main.simulationSpeed = 0;
+         }
+         foreach (ParticleSystem p in _playerHurtEffect.GetComponentsInChildren<ParticleSystem>())
+         {
+             var main = p.main;
+             main.simulationSpeed = 0;
+         }*/
     }
     private void UnPause()
     {
-        foreach (ParticleSystem p in _playerHealEffect.GetComponentsInChildren<ParticleSystem>())
-        {
-            var main = p.main;
-            main.simulationSpeed = 1;
-        }
-        foreach (ParticleSystem p in _playerHurtEffect.GetComponentsInChildren<ParticleSystem>())
-        {
-            var main = p.main;
-            main.simulationSpeed = 1;
-        }
+        _animation.timeScale = 1;
+        /* foreach (ParticleSystem p in _playerHealEffect.GetComponentsInChildren<ParticleSystem>())
+         {
+             var main = p.main;
+             main.simulationSpeed = 1;
+         }
+         foreach (ParticleSystem p in _playerHurtEffect.GetComponentsInChildren<ParticleSystem>())
+         {
+             var main = p.main;
+             main.simulationSpeed = 1;
+         }*/
     }
     public void PlayerHPInitialize(int maxValue)
     {
@@ -74,11 +90,12 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
     }
     public void PlayerHPUp()
     {
-        _playerHealEffect.Play();
+        //_playerHealEffect.Play();
     }
     public void PlayerHPDown()
     {
-        _playerHurtEffect.Play();
+        // _playerHurtEffect.Play();
+        MutiplePlayerAnimation(new List<string>() { "hit", "idle" });
     }
     public void PlayerHPUpdate(int curPlayerHP)
     {
@@ -87,22 +104,24 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
     public void ShowAttackGuage(EPlayerAttackLevel level)
     {
         int count = 0;
-        foreach(var data in AttackGuageUIs)
+        foreach(var data in _attackGuageUIs)
         {
             if(count<(int)level)
             {
-                AttackGuageUIs[count].sprite = AttackGaugeOn;
+                _attackGuageUIs[count].sprite = AttackGaugeOn;
             }
             else
             {
-                AttackGuageUIs[count].sprite = AttackGaugeOff;
+                _attackGuageUIs[count].sprite = AttackGaugeOff;
             }
             count++;
         }
+        _attackGuageParticles[(int)level - 1].Play();
     }
     public void ShowAttackParticle(EPlayerAttackLevel level)
     {
         _attackIncrease.Play();
+        _attackGuagesObj.SetActive(false);
         switch (level)
         {
             case EPlayerAttackLevel.NONE:
@@ -139,11 +158,12 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
     }
     private IEnumerator IAttack()
     {
-        DoremiUI_s.Instance.MutipleDoremiAnimation(new List<string>() { "attack", "attack2" });
+        PlayerUI_s.Instance.SinglePlayerAnimation("attack", false);
+        DoremiUI_s.Instance.SingleDoremiAnimation("attack", false);
         _attackTrail.Play();
         double startPosition = InGameMusicManager_s.Instance.musicPosition;
         double curTimeCount = 0;
-        while(curTimeCount<=2.4f)
+        while(curTimeCount<=2.2f)
         {
             curTimeCount = InGameMusicManager_s.Instance.musicPosition - startPosition;
             yield return _waitUpdate;
@@ -151,9 +171,9 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
         startPosition = InGameMusicManager_s.Instance.musicPosition;
         curTimeCount = 0;
         float lerpValue = 0;
-        while (curTimeCount<=_attackAnimationTime-2.4f)
+        while (curTimeCount<=_attackAnimationTime-2.2f)
         {
-            lerpValue = (float)(curTimeCount/(_attackAnimationTime-2.4f));
+            lerpValue = (float)(curTimeCount/(_attackAnimationTime-2.2f));
             if (lerpValue <= 0.5f)
             {
                 _attackTsf.localPosition = Vector3.Slerp(_playerAttackStartPos.localPosition, _playerAttackMiddlePos.localPosition, lerpValue/0.5f);
@@ -169,9 +189,11 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
         _attackTrail.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
         _curAttackParticle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         InGamePlayer_s.Instance.UpdatePlayerHP(1);
+        PlayerUI_s.Instance.SinglePlayerAnimation("idle", true);
         DoremiUI_s.Instance.SingleDoremiAnimation("idle", true);
         yield return new WaitForSeconds(1f);
         _attackTsf.localPosition = _playerAttackStartPos.localPosition;
+        _attackGuagesObj.SetActive(true);
     }
     
 }

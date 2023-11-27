@@ -9,10 +9,10 @@ public class LinkLineAttackPattern : Singleton<LinkLineAttackPattern>
     [SerializeField]private GameObject _linkLineAttackPrefab;
     [SerializeField]private Transform _linkLineAttackTsf;
     private GameObject _totalAttackObj;
-    private GameObject _attackDirection;
     private GameObject _attackObj;
+
     private GameObject _warningTile;
-    private ParticleSystem _warningEffect;
+    private CanvasGroup _warningCanvasGroup;
     
     private Vector2Int _curLinkLineAttackPos;
     private Vector2Int _curLinkLineAttackEndPos;
@@ -23,10 +23,9 @@ public class LinkLineAttackPattern : Singleton<LinkLineAttackPattern>
     {
         _totalAttackObj = Instantiate(_linkLineAttackPrefab, _linkLineAttackTsf);
         _totalAttackObj.transform.localPosition = InGameManager_s.throwVector2;
-        _attackDirection = _totalAttackObj.transform.GetChild(0).gameObject;
-        _attackObj = _totalAttackObj.transform.GetChild(1).gameObject;
-        _warningTile = _totalAttackObj.transform.GetChild(2).gameObject;
-        _warningEffect = _warningTile.transform.GetChild(1).GetComponent<ParticleSystem>();
+        _attackObj = _totalAttackObj.transform.GetChild(0).gameObject;
+        _warningTile = _totalAttackObj.transform.GetChild(1).gameObject;
+        _warningCanvasGroup = _totalAttackObj.transform.GetChild(1).GetComponent<CanvasGroup>();
         InGameFunBind_s.Instance.EgameStart += GameStart;
     }
     private void GameStart()
@@ -69,34 +68,30 @@ public class LinkLineAttackPattern : Singleton<LinkLineAttackPattern>
             }
         }
         _curLinkLineAttackDirection = new Vector2(_curLinkLineAttackEndPos.x - _curLinkLineAttackPos.x, _curLinkLineAttackEndPos.y - _curLinkLineAttackPos.y).normalized;
-        Vector2 direction = Vector2.zero;
         if (_curLinkLineAttackDirection == Vector2.down)
         {
-            direction = new Vector2(0, -150f);
-            _attackDirection.transform.localEulerAngles = new Vector3(0, 0, 90);
+            _attackObj.transform.eulerAngles = Vector4.zero;
         }
         else if (_curLinkLineAttackDirection == Vector2.up)
         {
-            direction = new Vector2(0, 150f);
-            _attackDirection.transform.localEulerAngles = new Vector3(0, 0, -90);
+            _attackObj.transform.eulerAngles = new Vector3(0, 0, -180);
+ 
         }
         else if (_curLinkLineAttackDirection == Vector2.left)
         {
-            direction = new Vector2(150f, 0);
-            _attackDirection.transform.localEulerAngles = new Vector3(0, 0, 180);
+            _attackObj.transform.eulerAngles = new Vector3(0, 0, 90);
         }
         else if (_curLinkLineAttackDirection == Vector2.right)
         {
-            direction = new Vector2(-150f, 0);
-            _attackDirection.transform.localEulerAngles = new Vector3(0, 0, 0);
+            _attackObj.transform.eulerAngles = new Vector3(0, 0, -90);
         }
-        _attackDirection.transform.localPosition = InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform + direction;
         _attackObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform;
         _attackObj.SetActive(false);
         InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].linkLineAttack = _totalAttackObj;
         _warningTile.transform.localPosition = InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x, _curLinkLineAttackPos.y].transform;
         _warningTile.SetActive(true);
         _totalAttackObj.SetActive(true);
+        EnemyUI_s.Instance.MutipleEnemyAnimation(new List<string>() { "attack2", "idle" });
     }
     private void EndRandomeLinkLineAttack()
     {
@@ -118,11 +113,11 @@ public class LinkLineAttackPattern : Singleton<LinkLineAttackPattern>
                 {
                     case ELinkLineAttackMode.NONE:
                         GetRandomeLinkLineAttack();
-                        _warningEffect.Play();
-                        curLinkLineAttackMode= ELinkLineAttackMode.SHOW1;
+                        StartCoroutine(ObjectAction.ImageFade(_warningCanvasGroup, InGameMusicManager_s.Instance.secPerBeat, false, 1, 0, 1));
+                        curLinkLineAttackMode = ELinkLineAttackMode.SHOW1;
                         break;
                     case ELinkLineAttackMode.SHOW1:
-                        _warningEffect.Play();
+                        StartCoroutine(ObjectAction.ImageFade(_warningCanvasGroup, InGameMusicManager_s.Instance.secPerBeat, false, 1, 0, 1));
                         curLinkLineAttackMode = ELinkLineAttackMode.SHOW2;
                         break;
                     case ELinkLineAttackMode.SHOW2:
@@ -130,7 +125,7 @@ public class LinkLineAttackPattern : Singleton<LinkLineAttackPattern>
                         _curLinkLineAttackCount = 1;
                         _warningTile.transform.localPosition =
                             InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x + (int)_curLinkLineAttackDirection.x, _curLinkLineAttackPos.y + (int)_curLinkLineAttackDirection.y].transform;
-                        _warningEffect.Play();
+                        StartCoroutine(ObjectAction.ImageFade(_warningCanvasGroup, InGameMusicManager_s.Instance.secPerBeat, false, 1, 0, 1));
                         curLinkLineAttackMode = ELinkLineAttackMode.ATTACK;
                         break;
                     case ELinkLineAttackMode.ATTACK:
@@ -158,7 +153,7 @@ public class LinkLineAttackPattern : Singleton<LinkLineAttackPattern>
                             {
                                 _warningTile.transform.localPosition =
                                     InGameSideData_s.Instance.sideDatas[_curLinkLineAttackPos.x + (int)_curLinkLineAttackDirection.x, _curLinkLineAttackPos.y + (int)_curLinkLineAttackDirection.y].transform;
-                                _warningEffect.Play();
+                                StartCoroutine(ObjectAction.ImageFade(_warningCanvasGroup, InGameMusicManager_s.Instance.secPerBeat, false, 1, 0, 1));
                             }
                             else
                             {

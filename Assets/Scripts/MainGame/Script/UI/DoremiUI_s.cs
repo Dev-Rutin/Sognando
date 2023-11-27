@@ -15,6 +15,14 @@ public class DoremiUI_s : Singleton<DoremiUI_s>
     public void DoremiTextChange(string data)
     {
         _doremiText.text = data;
+        if (data == "")
+        {
+            _doremiText.transform.parent.gameObject.SetActive(false);
+        }
+        else
+        {
+            _doremiText.transform.parent.gameObject.SetActive(true);
+        }
     }
     public void SingleDoremiAnimation(string name,bool isLoop)
     {

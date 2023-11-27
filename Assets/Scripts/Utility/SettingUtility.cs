@@ -9,13 +9,20 @@ public class SettingUtility : Singleton<SettingUtility>
 {
     [SerializeField] private GameObject _soundMenu;
     [SerializeField] private Button _closeButton;
+    [SerializeField] private float _moveSpeed;
     private Slider[] _sliders;
     private Toggle[] _toggles;
+    private Vector3 _closePos = new Vector3(-446, 0, 0);
+    private Vector3 _openPos = new Vector3(436, 0, 0);
     private void Start()
     {
-        _closeButton.onClick.AddListener(() => CloseSetting(gameObject));
+        _closeButton.onClick.AddListener(CloseSetting);
         _sliders = _soundMenu.GetComponentsInChildren<Slider>();
         _toggles = _soundMenu.GetComponentsInChildren<Toggle>();
+        _closePos = _soundMenu.transform.position;
+        _closePos.x = -446;
+        _openPos = _closePos;
+        _openPos.x = 436;
         int i = 0;
         foreach (var slider in _sliders)
         {
@@ -78,8 +85,41 @@ public class SettingUtility : Singleton<SettingUtility>
         }
     }
 
-    private void CloseSetting(GameObject setting)
+    private void CloseSetting()
     {
-        setting.GetComponent<Canvas>().enabled = false;
+        Debug.Log("close btn");
+        StartCoroutine(CloseSettingPenal());
+    }
+
+    private IEnumerator CloseSettingPenal()
+    {
+        Vector3 movePos = _soundMenu.transform.position;
+        float moveTime = 0;
+        while (movePos != _closePos)
+        {
+            moveTime += Time.deltaTime;
+            movePos = Vector3.Lerp(_openPos, _closePos, moveTime / _moveSpeed);
+            _soundMenu.transform.position = movePos;
+            yield return null;
+        }
+    }
+
+    public void OpenSetting()
+    {
+        Debug.Log("open btn");
+        StartCoroutine(OpenSettingPenal());
+    }
+
+    private IEnumerator OpenSettingPenal()
+    {
+        Vector3 movePos = _soundMenu.transform.position;
+        float moveTime = 0;
+        while (movePos != _openPos)
+        {
+            moveTime += Time.deltaTime;
+            movePos = Vector3.Lerp(_closePos, _openPos, moveTime / _moveSpeed);
+            _soundMenu.transform.position = movePos;
+            yield return null;
+        }
     }
 }

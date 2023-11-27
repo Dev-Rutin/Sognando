@@ -25,6 +25,8 @@ public partial class InGameMusicManager_s : Singleton<InGameMusicManager_s>//dat
     private double _lastBeatCount;
     public double loopPositionInBeats { get; private set; }
     public bool isPause { get; private set; }
+
+    [SerializeField] private double _offset;
     private void Start()
     {
         secPerBeat = 60f / _bpm;
@@ -70,7 +72,7 @@ public partial class InGameMusicManager_s //game system
         if (!isPause&&InGameManager_s.Instance.curGameStatus==EGameStatus.PLAYING)
         {
             GetCurrentDSPClock(_channelsGroup, out _dspClock, out _parent);
-            musicPosition = (_currentSample-_startDspClock) / _masterSampleRate;
+            musicPosition = ((_currentSample-_startDspClock) / _masterSampleRate)+_offset;
             SoundUtility.Instance.BGMAudioSource.EventInstance.getTimelinePosition(out positionTest);
             _musicPositionInBeats = musicPosition / secPerBeat;
             if (_musicPositionInBeats >= (completedLoops + 1))

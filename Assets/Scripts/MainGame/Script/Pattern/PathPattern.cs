@@ -9,7 +9,7 @@ public class PathPattern : Singleton<PathPattern>
     [SerializeField] private GameObject _pathPrefab;
     private List<GameObject> _pathObjList;
     [SerializeField] Transform _pathTsf;
-
+    private List<Vector2Int> _canMovedList;
     private void Start()
     {
         _pathQueue = new Queue<Vector2Int>();
@@ -19,17 +19,61 @@ public class PathPattern : Singleton<PathPattern>
             _pathObjList.Add(Instantiate(_pathPrefab, _pathTsf));
             _pathObjList[i].transform.position = InGameManager_s.throwVector2;
         }
+        _canMovedList = new List<Vector2Int>();
     }
-
+    private void AddCanMovePostion(Vector2Int target,Vector2Int previousPos)
+    {
+        Vector2Int addPos = target + Vector2Int.left;
+        if (InGameSideData_s.Instance.SizeCheck(addPos)&&addPos!=previousPos)
+        {
+            _canMovedList.Add(addPos);
+        }
+        addPos = target + Vector2Int.right;
+        if (InGameSideData_s.Instance.SizeCheck(addPos) && addPos != previousPos)
+        {
+            _canMovedList.Add(addPos);
+        }
+        addPos = target + Vector2Int.up;
+        if (InGameSideData_s.Instance.SizeCheck(addPos) && addPos != previousPos)
+        {
+            _canMovedList.Add(addPos);
+        }
+        addPos = target + Vector2Int.down;
+        if (InGameSideData_s.Instance.SizeCheck(addPos) && addPos != previousPos)
+        {
+            _canMovedList.Add(addPos);
+        }
+    }
     private void GetRandomePath()
     {
         Vector2Int curPos = Vector2Int.zero;
-        Vector2Int movedPos = curPos;
-      for(int i=0;i<_pathCreatCount;i++)
+        Vector2Int previousPos = curPos;
+        int createCount =  Random.Range(8, 10);
+        int blockCount= 0;
+        while (_pathQueue.Count <= createCount)
         {
-           for(int j=0;j<100;j++)
+            _canMovedList.Clear();
+            AddCanMovePostion(curPos, previousPos);
+            if (_canMovedList.Count > 0)
             {
-                
+                Vector2Int moveTarget = _canMovedList[Random.Range(0, _canMovedList.Count)];               
+                _pathQueue.Enqueue(moveTarget);
+                previousPos = curPos;
+                curPos = moveTarget;
+            }
+            else
+            {
+                blockCount++;
+                if(blockCount>100)
+                {
+                    break;
+                }
+                else
+                {
+                    _pathQueue.Clear();
+                    curPos = Vector2Int.zero;
+                    previousPos  = curPos;
+                }
             }
         }
     }

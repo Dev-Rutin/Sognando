@@ -10558,14 +10558,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerObj: {fileID: 2046360921}
   _movingTime: 0.1
-  _playerMaxHP: 999
+  _playerMaxHP: 700
   _curPlayerHP: 0
   _moveEffectGood: {fileID: 976582474}
   _noiseDissolveEffect: {fileID: 747828226}
   _flickerImage: {fileID: 409933619}
-  _attackIncreaseRequireValue: 8
-  _perfectAttackIncreaseValue: 2
-  _goodAttackIncreaseValue: 1
+  _attackIncreaseRequireValue: 100
+  _perfectAttackIncreaseValue: 11
+  _goodAttackIncreaseValue: 9
 --- !u!1 &271378685
 GameObject:
   m_ObjectHideFlags: 0
@@ -53703,9 +53703,9 @@ MonoBehaviour:
   - {fileID: 1012372904}
   AttackGaugeOn: {fileID: 21300000, guid: 3883b4a52df380a419d82b824111193c, type: 3}
   AttackGaugeOff: {fileID: 21300000, guid: 590aac12dd4a85842989496558ceb628, type: 3}
-  _level1DMG: 40
-  _level2DMG: 80
-  _level3DMG: 100
+  _level1DMG: 100
+  _level2DMG: 111
+  _level3DMG: 125
 --- !u!1 &1257020135
 GameObject:
   m_ObjectHideFlags: 0
@@ -86684,7 +86684,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d9708528696acd45b185e8c314ffa92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _enemyMaxHP: 800
+  _enemyMaxHP: 1000
   _curEnemyHP: 0
   _enemyAttackGaugeMax: 2
 --- !u!1 &2108015013

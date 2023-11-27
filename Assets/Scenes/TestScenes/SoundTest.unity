@@ -518,7 +518,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
       propertyPath: Clip.Path
-      value: event:/AMB/AMB_1Stage
+      value: event:/SFX/UI_Click
       objectReference: {fileID: 0}
     - target: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
       propertyPath: audioSource
@@ -526,23 +526,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
       propertyPath: Clip.Guid.Data1
-      value: 1136375478
+      value: -631295748
       objectReference: {fileID: 0}
     - target: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
       propertyPath: Clip.Guid.Data2
-      value: 1092019697
+      value: 1304164098
       objectReference: {fileID: 0}
     - target: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
       propertyPath: Clip.Guid.Data3
-      value: 1837232063
+      value: -759389516
       objectReference: {fileID: 0}
     - target: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
       propertyPath: Clip.Guid.Data4
-      value: 1528229846
+      value: -758169376
       objectReference: {fileID: 0}
     - target: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
       propertyPath: Params.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3365735367789066838, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
       propertyPath: Params.Array.data[0].Name

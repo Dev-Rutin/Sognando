@@ -153,7 +153,6 @@ public partial class KeyInputManager_s //InGame Setting
                             if (InGameBeatManager_s.Instance.BeatJudgement())
                             {
                                 _playerKeyBinds[_inGameInputQueue.Peek()]();
-                                InGameBeatManager_s.Instance.ShowHitEffect();
                             }
                             else
                             {
@@ -167,7 +166,6 @@ public partial class KeyInputManager_s //InGame Setting
                             {
                                 if(InGameBeatManager_s.Instance.BeatJudgement())
                                 {
-                                    InGameBeatManager_s.Instance.ShowHitEffect();
                                 }
                                 else
                                 {

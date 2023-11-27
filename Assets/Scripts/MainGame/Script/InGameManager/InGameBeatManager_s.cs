@@ -120,10 +120,6 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
             GhostPattern.Instance.Action(InGameManager_s.Instance.curInGameStatus);
         }
     }
-    public void ShowHitEffect()
-    {
-        CubeUI_s.Instance.HitEffect(_beatSelect);
-    }
     private IEnumerator BeatShowVetrical(GameObject beatObj,BeatStruct data)
     {
         yield return new WaitUntil(() => InGameMusicManager_s.Instance.completedLoops < 1);

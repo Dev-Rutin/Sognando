@@ -26,6 +26,8 @@ public partial class InGamePlayer_s : Singleton<InGamePlayer_s>, IInGame//data
     [SerializeField] int _goodAttackIncreaseValue;
     private int _curAttackIncreaseValue;
 
+    bool firstCount;
+    bool firstMove;
     private void Start()
     {
         _playerImage = _playerObj.GetComponent<Image>();
@@ -49,6 +51,8 @@ public partial class InGamePlayer_s//game system
         _isGracePeriod = false;
         _playerHitBlock = 0;
         _curAttackIncreaseValue = 0;
+        firstCount = false;
+        firstMove = false;
     }
     public void GamePlay()
     {
@@ -57,7 +61,9 @@ public partial class InGamePlayer_s//game system
         PlayerUI_s.Instance.PlayerHPUpdate(_curPlayerHP);
         _playerObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[playerPos.x, playerPos.y].transform;
         PlayerUI_s.Instance.StopAttackParticle();
+        PlayerUI_s.Instance.SinglePlayerAnimation("idle", true);
         DoremiUI_s.Instance.SingleDoremiAnimation("idle",true);
+        DoremiUI_s.Instance.DoremiTextChange("방향키로 이동해 마법을 준비하자");
 
     }
     public void GameEnd()
@@ -100,6 +106,10 @@ public partial class InGamePlayer_s//game system
                 AttackLevelIncrease();
                 break;
             case EInGameStatus.CUBEROTATE:
+                if(!firstCount)
+                {
+                    DoremiUI_s.Instance.DoremiTextChange("화살표와 같은 방향키를 누르면 마법을 발동할 수 있어");
+                }
                 if (_isGracePeriod)
                 {
                     _playerHitBlock = 0;
@@ -108,6 +118,11 @@ public partial class InGamePlayer_s//game system
                 }
                 break;
             case EInGameStatus.TIMEWAIT:
+                if(!firstCount)
+                {
+                    DoremiUI_s.Instance.DoremiTextChange("");
+                    firstCount = true;
+                }
                 MovePlayer(new Vector2Int(playerPos.x * -1, playerPos.y * -1), InGameSideData_s.Instance.divideSize);
                 PlayerUI_s.Instance.ShowAttackParticle(_playerAttackLevel);
                 PlayerUI_s.Instance.PlayerAttack();
@@ -150,7 +165,10 @@ public partial class InGamePlayer_s  //move
         StartCoroutine(ObjectAction.ImageFade(_flickerImage, 0.05f, true,0,1));
         yield return new WaitForSeconds(0.05f);
         StartCoroutine(ObjectAction.ImageFade(_flickerImage, 0.05f, true,1,0));
-
+        if(!firstMove)
+        {
+            DoremiUI_s.Instance.DoremiTextChange("");
+        }
     }
     public void PlayerPositionCheck()
     {

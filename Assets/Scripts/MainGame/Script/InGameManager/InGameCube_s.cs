@@ -8,7 +8,6 @@ public partial class InGameCube_s : Singleton<InGameCube_s>, IInGame //data
 {
     [Header("cube data")]
     [SerializeField] private Transform _gameCubeTsf;
-    [SerializeField] private GameObject _cubeSideUI;
     public ECubeFace curFace { get; private set; }
     //private Queue<ERotatePosition> _rotateQueue;
     private ERotatePosition _rotateTarget;
@@ -47,7 +46,6 @@ public partial class InGameCube_s//game system
     public void GamePlay()
     {
         _gameCubeTsf.localEulerAngles = Vector3.zero;
-        _cubeSideUI.SetActive(true);
         _rotateSpriteRenderer.sprite = null;
     }
     public void GameEnd()
@@ -64,13 +62,11 @@ public partial class InGameCube_s//game system
         {
             case EInGameStatus.SHOWPATH:
                 _rotateTarget = ERotatePosition.NONE;
-                _cubeSideUI.SetActive(true);
                 break;
             case EInGameStatus.PLAYERMOVE:
                 GetFace();
                 break;
             case EInGameStatus.CUBEROTATE:
-                _cubeSideUI.SetActive(false);
                 /*if (_rotateQueue.Count != 0)
                 {
                     _rotateTarget = _rotateQueue.Dequeue();
@@ -114,6 +110,7 @@ public partial class InGameCube_s //rotate
     }
     private IEnumerator RotateTimeLock(Vector3 rotateposition)
     {
+        PlayerUI_s.Instance.SinglePlayerAnimation("ready", true);
         DoremiUI_s.Instance.SingleDoremiAnimation("ready",true);
         while (InGameManager_s.Instance.curInGameStatus == EInGameStatus.CUBEROTATE)
         {

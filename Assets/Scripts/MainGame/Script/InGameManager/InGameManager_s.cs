@@ -41,6 +41,8 @@ public partial class InGameManager_s : Singleton<InGameManager_s>//Data
             beatFreezeCount = 0;
             _score = 0;
             combo = 0;
+        SystemUI_s.Instance.UpdateScore(_score);
+        SystemUI_s.Instance.UpdateCombo(combo);
         isPause = false;
             GamePlay();
         }
@@ -81,17 +83,27 @@ public partial class InGameManager_s : Singleton<InGameManager_s>//Data
         public void GameOverByPlayer()
         {
             StageDataController.Instance.isClear = false;
-            StartCoroutine(GameOver());
+            StartCoroutine(GameOver(1f));
         }
         public void GameOverByEnemy()
         {
             StageDataController.Instance.isClear = true;
-            StartCoroutine(GameOver());
+            StartCoroutine(GameOver(7f));
         }
-        IEnumerator GameOver()
+        IEnumerator GameOver(float waitTime)
         {
             curGameStatus = EGameStatus.ENDWAIT;
-            yield return new WaitForSeconds(1f);
+        if (waitTime !=1f)
+        {
+            yield return new WaitForSeconds(3f);
+            EnemyUI_s.Instance.FadeEnemy(waitTime-3f);
+            yield return new WaitForSeconds(waitTime - 3f);
+            EnemyUI_s.Instance.UnShowEnemy(false);
+        }
+        else
+        {
+            yield return new WaitForSeconds(waitTime);
+        }
             GameEnd();
         }
 
@@ -181,6 +193,7 @@ public partial class InGameManager_s //data Change
         SystemUI_s.Instance.Good();
         StageDataController.Instance.judgementValue++;
         InGamePlayer_s.Instance.AttackValueIncrease(EBeatJudgement.Good);
+        CubeUI_s.Instance.HitEffect(EBeatJudgement.Good);
     }
     public void PerfectScroe()
     {
@@ -190,6 +203,7 @@ public partial class InGameManager_s //data Change
         SystemUI_s.Instance.Perfect();
         StageDataController.Instance.judgementValue += 2;
         InGamePlayer_s.Instance.AttackValueIncrease(EBeatJudgement.Perfect);
+        CubeUI_s.Instance.HitEffect(EBeatJudgement.Perfect);
     }
     public void MissScore()
     {

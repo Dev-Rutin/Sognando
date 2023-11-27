@@ -89,6 +89,34 @@ public static class ObjectAction
             }
         }
     }
+    public static IEnumerator ImageFade(CanvasGroup target, double time, bool isAllFade, float startValue, float endValue = 0, int repeat = 0)
+    {
+        for (int i = 0; i < repeat; i++)
+        {
+            float lerpValue = 0;
+            double startTime = InGameMusicManager_s.Instance.musicPosition;
+            while (lerpValue <= 1)
+            {
+                lerpValue = (float)((InGameMusicManager_s.Instance.musicPosition - startTime) * 1 / time);
+                if (isAllFade)
+                {
+                    ImageAlphaChange(target, Mathf.Lerp(startValue, endValue, lerpValue));
+                }
+                else
+                {
+                    if (lerpValue < time / 2)
+                    {
+                        ImageAlphaChange(target, Mathf.Lerp(startValue, 0.5f, 0.5f / lerpValue));
+                    }
+                    else
+                    {
+                        ImageAlphaChange(target, Mathf.Lerp(0.5f, startValue, 0.5f / lerpValue - 1));
+                    }
+                }
+                yield return waitUpdate;
+            }
+        }
+    }
     public static void ImageAlphaChange(Image target, float value)
     {
         Color targetCol = target.color;
@@ -100,6 +128,10 @@ public static class ObjectAction
         Color targetCol = target.color;
         targetCol.a = value;
         target.color = targetCol;
+    }
+    public static void ImageAlphaChange(CanvasGroup target, float value)
+    {
+        target.alpha = value;
     }
     public static IEnumerator ObjectScalePump(Transform target, Vector3 targetScale, float time)
     {

@@ -64,6 +64,7 @@ public partial class InGameEnemy_s //game system
     public void GamePlay()
     {
         EnemyUI_s.Instance.EnemyHPUpdate(_curEnemyHP);
+        EnemyUI_s.Instance.MutipleEnemyAnimation(new List<string>() { "start", "idle" });
     }
     public void GameEnd()
     {
@@ -185,8 +186,7 @@ public partial class InGameEnemy_s //game system
         {
             if(EnemyPatternEndCheck())
             {
-                int count = UnityEngine.Random.Range(0, 3);
-                switch(count)
+                switch(UnityEngine.Random.Range(0, 3))
                 {
                     case 0:
                         _enemyModBinds[EEnemyMode.LINEATTACK]();
@@ -285,6 +285,7 @@ public partial class InGameEnemy_s //data change
         EnemyUI_s.Instance.EnemyHPUpdate(_curEnemyHP);
         if (_curEnemyHP <= 0)
         {
+            EnemyUI_s.Instance.SingleEnemyAnimation("die", false);
             InGameManager_s.Instance.GameOverByEnemy();
         }
     }

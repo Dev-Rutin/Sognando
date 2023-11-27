@@ -7,8 +7,8 @@ public class CubeUI_s : Singleton<CubeUI_s>
     [SerializeField] private Transform _cubeEffectTsf;
     private ParticleSystem _cubeEffect;
     private List<GameObject> _cubeEffectList;
-    [SerializeField] private ParticleSystem _cubeHitEffectTB;
-    [SerializeField] private ParticleSystem _cubeHitEffectLR;
+    [SerializeField] private ParticleSystem _cubeHitEffectGood;
+    [SerializeField] private ParticleSystem _cubeHitEffectPerfect;
     private void Start()
     {
         _cubeEffect = _cubeEffectTsf.GetComponent<ParticleSystem>();
@@ -45,15 +45,18 @@ public class CubeUI_s : Singleton<CubeUI_s>
         _cubeEffectList[(int)face].SetActive(true);
         _cubeEffect.Play();
     }
-    public void HitEffect(bool IsLR)
+    public void HitEffect(EBeatJudgement count)
     {
-        if(IsLR)
+        switch(count)
         {
-            _cubeHitEffectLR.Play();
-        }
-        else
-        {
-            _cubeHitEffectTB.Play();
+            case EBeatJudgement.Good:
+                _cubeHitEffectGood.Play();
+                break;
+            case EBeatJudgement.Perfect:
+                _cubeHitEffectPerfect.Play();
+                break;
+            default:
+                break;
         }
     }
 }

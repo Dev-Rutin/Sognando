@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6b194f808b1af6499c93410e504af42, type: 3}
+  m_Name: startscreen1_illustration_Atlas
+  m_EditorClassIdentifier: 
+  textureLoadingMode: 0
+  onDemandTextureLoader: {fileID: 0}
+  atlasFile: {fileID: 4900000, guid: 444ce86e9262c9d498bc7b6ed986a4a5, type: 3}
+  materials:
+  - {fileID: 2100000, guid: 0488c13b900e6b0438b8786c337236af, type: 2}
+  - {fileID: 2100000, guid: 4c218f53d6605a14d8a79971c84bfb35, type: 2}
+  - {fileID: 2100000, guid: dc515a54515e0964c9b950868bbe3148, type: 2}
+  - {fileID: 2100000, guid: 52174897120cfe74fafd7884a86251d0, type: 2}

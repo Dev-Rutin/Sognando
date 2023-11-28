@@ -20,16 +20,30 @@ public enum ECharacterType
 
 public enum ESoundTypes
 {
-    Master,
-    Bgm,
-    Bit,
-    Interaction,
-    Interface,
-    Se
+    BGM,
+    AMB,
+    SFX
 }
 
 public enum ESettingsValue
 {
     Off,
     On
+}
+
+public enum ERankValue
+{
+    D = 44,
+    C = 59,
+    B = 74,
+    A = 89,
+    S = 100
+}
+
+public static class ObjectButtonName
+{
+    public const string GAMESTARTBUTTON = "StartButton";
+    public const string ARCHIVEBUTTON = "ArchiveButton";
+    public const string SETTINGBUTTON = "SettingButton";
+    public const string CREDITBUTTON = "CreditButton";
 }

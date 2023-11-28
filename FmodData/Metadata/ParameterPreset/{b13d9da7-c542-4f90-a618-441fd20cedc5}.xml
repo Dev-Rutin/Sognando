@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="ParameterPreset" id="{b13d9da7-c542-4f90-a618-441fd20cedc5}">
+		<property name="name">
+			<value>BGM</value>
+		</property>
+		<relationship name="folder">
+			<destination>{75e671a3-1e1f-42f0-a400-0167fb21cee6}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{1feb9e87-2ccd-4715-86b4-2b893c6c1619}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{1feb9e87-2ccd-4715-86b4-2b893c6c1619}">
+		<property name="parameterType">
+			<value>2</value>
+		</property>
+		<property name="maximum">
+			<value>9</value>
+		</property>
+		<property name="enumerationLabels">
+			<value>Start</value>
+			<value>Lobby</value>
+			<value>Stage</value>
+			<value>StartStory</value>
+			<value>ClearStory</value>
+			<value>GameClear</value>
+			<value>GameOver</value>
+			<value>Archive</value>
+			<value>Credit</value>
+		</property>
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>

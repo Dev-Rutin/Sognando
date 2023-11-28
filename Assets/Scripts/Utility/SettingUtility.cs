@@ -7,26 +7,22 @@ using UnityEngine.UI;
 
 public class SettingUtility : Singleton<SettingUtility>
 {
-    [SerializeField] private AudioMixer _mixer;
     [SerializeField] private GameObject _soundMenu;
     [SerializeField] private Button _closeButton;
-    private AudioMixerGroup[] _mixerGroups;
-    private List<AudioMixerGroup> _mixerGroupList;
+    [SerializeField] private float _moveSpeed;
     private Slider[] _sliders;
+    private Toggle[] _toggles;
+    private Vector3 _closePos = new Vector3(-446, 0, 0);
+    private Vector3 _openPos = new Vector3(436, 0, 0);
     private void Start()
     {
-        /*_mixerGroups = _mixer.FindMatchingGroups("Master");
-        _mixerGroupList = new List<AudioMixerGroup>();
-        foreach (var group in _mixerGroups)
-        {
-            _mixerGroupList.Add(group);
-            Debug.Log(group.name);
-        }
-        Debug.Log(_mixerGroupList.Count);*/
-        
-        
-        _closeButton.onClick.AddListener(() => CloseSetting(gameObject));
+        _closeButton.onClick.AddListener(CloseSetting);
         _sliders = _soundMenu.GetComponentsInChildren<Slider>();
+        _toggles = _soundMenu.GetComponentsInChildren<Toggle>();
+        _closePos = _soundMenu.transform.position;
+        _closePos.x = -446;
+        _openPos = _closePos;
+        _openPos.x = 436;
         int i = 0;
         foreach (var slider in _sliders)
         {
@@ -34,6 +30,15 @@ public class SettingUtility : Singleton<SettingUtility>
             slider.onValueChanged.AddListener( start => { SetSound(index); });
             ++i;
         }
+
+        i = 0;
+        foreach (var toggle in _toggles)
+        {
+            var index = i;
+            toggle.onValueChanged.AddListener( start => { ToggleSound(index, toggle.isOn); });
+            ++i;
+        }
+        
     }
 
     private void SetSound(int index)
@@ -41,25 +46,78 @@ public class SettingUtility : Singleton<SettingUtility>
         switch (index)
         {
             case 0:
-                _mixer.SetFloat("Master", _sliders[index].value);
-                Debug.Log($"Master : {_mixer.GetFloat("Master", out _)}");
+                SoundUtility.Instance.SetMasterVolume(_sliders[index].value);
                 break;
             case 1:
-                _mixer.SetFloat("BGM", _sliders[index].value);
-                Debug.Log($"BGM : {_mixer.GetFloat("BGM", out _)}");
+                SoundUtility.Instance.SetBGMVolume(_sliders[index].value);
                 break;
             case 2:
-                _mixer.SetFloat("SE", _sliders[index].value);
-                Debug.Log($"SE : {_mixer.GetFloat("SE", out _)}");
+                SoundUtility.Instance.SetSFXVolume(_sliders[index].value);
+                break;
+            case 3:
+                SoundUtility.Instance.SetAMBVolume(_sliders[index].value);
                 break;
             default:
                 break;
         }
     }
 
-    private void CloseSetting(GameObject setting)
+    private void ToggleSound(int index, bool toggle)
     {
-        Debug.Log("call button");
-        setting.SetActive(false);
+        float value = toggle ? 0 : _sliders[index].value;
+        _sliders[index].interactable = !toggle;
+        switch (index)
+        {
+            case 0:
+                SoundUtility.Instance.SetMasterVolume(value);
+                break;
+            case 1:
+                SoundUtility.Instance.SetBGMVolume(value);
+                break;
+            case 2:
+                SoundUtility.Instance.SetSFXVolume(value);
+                break;
+            case 3:
+                SoundUtility.Instance.SetAMBVolume(value);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void CloseSetting()
+    {
+        StartCoroutine(CloseSettingPenal());
+    }
+
+    private IEnumerator CloseSettingPenal()
+    {
+        Vector3 movePos = _soundMenu.transform.position;
+        float moveTime = 0;
+        while (movePos != _closePos)
+        {
+            moveTime += Time.deltaTime;
+            movePos = Vector3.Lerp(_openPos, _closePos, moveTime / _moveSpeed);
+            _soundMenu.transform.position = movePos;
+            yield return null;
+        }
+    }
+
+    public void OpenSetting()
+    {
+        StartCoroutine(OpenSettingPenal());
+    }
+
+    private IEnumerator OpenSettingPenal()
+    {
+        Vector3 movePos = _soundMenu.transform.position;
+        float moveTime = 0;
+        while (movePos != _openPos)
+        {
+            moveTime += Time.deltaTime;
+            movePos = Vector3.Lerp(_closePos, _openPos, moveTime / _moveSpeed);
+            _soundMenu.transform.position = movePos;
+            yield return null;
+        }
     }
 }

@@ -1,15 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
+using FMODPlus;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class LobbyManager : Singleton<LobbyManager>
 {
     
     [SerializeField] private GameObject _fadePenal;
     [SerializeField] private float _fadeTime;
-    [SerializeField] private string _sceneName;
     [SerializeField] private GameObject _dataObject;
+    [SerializeField] private CommandSender _commandSender;
     private bool _isFade;
 
     private int _continueStage;
@@ -18,15 +20,8 @@ public class LobbyManager : Singleton<LobbyManager>
     {
         FadeUtlity.Instance.CallFade(_fadeTime, _fadePenal, EGameObjectType.UI, EFadeType.FadeIn);
         //_continueStage = PlayerPrefs.GetInt("continueStage");
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (_isFade && _fadePenal.GetComponent<CanvasGroup>().alpha == 1)
-        {
-            SceneManager.LoadScene(_sceneName);
-        }
+        StartCoroutine(RaySetting());
+        _commandSender.SendCommand();
     }
 
     public void StartGame()
@@ -37,10 +32,30 @@ public class LobbyManager : Singleton<LobbyManager>
         //SoundUtility.Instance.StopSound(ESoundTypes.Bgm);
     }
 
-    public void Continue()
+    public void LoadScene(string name)
     {
-        FadeUtlity.Instance.CallFade(_fadeTime, _fadePenal, EGameObjectType.UI, EFadeType.FadeOut);
-        _dataObject.GetComponent<StageDataController>().stage = _continueStage;
-        _isFade = true;
+        StartCoroutine(ChangeScene(name));
     }
+
+    private IEnumerator ChangeScene(string SceneName)
+    {
+        _fadePenal.GetComponent<Image>().raycastTarget = true;
+        FadeUtlity.Instance.CallFade(_fadeTime, _fadePenal, EGameObjectType.UI, EFadeType.FadeOut);
+        while (_fadePenal.GetComponent<CanvasGroup>().alpha < 1)
+        {
+            yield return null;
+        }
+        SoundUtility.Instance.StopSound(ESoundTypes.BGM, true);
+        SceneManager.LoadScene(SceneName);
+    }
+
+    private IEnumerator RaySetting()
+    {
+        while (_fadePenal.GetComponent<CanvasGroup>().alpha > 0)
+        {
+            yield return null;
+        }
+        _fadePenal.GetComponent<Image>().raycastTarget = false;
+    }
+
 }

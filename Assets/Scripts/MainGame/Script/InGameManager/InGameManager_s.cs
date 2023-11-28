@@ -16,6 +16,8 @@ public partial class InGameManager_s : Singleton<InGameManager_s>//Data
 
     [SerializeField] private float _fadeTime;
     [SerializeField] private GameObject _fadeObj;
+    [SerializeField] private GameObject _puaseCanvas;
+    [SerializeField] private UnityEngine.Animation _reTryAni;
     public void Start()
     {
         InGameMusicManager_s.Instance.InGameBind();
@@ -65,31 +67,36 @@ public partial class InGameManager_s : Singleton<InGameManager_s>//Data
             {
                 InGameFunBind_s.Instance.Pause();
                 isPause = !isPause;
-            }
-            else
-            {
-                StartCoroutine(UnPuaseWait());
+                _puaseCanvas.SetActive(true);
             }
         }
     }
-    IEnumerator UnPuaseWait()
+    public void GameUnPuase()
     {
-        yield return new WaitForSeconds(3);
+        StartCoroutine(UnPuaseWait());
+    }
+    private IEnumerator UnPuaseWait()
+    {
+        _puaseCanvas.SetActive(false);
+        _reTryAni.gameObject.SetActive(true);
+        _reTryAni.Play();
+        yield return new WaitForSeconds(3.2f);
+        _reTryAni.gameObject.SetActive(false);
         InGameFunBind_s.Instance.UnPause();
         isPause = !isPause;
     }
-        public void GameEnd()
+    public void GameEnd()
         {
             curGameStatus = EGameStatus.END;
             InGameFunBind_s.Instance.GameEnd();
             StopAllCoroutines();
-        StartCoroutine(FadeStart());
+        StartCoroutine(FadeStart("ResultScene"));
         }
-    IEnumerator FadeStart()
+    public IEnumerator FadeStart(string sceneName)
     {
         FadeUtlity.Instance.CallFade(_fadeTime, _fadeObj, EGameObjectType.UI, EFadeType.FadeOut);
         yield return new WaitForSeconds(_fadeTime);
-        SceneManager.LoadScene("ResultScene");
+        SceneManager.LoadScene(sceneName);
     }
     public void GameOverByPlayer()
         {

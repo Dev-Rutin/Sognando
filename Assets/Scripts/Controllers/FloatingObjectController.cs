@@ -26,7 +26,8 @@ public class FloatingObjectController : MonoBehaviour
 
     private IEnumerator StartFloatingY()
     {
-        
+        int waitTime = Random.Range(0, 100);
+        yield return new WaitForSeconds((float)waitTime / 10);
         Vector3 movePosition = _originPosition;
         while (true)
         {

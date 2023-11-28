@@ -10,6 +10,7 @@ public class MouseEffectController : MonoBehaviour
     private void Awake()
     {
         _particleSystem = GetComponent<ParticleSystem>();
+        DontDestroyOnLoad(gameObject);
     }
 
     private void FixedUpdate()

@@ -115,7 +115,7 @@ public partial class InGameMusicManager_s //game system
     }
     public void AudioUnPause()
     {
-        _requestdChannel.setPosition((uint)_dspClock, FMOD.TIMEUNIT.PCM);
+        //_requestdChannel.setPosition((uint)_dspClock, FMOD.TIMEUNIT.PCM);
         _channelsGroup.setPaused(false);
         isPause = false;
     }

@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using FMODPlus;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class LobbyManager : Singleton<LobbyManager>
 {
@@ -9,6 +11,7 @@ public class LobbyManager : Singleton<LobbyManager>
     [SerializeField] private GameObject _fadePenal;
     [SerializeField] private float _fadeTime;
     [SerializeField] private GameObject _dataObject;
+    [SerializeField] private CommandSender _commandSender;
     private bool _isFade;
 
     private int _continueStage;
@@ -17,6 +20,8 @@ public class LobbyManager : Singleton<LobbyManager>
     {
         FadeUtlity.Instance.CallFade(_fadeTime, _fadePenal, EGameObjectType.UI, EFadeType.FadeIn);
         //_continueStage = PlayerPrefs.GetInt("continueStage");
+        StartCoroutine(RaySetting());
+        _commandSender.SendCommand();
     }
 
     public void StartGame()
@@ -32,14 +37,25 @@ public class LobbyManager : Singleton<LobbyManager>
         StartCoroutine(ChangeScene(name));
     }
 
-    private IEnumerator ChangeScene(string Scenename)
+    private IEnumerator ChangeScene(string SceneName)
     {
+        _fadePenal.GetComponent<Image>().raycastTarget = true;
         FadeUtlity.Instance.CallFade(_fadeTime, _fadePenal, EGameObjectType.UI, EFadeType.FadeOut);
+        while (_fadePenal.GetComponent<CanvasGroup>().alpha < 1)
+        {
+            yield return null;
+        }
+        SoundUtility.Instance.StopSound(ESoundTypes.BGM, true);
+        SceneManager.LoadScene(SceneName);
+    }
+
+    private IEnumerator RaySetting()
+    {
         while (_fadePenal.GetComponent<CanvasGroup>().alpha > 0)
         {
             yield return null;
         }
-        SceneManager.LoadScene(Scenename);
+        _fadePenal.GetComponent<Image>().raycastTarget = false;
     }
 
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 public class ObjectButtonController : MonoBehaviour
@@ -19,21 +20,24 @@ public class ObjectButtonController : MonoBehaviour
 
     private void OnMouseDown()
     {
-        switch (gameObject.name)
+        if (!EventSystem.current.IsPointerOverGameObject())
         {
-            case ObjectButtonName.GAMESTARTBUTTON:
-                LobbyManager.Instance.LoadScene("GameScene");
-                break;
-            case ObjectButtonName.CREDITBUTTON:
-                LobbyManager.Instance.LoadScene("CreditScene");
-                break;
-            case ObjectButtonName.ARCHIVEBUTTON:
-                LobbyManager.Instance.LoadScene("ArchiveScene");
-                break;
-            case ObjectButtonName.SETTINGBUTTON:
-                SettingUtility.Instance.OpenSetting();
-                break;
+            switch (gameObject.name)
+            {
+                case ObjectButtonName.GAMESTARTBUTTON:
+                    LobbyManager.Instance.LoadScene("GameScene");
+                    break;
+                case ObjectButtonName.CREDITBUTTON:
+                    LobbyManager.Instance.LoadScene("CreditScene");
+                    break;
+                case ObjectButtonName.ARCHIVEBUTTON:
+                    LobbyManager.Instance.LoadScene("ArchiveScene");
+                    break;
+                case ObjectButtonName.SETTINGBUTTON:
+                    SettingUtility.Instance.OpenSetting();
+                    break;
 
+            }
         }
     }
 }

@@ -101,7 +101,6 @@ public partial class InGameCube_s //rotate
 {
     public bool RotateCube(Vector3 rotateposition)
     {
-        Debug.Log("rotateInput first = " + DataConverter.GetERotatePositionToVec3(_rotateTarget) + "and =" + rotateposition);
         if (DataConverter.GetERotatePositionToVec3(_rotateTarget)==rotateposition)
         {
             return true;

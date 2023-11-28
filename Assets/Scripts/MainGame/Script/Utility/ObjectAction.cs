@@ -89,7 +89,6 @@ public static class ObjectAction
                     }
                     else
                     {
-                        Debug.Log((float)(time - time / 3) / lerpValue);
                         ImageAlphaChange(target, Mathf.Lerp(0.5f, startValue, lerpValue - (1 / 3 * (float)time) - ((float)time / 3)));
                     }
                 }
@@ -119,7 +118,6 @@ public static class ObjectAction
                     }
                     else
                     {
-                        Debug.Log((float)(time - time / 3) / lerpValue);
                         ImageAlphaChange(target, Mathf.Lerp(0.5f, startValue, lerpValue-(1/3*(float)time)-((float)time/3)));
                     }
                 }

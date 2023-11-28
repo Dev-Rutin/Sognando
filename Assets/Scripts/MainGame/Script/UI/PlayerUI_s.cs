@@ -131,7 +131,7 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
     {
         _magicCircleSound.SendCommand();
         _attackIncrease.Play();
-        _attackGuagesObj.SetActive(false);
+        _attackGuagesObj.GetComponent<CanvasGroup>().alpha = 0;
         switch (level)
         {
             case EPlayerAttackLevel.NONE:
@@ -207,7 +207,7 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
         DoremiUI_s.Instance.SingleDoremiAnimation("idle", true);
         yield return new WaitForSeconds(1f);
         _attackTsf.localPosition = _playerAttackStartPos.localPosition;
-        _attackGuagesObj.SetActive(true);
+        _attackGuagesObj.GetComponent<CanvasGroup>().alpha = 1;
     }
     
 }

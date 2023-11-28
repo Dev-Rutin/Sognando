@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using FMODPlus;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -12,16 +13,18 @@ public class CreditManager : MonoBehaviour
     [Header("Credit")]
     [SerializeField] private GameObject _credit;
     [SerializeField] private float _moveSpeed;
+    [SerializeField] private CommandSender _commandSender;
     private float _speedUp;
     private float _originSpeed;
     
-    private float _targetY = 3586f;
+    private float _targetY = 4597f;
     // Start is called before the first frame update
     void Start()
     {
         
         _originSpeed = _moveSpeed;
         _speedUp = _moveSpeed / 2;
+        _commandSender.SendCommand();
         StartCredit();
     }
 
@@ -76,7 +79,7 @@ public class CreditManager : MonoBehaviour
         {
             yield return null;
         }
-
+        SoundUtility.Instance.StopSound(ESoundTypes.BGM, true);
         SceneManager.LoadScene("LobbyScene");
     }
 }

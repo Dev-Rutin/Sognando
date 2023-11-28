@@ -18,6 +18,7 @@ public partial class InGameManager_s : Singleton<InGameManager_s>//Data
     [SerializeField] private GameObject _fadeObj;
     [SerializeField] private GameObject _puaseCanvas;
     [SerializeField] private UnityEngine.Animation _reTryAni;
+    [SerializeField] private GameObject _pauseCanvasButtons;
     public void Start()
     {
         InGameMusicManager_s.Instance.InGameBind();
@@ -68,6 +69,7 @@ public partial class InGameManager_s : Singleton<InGameManager_s>//Data
                 InGameFunBind_s.Instance.Pause();
                 isPause = !isPause;
                 _puaseCanvas.SetActive(true);
+                _pauseCanvasButtons.SetActive(true);
             }
         }
     }
@@ -77,10 +79,11 @@ public partial class InGameManager_s : Singleton<InGameManager_s>//Data
     }
     private IEnumerator UnPuaseWait()
     {
-        _puaseCanvas.SetActive(false);
+        _pauseCanvasButtons.SetActive(false);
         _reTryAni.gameObject.SetActive(true);
         _reTryAni.Play();
         yield return new WaitForSeconds(3.2f);
+        _puaseCanvas.SetActive(false);
         _reTryAni.gameObject.SetActive(false);
         InGameFunBind_s.Instance.UnPause();
         isPause = !isPause;

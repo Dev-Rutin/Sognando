@@ -29,12 +29,12 @@ public class ResultManager : MonoBehaviour
     [SerializeField] private float _scaleLerpTime;
     [SerializeField] private Sprite[] _ranks;
     [SerializeField] private CommandSender _rankSoundSender;
+    [SerializeField] private CommandSender _clearSoundSender;
+    [SerializeField] private CommandSender _failSoundSender;
 
     [SerializeField] private GameObject _restartText;
-
     [SerializeField] private int _maxCountSpeed;
     [SerializeField] private int _minCountSpeed;
-
     private bool _isPenalFading;
 
     private bool _isTextFading;
@@ -45,23 +45,26 @@ public class ResultManager : MonoBehaviour
         if (!StageDataController.Instance.isClear)
         {
             _gameoverLabel.SetActive(true);
+            _failSoundSender.SendCommand();
         }
         else
         {
             _clearLabel.SetActive(true);
+            _clearSoundSender.SendCommand();
         }
         _isPenalFading = true;
+        _isTextFading = true;
         
-        CalcRank();
         StartCoroutine(StartCount());
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (_isPenalFading && !_isTextFading && Input.GetKeyDown(KeyCode.Return))
+        if (_isPenalFading && !_isTextFading && Input.anyKey)
         {
-            SceneManager.LoadScene("StartScene");
+            SoundUtility.Instance.StopSound(ESoundTypes.BGM, true);
+            SceneManager.LoadScene("LobbyScene");
         }
     }
 
@@ -74,18 +77,18 @@ public class ResultManager : MonoBehaviour
         //Score
         int Scoredata = 0;
         int ETCData = 0;
-        int maxscore = StageDataController.Instance.score + 1;
+        int maxScore = StageDataController.Instance.score + 1;
         int maxCombo = StageDataController.Instance.maxCombo;
         int maxPerfect = StageDataController.Instance.perfectCount;
         int maxGood = StageDataController.Instance.goodCount;
         int maxMiss = StageDataController.Instance.missCount;
-        while (Scoredata < maxscore)
+        while (Scoredata < maxScore)
         {
             Scoredata += Random.Range(_maxCountSpeed, _minCountSpeed);
             ETCData++;
-            if (Scoredata >= maxscore)
+            if (Scoredata >= maxScore)
             {
-                Scoredata = maxscore;
+                Scoredata = maxScore;
             }
 
             if (ETCData <= maxCombo)
@@ -111,7 +114,8 @@ public class ResultManager : MonoBehaviour
             yield return null;
         }
         SoundUtility.Instance.SFXAudioSource.Stop();
-        yield return null;
+        yield return new WaitForSeconds(0.1f);
+        CalcRank();
 
         _rankImage.enabled = true;
         
@@ -128,16 +132,19 @@ public class ResultManager : MonoBehaviour
             yield return null;;
         }
         _rankSoundSender.SendCommand();
+
+        _isTextFading = false;
         
         FadeUtlity.Instance.BlinkUI(_textFadeTime, _restartText);
     }
 
     private void CalcRank()
     {
-        float totalValue = Int32.Parse(_perfectText.text) * 2 + Int32.Parse(_goodText.text);
-        float minusPer = Int32.Parse(_missText.text) * 2;
-        int minusValue = Mathf.RoundToInt(totalValue / 100 * minusPer);
+        int totalValue = Int32.Parse(_perfectText.text) * 2 + Int32.Parse(_goodText.text);
+        int minusPer = Int32.Parse(_missText.text) * 2;
+        float minusValue = Mathf.Round((float)totalValue / 100 * minusPer);
         int rankValue = Mathf.RoundToInt((totalValue - minusValue) / totalValue * 100);
+        
         if (rankValue >= (int)ERankValue.S)
         {
             _rankImage.sprite = _ranks[0];

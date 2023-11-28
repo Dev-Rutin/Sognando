@@ -39,3 +39,11 @@ public enum ERankValue
     A = 89,
     S = 100
 }
+
+public static class ObjectButtonName
+{
+    public const string GAMESTARTBUTTON = "StartButton";
+    public const string ARCHIVEBUTTON = "ArchiveButton";
+    public const string SETTINGBUTTON = "SettingButton";
+    public const string CREDITBUTTON = "CreditButton";
+}

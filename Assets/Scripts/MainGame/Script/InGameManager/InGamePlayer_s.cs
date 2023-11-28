@@ -26,6 +26,8 @@ public partial class InGamePlayer_s : Singleton<InGamePlayer_s>, IInGame//data
     [SerializeField] int _goodAttackIncreaseValue;
     private int _curAttackIncreaseValue;
 
+    bool firstCount;
+    bool firstMove;
     private void Start()
     {
         _playerImage = _playerObj.GetComponent<Image>();
@@ -49,15 +51,17 @@ public partial class InGamePlayer_s//game system
         _isGracePeriod = false;
         _playerHitBlock = 0;
         _curAttackIncreaseValue = 0;
+        firstCount = false;
+        firstMove = false;
     }
     public void GamePlay()
     {
         ObjectAction.ImageAlphaChange(_flickerImage, 0);
-        PlayerUI_s.Instance.PlayerHPInitialize(_playerMaxHP);
-        PlayerUI_s.Instance.PlayerHPUpdate(_curPlayerHP);
         _playerObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[playerPos.x, playerPos.y].transform;
         PlayerUI_s.Instance.StopAttackParticle();
+        PlayerUI_s.Instance.SinglePlayerAnimation("idle", true);
         DoremiUI_s.Instance.SingleDoremiAnimation("idle",true);
+        DoremiUI_s.Instance.DoremiTextChange("ë°©í–¥í‚¤ë¡œ ì´ë™í•´ì„œ\në§ˆë²•ì„ ì¤€ë¹„í•˜ì");
 
     }
     public void GameEnd()
@@ -100,6 +104,10 @@ public partial class InGamePlayer_s//game system
                 AttackLevelIncrease();
                 break;
             case EInGameStatus.CUBEROTATE:
+                if(!firstCount)
+                {
+                    DoremiUI_s.Instance.DoremiTextChange("ë°•ìì— ë§ì¶° ë°©í–¥í‚¤ë¥¼\nëˆ„ë¥´ë©´ ë§ˆë²•ì„\në°œë™í•  ìˆ˜ ìˆì–´!");
+                }
                 if (_isGracePeriod)
                 {
                     _playerHitBlock = 0;
@@ -108,6 +116,11 @@ public partial class InGamePlayer_s//game system
                 }
                 break;
             case EInGameStatus.TIMEWAIT:
+                if(!firstCount)
+                {
+                    DoremiUI_s.Instance.DoremiTextChange("");
+                    firstCount = true;
+                }
                 MovePlayer(new Vector2Int(playerPos.x * -1, playerPos.y * -1), InGameSideData_s.Instance.divideSize);
                 PlayerUI_s.Instance.ShowAttackParticle(_playerAttackLevel);
                 PlayerUI_s.Instance.PlayerAttack();
@@ -126,7 +139,7 @@ public partial class InGamePlayer_s  //move
             StartCoroutine(MoveTimeLock());
         }
     }
-    private bool PlayerMoveCheck(Vector2Int movePos, Vector2Int divideSize)//±× Æ÷Áö¼ÇÀ¸·Î ÀÌµ¿ÀÌ °¡´ÉÇÑÁö ºÒ°¡´ÉÇÑÁö ÆÇ´Ü
+    private bool PlayerMoveCheck(Vector2Int movePos, Vector2Int divideSize)//ê·¸ í¬ì§€ì…˜ìœ¼ë¡œ ì´ë™ì´ ê°€ëŠ¥í•œì§€ ë¶ˆê°€ëŠ¥í•œì§€ íŒë‹¨
     {
         Vector2Int movedPosition = playerPos + movePos;
         movedPosition.x = movedPosition.x < 0 ? 0 : movedPosition.x;
@@ -150,7 +163,10 @@ public partial class InGamePlayer_s  //move
         StartCoroutine(ObjectAction.ImageFade(_flickerImage, 0.05f, true,0,1));
         yield return new WaitForSeconds(0.05f);
         StartCoroutine(ObjectAction.ImageFade(_flickerImage, 0.05f, true,1,0));
-
+        if(!firstMove)
+        {
+            DoremiUI_s.Instance.DoremiTextChange("");
+        }
     }
     public void PlayerPositionCheck()
     {
@@ -220,7 +236,8 @@ public partial class InGamePlayer_s  //data change
             }
             else
             {
-                ObjectAction.ImageAlphaChange(_playerImage, 0.7f);
+                StartCoroutine(ObjectAction.ImageFade(_playerImage, InGameMusicManager_s.Instance.secPerBeat/2, false, 1,1, 2));
+                //ObjectAction.ImageAlphaChange(_playerImage, 0.7f);
                 _isGracePeriod = true;
                 _playerHitBlock = 1;
                 PlayerUI_s.Instance.PlayerHPDown();

@@ -18,13 +18,15 @@ public partial class InGameMusicManager_s : Singleton<InGameMusicManager_s>//dat
     [Header("data")]
     [SerializeField] private int _bpm;
     private WaitForEndOfFrame _waitUpdate;
-    public float secPerBeat { get; private set; }
-    public float musicPosition { get; private set; }
-    private float _musicPositionInBeats;
+    public double secPerBeat { get; private set; }
+    public double musicPosition { get; private set; }
+    private double _musicPositionInBeats;
     public int completedLoops { get; private set; }
-    private float _lastBeatCount;
-    public float loopPositionInBeats { get; private set; }
+    private double _lastBeatCount;
+    public double loopPositionInBeats { get; private set; }
     public bool isPause { get; private set; }
+
+    [SerializeField] private double _offset;
     private void Start()
     {
         secPerBeat = 60f / _bpm;
@@ -70,7 +72,7 @@ public partial class InGameMusicManager_s //game system
         if (!isPause&&InGameManager_s.Instance.curGameStatus==EGameStatus.PLAYING)
         {
             GetCurrentDSPClock(_channelsGroup, out _dspClock, out _parent);
-            musicPosition = (_currentSample-_startDspClock) / _masterSampleRate;
+            musicPosition = ((_currentSample-_startDspClock) / _masterSampleRate)+_offset;
             SoundUtility.Instance.BGMAudioSource.EventInstance.getTimelinePosition(out positionTest);
             _musicPositionInBeats = musicPosition / secPerBeat;
             if (_musicPositionInBeats >= (completedLoops + 1))
@@ -113,7 +115,7 @@ public partial class InGameMusicManager_s //game system
     }
     public void AudioUnPause()
     {
-        _requestdChannel.setPosition((uint)_dspClock, FMOD.TIMEUNIT.PCM);
+        //_requestdChannel.setPosition((uint)_dspClock, FMOD.TIMEUNIT.PCM);
         _channelsGroup.setPaused(false);
         isPause = false;
     }

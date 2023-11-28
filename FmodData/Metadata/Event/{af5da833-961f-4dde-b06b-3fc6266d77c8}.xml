@@ -44,6 +44,9 @@
 		</relationship>
 	</object>
 	<object class="MasterTrack" id="{ae2ce92b-5364-4f57-90d6-cb1fcd114678}">
+		<relationship name="modules">
+			<destination>{cd607e77-5582-41e3-bf02-8f13b154cfdc}</destination>
+		</relationship>
 		<relationship name="mixerGroup">
 			<destination>{afce0bba-932a-4936-be00-4d8cde9f77e2}</destination>
 		</relationship>
@@ -64,7 +67,6 @@
 	<object class="GroupTrack" id="{5f90ce69-240a-499b-b001-eafe68320c84}">
 		<relationship name="modules">
 			<destination>{b14117e1-37a8-49fd-b4e5-86a5dcfceec9}</destination>
-			<destination>{cd607e77-5582-41e3-bf02-8f13b154cfdc}</destination>
 			<destination>{c9a9ea2d-8195-4832-9561-0aa485ff35ca}</destination>
 			<destination>{338e753e-af85-43bc-8439-3b79c9d04f4c}</destination>
 			<destination>{33f89f05-42cd-4390-9d95-20e1c36a6070}</destination>
@@ -109,6 +111,23 @@
 			<destination>{cde05a19-787d-4ebe-877a-6403b73bd700}</destination>
 		</relationship>
 	</object>
+	<object class="SingleSound" id="{cd607e77-5582-41e3-bf02-8f13b154cfdc}">
+		<property name="isCutoff">
+			<value>true</value>
+		</property>
+		<property name="start">
+			<value>1</value>
+		</property>
+		<property name="looping">
+			<value>true</value>
+		</property>
+		<relationship name="modulators">
+			<destination>{82faf59c-15e5-42e6-ade5-b834221d130b}</destination>
+		</relationship>
+		<relationship name="audioFile">
+			<destination>{2230ba1b-83d0-4261-8f35-793e09f6739c}</destination>
+		</relationship>
+	</object>
 	<object class="MixerBusEffectChain" id="{57e5a0e8-d538-4832-a8a3-3ce4f00828b9}">
 		<relationship name="effects">
 			<destination>{b50d32c3-0b4f-4eaa-a054-33d73be6d0b4}</destination>
@@ -127,23 +146,6 @@
 		</relationship>
 		<relationship name="audioFile">
 			<destination>{ce47ad96-ca7a-48de-893c-598e5aec1314}</destination>
-		</relationship>
-	</object>
-	<object class="SingleSound" id="{cd607e77-5582-41e3-bf02-8f13b154cfdc}">
-		<property name="isCutoff">
-			<value>true</value>
-		</property>
-		<property name="start">
-			<value>1</value>
-		</property>
-		<property name="looping">
-			<value>true</value>
-		</property>
-		<relationship name="modulators">
-			<destination>{82faf59c-15e5-42e6-ade5-b834221d130b}</destination>
-		</relationship>
-		<relationship name="audioFile">
-			<destination>{2230ba1b-83d0-4261-8f35-793e09f6739c}</destination>
 		</relationship>
 	</object>
 	<object class="SingleSound" id="{c9a9ea2d-8195-4832-9561-0aa485ff35ca}">
@@ -241,9 +243,6 @@
 		<relationship name="modulators">
 			<destination>{77d3c701-cff7-4dc3-82cd-d46ccbad2004}</destination>
 		</relationship>
-		<relationship name="parameters">
-			<destination>{bac6c825-ca8b-40cc-99f2-024cf9dc3f04}</destination>
-		</relationship>
 		<relationship name="event">
 			<destination>{cae9b1ec-9da7-4423-93d6-03877f3b3edb}</destination>
 		</relationship>
@@ -279,21 +278,6 @@
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{c86574c8-7750-440d-945a-9dc39f731dfa}" />
-	<object class="MixerBusFader" id="{b50d32c3-0b4f-4eaa-a054-33d73be6d0b4}" />
-	<object class="ADSRModulator" id="{63a3cebc-bbd4-4868-8dca-6606e22f8e28}">
-		<property name="nameOfPropertyBeingModulated">
-			<value>volume</value>
-		</property>
-		<property name="initialValue">
-			<value>-80</value>
-		</property>
-		<property name="attackTime">
-			<value>57.6923409</value>
-		</property>
-		<property name="finalValue">
-			<value>-80</value>
-		</property>
-	</object>
 	<object class="ADSRModulator" id="{82faf59c-15e5-42e6-ade5-b834221d130b}">
 		<property name="nameOfPropertyBeingModulated">
 			<value>volume</value>
@@ -306,6 +290,21 @@
 		</property>
 		<property name="peakValue">
 			<value>-0.577777863</value>
+		</property>
+		<property name="finalValue">
+			<value>-80</value>
+		</property>
+	</object>
+	<object class="MixerBusFader" id="{b50d32c3-0b4f-4eaa-a054-33d73be6d0b4}" />
+	<object class="ADSRModulator" id="{63a3cebc-bbd4-4868-8dca-6606e22f8e28}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>volume</value>
+		</property>
+		<property name="initialValue">
+			<value>-80</value>
+		</property>
+		<property name="attackTime">
+			<value>57.6923409</value>
 		</property>
 		<property name="finalValue">
 			<value>-80</value>
@@ -400,11 +399,6 @@
 		<property name="finalValue">
 			<value>-80</value>
 		</property>
-	</object>
-	<object class="ParameterProperty" id="{bac6c825-ca8b-40cc-99f2-024cf9dc3f04}">
-		<relationship name="parameter">
-			<destination>{3b9ff5cb-267f-4f88-9432-9643c4bad921}</destination>
-		</relationship>
 	</object>
 	<object class="MixerBusEffectChain" id="{76f47cf0-252a-468b-bbc1-5fc90bdef131}">
 		<relationship name="effects">

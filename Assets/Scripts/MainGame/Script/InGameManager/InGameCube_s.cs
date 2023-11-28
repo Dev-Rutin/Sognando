@@ -8,7 +8,6 @@ public partial class InGameCube_s : Singleton<InGameCube_s>, IInGame //data
 {
     [Header("cube data")]
     [SerializeField] private Transform _gameCubeTsf;
-    [SerializeField] private GameObject _cubeSideUI;
     public ECubeFace curFace { get; private set; }
     //private Queue<ERotatePosition> _rotateQueue;
     private ERotatePosition _rotateTarget;
@@ -47,7 +46,6 @@ public partial class InGameCube_s//game system
     public void GamePlay()
     {
         _gameCubeTsf.localEulerAngles = Vector3.zero;
-        _cubeSideUI.SetActive(true);
         _rotateSpriteRenderer.sprite = null;
     }
     public void GameEnd()
@@ -64,13 +62,11 @@ public partial class InGameCube_s//game system
         {
             case EInGameStatus.SHOWPATH:
                 _rotateTarget = ERotatePosition.NONE;
-                _cubeSideUI.SetActive(true);
                 break;
             case EInGameStatus.PLAYERMOVE:
                 GetFace();
                 break;
             case EInGameStatus.CUBEROTATE:
-                _cubeSideUI.SetActive(false);
                 /*if (_rotateQueue.Count != 0)
                 {
                     _rotateTarget = _rotateQueue.Dequeue();
@@ -105,7 +101,6 @@ public partial class InGameCube_s //rotate
 {
     public bool RotateCube(Vector3 rotateposition)
     {
-        Debug.Log("rotateInput first = " + DataConverter.GetERotatePositionToVec3(_rotateTarget) + "and =" + rotateposition);
         if (DataConverter.GetERotatePositionToVec3(_rotateTarget)==rotateposition)
         {
             return true;
@@ -114,14 +109,15 @@ public partial class InGameCube_s //rotate
     }
     private IEnumerator RotateTimeLock(Vector3 rotateposition)
     {
+        PlayerUI_s.Instance.SinglePlayerAnimation("ready", true);
         DoremiUI_s.Instance.SingleDoremiAnimation("ready",true);
         while (InGameManager_s.Instance.curInGameStatus == EInGameStatus.CUBEROTATE)
         {
             yield return _waitUpdate;
         }
         CubeUI_s.Instance.ShowEffect(curFace);
-        float startTime = InGameMusicManager_s.Instance.musicPosition;
-        float waitTime = InGameManager_s.Instance.beatFreezeCount * InGameMusicManager_s.Instance.secPerBeat;
+        double startTime = InGameMusicManager_s.Instance.musicPosition;
+        double waitTime = InGameManager_s.Instance.beatFreezeCount * InGameMusicManager_s.Instance.secPerBeat;
         while (InGameMusicManager_s.Instance.musicPosition-startTime<=waitTime)
         {
             yield return _waitUpdate;
@@ -131,9 +127,9 @@ public partial class InGameCube_s //rotate
     IEnumerator ShowRotateImage()
     {
         _rotateSpriteRenderer.sprite = _rotateSprite;
-        float waitTime = InGameManager_s.Instance.beatFreezeCount * InGameMusicManager_s.Instance.secPerBeat;
+        double waitTime = InGameManager_s.Instance.beatFreezeCount * InGameMusicManager_s.Instance.secPerBeat;
         StartCoroutine(ObjectAction.ImageFade(_rotateSpriteRenderer, InGameMusicManager_s.Instance.secPerBeat, false,1,0, InGameManager_s.Instance.beatFreezeCount));
-        float startTime = InGameMusicManager_s.Instance.musicPosition;
+        double startTime = InGameMusicManager_s.Instance.musicPosition;
         while (InGameMusicManager_s.Instance.musicPosition - startTime <= waitTime)
         {
             yield return _waitUpdate;
@@ -155,7 +151,7 @@ public partial class InGameCube_s //rotate
     {
         Vector3 rotateTarget = new Vector3(UnityEngine.Random.Range(-150, 150) * 0.01f, UnityEngine.Random.Range(-150, 150) * 0.01f, UnityEngine.Random.Range(-150, 150) * 0.01f);
         StartCoroutine(ObjectAction.RotateObj(_gameCubeTsf.gameObject, rotateTarget, rotateTime));
-       float startTime = InGameMusicManager_s.Instance.musicPosition;
+        double startTime = InGameMusicManager_s.Instance.musicPosition;
         while (InGameMusicManager_s.Instance.musicPosition-startTime<=rotateTime)
         {
             yield return _waitUpdate;

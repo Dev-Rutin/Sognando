@@ -26,7 +26,8 @@ public class FloatingObjectController : MonoBehaviour
 
     private IEnumerator StartFloatingY()
     {
-        
+        int waitTime = Random.Range(0, 100);
+        yield return new WaitForSeconds((float)waitTime / 10);
         Vector3 movePosition = _originPosition;
         while (true)
         {
@@ -35,7 +36,7 @@ public class FloatingObjectController : MonoBehaviour
             {
                 _timer += Time.deltaTime;
                 movePosition.y = Mathf.Lerp(gameObject.transform.localPosition.y, _originPosition.y + _floatDistance, _timer / _moveTime);
-                if (movePosition.y > _originPosition.y && Mathf.Abs(_originPosition.y + _floatDistance - movePosition.y) < 0.003f)
+                if (movePosition.y > _originPosition.y && Mathf.Abs(_originPosition.y + _floatDistance - movePosition.y) < 0.3f)
                 {
                     movePosition.y = _originPosition.y + _floatDistance;
                     gameObject.transform.localPosition = movePosition;
@@ -50,7 +51,7 @@ public class FloatingObjectController : MonoBehaviour
             {
                 _timer += Time.deltaTime;
                 movePosition.y = Mathf.Lerp(gameObject.transform.localPosition.y, _originPosition.y - _floatDistance, _timer / _moveTime);
-                if (movePosition.y < _originPosition.y && Mathf.Abs(_originPosition.y - _floatDistance - movePosition.y) < 0.003f)
+                if (movePosition.y < _originPosition.y && Mathf.Abs(_originPosition.y - _floatDistance - movePosition.y) < 0.3f)
                 {
                     movePosition.y = _originPosition.y - _floatDistance;
                     gameObject.transform.localPosition = movePosition;
@@ -59,7 +60,8 @@ public class FloatingObjectController : MonoBehaviour
                 gameObject.transform.localPosition = movePosition;
                 yield return null;
             }
-            yield return new WaitForSeconds(Random.Range(0.0f, 3.0f));
+
+            yield return null;
         }
     }
     

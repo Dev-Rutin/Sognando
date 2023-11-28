@@ -7,7 +7,6 @@ public class HPBarController : MonoBehaviour
 {
     [SerializeField] private Transform[] _HPGauge;
     [SerializeField] private float _animationSpeed;
-    [SerializeField] private Button _button;
     private float _distance;
 
     private int _HPindex = 1;
@@ -15,40 +14,76 @@ public class HPBarController : MonoBehaviour
     void Start()
     {
         _HPGauge = GetComponentsInChildren<Transform>();
-        Debug.Log(_HPGauge.Length);
-        _distance = 0.106f;
-        _button.onClick.AddListener(AnimationStart);
+        _distance = 30f;
     }
     
-    public void AnimationStart()
+    public void PlayerDamage()
     {
         StartCoroutine(Damage());
     }
 
+    public void MonsterDamage(int count)
+    {
+        StartCoroutine(Damage(count));
+    }
+
     private IEnumerator Damage()
     {
-        Vector3 target = _HPGauge[_HPindex].position;
-        Vector3 origin;
-        Vector3 start = target;
-        target.x -= _distance;
-        float time = 0;
-        while (true)
+        for (int i = 0; i < 2; i++)
         {
-            time += Time.deltaTime;
-            origin = Vector3.Lerp(start, target, time / _animationSpeed);
-            _HPGauge[_HPindex].position = origin;
-            if (origin == target)
+            Vector3 target = _HPGauge[_HPindex].localPosition;
+            Vector3 origin;
+            Vector3 start = target;
+            target.x -= _distance;
+            float time = 0;
+            while (true)
             {
-                break;
-            }
+                time += Time.deltaTime;
+                origin = Vector3.Lerp(start, target, time / _animationSpeed);
+                _HPGauge[_HPindex].localPosition = origin;
+                if (origin == target)
+                {
+                    break;
+                }
 
-            yield return null;
+                yield return null;
+            }
+            Debug.Log("Start for()");
+            for (int j = _HPindex + 1; j < _HPGauge.Length; j++)
+            {
+                _HPGauge[j].localPosition = _HPGauge[_HPindex].localPosition;
+            }
+            ++_HPindex;
         }
-        Debug.Log("Start for()");
-        for (int i = _HPindex + 1; i < _HPGauge.Length; i++)
+    }
+    
+    private IEnumerator Damage(int count)
+    {
+        for (int i = 0; i < count; i++)
         {
-            _HPGauge[i].position = _HPGauge[_HPindex].position;
+            Vector3 target = _HPGauge[_HPindex].localPosition;
+            Vector3 origin;
+            Vector3 start = target;
+            target.x -= _distance;
+            float time = 0;
+            while (true)
+            {
+                time += Time.deltaTime;
+                origin = Vector3.Lerp(start, target, time / _animationSpeed);
+                _HPGauge[_HPindex].localPosition = origin;
+                if (origin == target)
+                {
+                    break;
+                }
+
+                yield return null;
+            }
+            Debug.Log("Start for()");
+            for (int j = _HPindex + 1; j < _HPGauge.Length; j++)
+            {
+                _HPGauge[j].localPosition = _HPGauge[_HPindex].localPosition;
+            }
+            ++_HPindex;
         }
-        ++_HPindex;
     }
 }

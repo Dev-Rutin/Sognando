@@ -23,16 +23,13 @@
 			<destination>{fdc08569-7919-4695-ab85-fe4afb2aa1f8}</destination>
 		</relationship>
 		<relationship name="markerTracks">
-			<destination>{183485ff-c71c-48fe-a68e-4026cfd30582}</destination>
+			<destination>{1f452390-ec85-4f91-8032-9fa1c9caa4c3}</destination>
 		</relationship>
 		<relationship name="groupTracks">
 			<destination>{447a1536-6dc9-4599-88db-12735e6c6195}</destination>
 		</relationship>
 		<relationship name="timeline">
 			<destination>{0a6f2166-336b-4625-a4f7-adffd7b4525a}</destination>
-		</relationship>
-		<relationship name="parameters">
-			<destination>{3b9ff5cb-267f-4f88-9432-9643c4bad921}</destination>
 		</relationship>
 		<relationship name="banks">
 			<destination>{1c897f2b-5f30-4d36-8d2b-d56f8632795e}</destination>
@@ -60,29 +57,25 @@
 		</relationship>
 	</object>
 	<object class="EventAutomatableProperties" id="{fdc08569-7919-4695-ab85-fe4afb2aa1f8}" />
-	<object class="MarkerTrack" id="{183485ff-c71c-48fe-a68e-4026cfd30582}" />
+	<object class="MarkerTrack" id="{1f452390-ec85-4f91-8032-9fa1c9caa4c3}" />
 	<object class="GroupTrack" id="{447a1536-6dc9-4599-88db-12735e6c6195}">
 		<relationship name="automationTracks">
 			<destination>{bd28ef60-5c90-457c-9bb9-02bf8956a1e3}</destination>
 		</relationship>
 		<relationship name="modules">
-			<destination>{99db6cc2-a146-45ed-97b5-e96c5d107d4a}</destination>
+			<destination>{cd6a33fc-6923-404c-9b21-2084526b0a6d}</destination>
 		</relationship>
 		<relationship name="mixerGroup">
 			<destination>{3e60388a-5c97-4236-801d-640b68649530}</destination>
 		</relationship>
 	</object>
 	<object class="Timeline" id="{0a6f2166-336b-4625-a4f7-adffd7b4525a}">
-		<property name="isProxyEnabled">
-			<value>false</value>
-		</property>
-	</object>
-	<object class="ParameterProxy" id="{3b9ff5cb-267f-4f88-9432-9643c4bad921}">
 		<relationship name="modules">
-			<destination>{99db6cc2-a146-45ed-97b5-e96c5d107d4a}</destination>
+			<destination>{cd6a33fc-6923-404c-9b21-2084526b0a6d}</destination>
 		</relationship>
-		<relationship name="preset">
-			<destination>{565e0b25-f5bc-4e10-9438-3b2a588cc265}</destination>
+		<relationship name="markers">
+			<destination>{ff668ef8-6b40-40eb-b5aa-216cf8cf8cb8}</destination>
+			<destination>{9f35e1d6-d8ee-4478-b078-99141b2cffd2}</destination>
 		</relationship>
 	</object>
 	<object class="EventMixerMaster" id="{87eb2a4b-0256-4df4-9efd-7b312ddd6a1b}">
@@ -107,7 +100,10 @@
 			<destination>{dad642fb-fbc9-4b5c-9b04-625a2098af4e}</destination>
 		</relationship>
 	</object>
-	<object class="SingleSound" id="{99db6cc2-a146-45ed-97b5-e96c5d107d4a}">
+	<object class="SingleSound" id="{cd6a33fc-6923-404c-9b21-2084526b0a6d}">
+		<property name="length">
+			<value>91.689795918367352</value>
+		</property>
 		<relationship name="audioFile">
 			<destination>{a4cd7cb6-70cf-4194-b150-05ee30930f86}</destination>
 		</relationship>
@@ -127,6 +123,34 @@
 		</relationship>
 		<relationship name="output">
 			<destination>{87eb2a4b-0256-4df4-9efd-7b312ddd6a1b}</destination>
+		</relationship>
+	</object>
+	<object class="TempoMarker" id="{ff668ef8-6b40-40eb-b5aa-216cf8cf8cb8}">
+		<property name="position">
+			<value>0</value>
+		</property>
+		<property name="tempo">
+			<value>130</value>
+		</property>
+		<relationship name="timeline">
+			<destination>{0a6f2166-336b-4625-a4f7-adffd7b4525a}</destination>
+		</relationship>
+		<relationship name="markerTrack">
+			<destination>{1f452390-ec85-4f91-8032-9fa1c9caa4c3}</destination>
+		</relationship>
+	</object>
+	<object class="LoopRegion" id="{9f35e1d6-d8ee-4478-b078-99141b2cffd2}">
+		<property name="position">
+			<value>29.53846153846154</value>
+		</property>
+		<property name="length">
+			<value>44.307692307692307</value>
+		</property>
+		<relationship name="timeline">
+			<destination>{0a6f2166-336b-4625-a4f7-adffd7b4525a}</destination>
+		</relationship>
+		<relationship name="markerTrack">
+			<destination>{1f452390-ec85-4f91-8032-9fa1c9caa4c3}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusEffectChain" id="{8c9f7869-7957-45ba-a50a-a0b822fc2673}">

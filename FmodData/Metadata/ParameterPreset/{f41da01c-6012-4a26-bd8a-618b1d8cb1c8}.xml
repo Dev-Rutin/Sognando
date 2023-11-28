@@ -15,11 +15,7 @@
 		<property name="parameterType">
 			<value>2</value>
 		</property>
-		<property name="maximum">
-			<value>2</value>
-		</property>
 		<property name="enumerationLabels">
-			<value>Hit</value>
 			<value>Damaged</value>
 		</property>
 		<property name="initialValue">

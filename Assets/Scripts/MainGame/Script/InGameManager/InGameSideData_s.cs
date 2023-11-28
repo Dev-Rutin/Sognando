@@ -29,5 +29,13 @@ public class InGameSideData_s: Singleton<InGameSideData_s> // side data
             }
         }
     }
+    public bool SizeCheck(Vector2Int data)
+    {
+        if(data.x<0||data.x>=m_divideSize.x|| data.y < 0 || data.y >= m_divideSize.y)
+        {
+            return false;
+        }
+        return true;
+    }
 }
 

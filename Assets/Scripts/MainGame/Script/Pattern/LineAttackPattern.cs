@@ -11,19 +11,22 @@ public class LineAttackPattern : Singleton<LineAttackPattern>
     [SerializeField] private GameObject _lineAttackPrefab;
     [SerializeField] private Transform _lineAttackTsf;
     private List<GameObject> _lineAttackObjList;
-    private List<ParticleSystem> _lineAttackParticleList;
+    private List<CanvasGroup> _lineAttackCanvasList;
     public ELineAttackMode curLineAttackMod { get; private set; }
     [SerializeField] private Vector2 _attackStartPos; // 0 35
     [SerializeField] private Vector2 _attackEndPos; // 0 -10
     [SerializeField] private float _attackTime; // 0.1f
+
+    [SerializeField] private Sprite _attackStartImage;
+    [SerializeField] private Sprite _attackEndImage;
     private void Start()
     {
         _lineAttackObjList = new List<GameObject>();
-        _lineAttackParticleList = new List<ParticleSystem>();
+        _lineAttackCanvasList = new List<CanvasGroup>();
         for(int i=0;i<Mathf.Max(InGameSideData_s.Instance.divideSize.x, InGameSideData_s.Instance.divideSize.y);i++)
         {
             _lineAttackObjList.Add(Instantiate(_lineAttackPrefab, _lineAttackTsf));
-            _lineAttackParticleList.Add(_lineAttackObjList[i].transform.GetChild(1).GetChild(0).GetComponent<ParticleSystem>());
+            _lineAttackCanvasList.Add(_lineAttackObjList[i].transform.GetChild(1).GetComponent<CanvasGroup>());
             _lineAttackObjList[i].transform.position= InGameManager_s.throwVector2;
         }
         InGameFunBind_s.Instance.EgameStart+= GameStart;
@@ -42,37 +45,39 @@ public class LineAttackPattern : Singleton<LineAttackPattern>
     }
     private void GetRandomeLineAttack()
     {
-        int count = UnityEngine.Random.Range(0, 2);
-        if (count == 0) // row attack
-        {
-            int y =  InGamePlayer_s.Instance.playerPos.y;
-            for (int i = 0; i < InGameSideData_s.Instance.divideSize.x; i++)
+            int count = UnityEngine.Random.Range(0, 2);
+            if (count == 0) // row attack
             {
-                if (InGameSideData_s.Instance.sideDatas[i, y].isCanMakeCheck(true, "lineAttack"))
+                int y = InGamePlayer_s.Instance.playerPos.y;
+                for (int i = 0; i < InGameSideData_s.Instance.divideSize.x; i++)
                 {
-                    _lineAttackObjList[i].transform.GetChild(0).gameObject.SetActive(false);
-                    _lineAttackObjList[i].transform.localPosition = InGameSideData_s.Instance.sideDatas[i, y].transform;
-                    InGameSideData_s.Instance.sideDatas[i, y].lineAttack = _lineAttackObjList[i];
+                    if (InGameSideData_s.Instance.sideDatas[i, y].isCanMakeCheck(true, "lineAttack"))
+                    {
+                        _lineAttackObjList[i].transform.GetChild(0).gameObject.SetActive(false);
+                        _lineAttackObjList[i].transform.localPosition = InGameSideData_s.Instance.sideDatas[i, y].transform;
+                        InGameSideData_s.Instance.sideDatas[i, y].lineAttack = _lineAttackObjList[i];
+                    }
                 }
             }
-        }
-        else // columns attack
-        {
-            int x = InGamePlayer_s.Instance.playerPos.x;
-            for (int i = 0; i < InGameSideData_s.Instance.divideSize.y; i++)
+            else // columns attack
             {
-                if (InGameSideData_s.Instance.sideDatas[x, i].isCanMakeCheck(true, "lineAttack"))
+                int x = InGamePlayer_s.Instance.playerPos.x;
+                for (int i = 0; i < InGameSideData_s.Instance.divideSize.y; i++)
                 {
-                    _lineAttackObjList[i].transform.GetChild(0).gameObject.SetActive(false);
-                    _lineAttackObjList[i].transform.localPosition = InGameSideData_s.Instance.sideDatas[x, i].transform;
-                    InGameSideData_s.Instance.sideDatas[x,i].lineAttack = _lineAttackObjList[i];
+                    if (InGameSideData_s.Instance.sideDatas[x, i].isCanMakeCheck(true, "lineAttack"))
+                    {
+                        _lineAttackObjList[i].transform.GetChild(0).gameObject.SetActive(false);
+                        _lineAttackObjList[i].transform.localPosition = InGameSideData_s.Instance.sideDatas[x, i].transform;
+                        InGameSideData_s.Instance.sideDatas[x, i].lineAttack = _lineAttackObjList[i];
+                    }
                 }
             }
-        }
         for (int i = 0; i < _lineAttackObjList.Count; i++)
         {
             _lineAttackObjList[i].SetActive(true);
+            _lineAttackObjList[i].transform.GetChild(0).GetComponent<Image>().sprite = _attackStartImage;
         }
+        EnemyUI_s.Instance.MutipleEnemyAnimation(new List<string>() { "attack1", "idle" });
     }
     private void EndRandomeLineAttack()
     {
@@ -96,14 +101,14 @@ public class LineAttackPattern : Singleton<LineAttackPattern>
                         for (int i = 0; i < _lineAttackObjList.Count; i++)
                         {
                             _lineAttackObjList[i].transform.GetChild(1).gameObject.SetActive(true);
-                            _lineAttackParticleList[i].Play();
+                            StartCoroutine(ObjectAction.ImageFade(_lineAttackCanvasList[i], InGameMusicManager_s.Instance.secPerBeat , false, 1, 0, 1));
                         }
                         curLineAttackMod = ELineAttackMode.SHOW1;
                         break;
                     case ELineAttackMode.SHOW1:
                         for (int i = 0; i < _lineAttackObjList.Count; i++)
                         {
-                            _lineAttackParticleList[i].Play();
+                            StartCoroutine(ObjectAction.ImageFade(_lineAttackCanvasList[i], InGameMusicManager_s.Instance.secPerBeat , false, 1, 0, 1));
                         }
                         curLineAttackMod = ELineAttackMode.SHOW2;
                         break;
@@ -139,6 +144,10 @@ public class LineAttackPattern : Singleton<LineAttackPattern>
         target.SetActive(true);
         StartCoroutine(ObjectAction.MovingObj(target, _attackEndPos, _attackTime));
         yield return new WaitUntil(() => target.transform.localPosition.y == _attackEndPos.y);
-        StartCoroutine(ObjectAction.ImageFade(target.GetComponent<Image>(), InGameMusicManager_s.Instance.secPerBeat-_attackTime,true,1,0 ));
+        for (int i = 0; i < _lineAttackObjList.Count; i++)
+        {
+            _lineAttackObjList[i].transform.GetChild(0).GetComponent<Image>().sprite = _attackEndImage;
+        }
+        StartCoroutine(ObjectAction.ImageFade(target.GetComponent<Image>(), InGameMusicManager_s.Instance.secPerBeat-_attackTime,true,1,0,1 ));
     }
 }

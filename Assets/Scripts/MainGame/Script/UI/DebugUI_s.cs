@@ -8,8 +8,6 @@ public class DebugUI_s : Singleton<DebugUI_s>
     public void GameStart()
     {
         _inGameManager_s.GameStart();
-        _inGameManager_s.GameEnd();
-        _inGameManager_s.GameStart();
         _startButton.SetActive(false);
     }
     public void GameEnd()

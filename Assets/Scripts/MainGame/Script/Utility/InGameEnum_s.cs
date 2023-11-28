@@ -55,7 +55,8 @@ public enum EEnemyMode
     GHOST,
     NOISE,
     LINEATTACK,
-    LINKLINEATTACK
+    LINKLINEATTACK,
+    CROSSATTACK
 }
 public enum ELineAttackMode
 {
@@ -78,7 +79,8 @@ public enum EEnemyPhase
     Phase1,
     Phase2,
     Phase3,
-    Phase4
+    Phase4,
+    Phase5
 }
 public enum EBeatJudgement
 {

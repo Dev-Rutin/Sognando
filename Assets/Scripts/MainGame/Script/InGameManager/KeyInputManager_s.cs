@@ -45,7 +45,7 @@ public partial class KeyInputManager_s //Data Setting
         PlayerKeyBind(ref _playerKeyBinds, KeyCode.W, Vector2Int.down);
         PlayerKeyBind(ref _playerKeyBinds, KeyCode.S, Vector2Int.up);
 
-        KeyBind(ref _otherKeyBinds, KeyCode.Space, () => InGameManager_s.Instance.GamePause());
+        KeyBind(ref _otherKeyBinds, KeyCode.Escape, () => InGameManager_s.Instance.GamePause());
     }
     private void KeyBind(ref Dictionary<KeyCode, Action> binddic, KeyCode keycode, Action action)
     {
@@ -131,7 +131,7 @@ public partial class KeyInputManager_s //InGame Setting
     }
     private void Update()
     {
-        if (InGameManager_s.Instance.curGameStatus == EGameStatus.PLAYING)
+        if (InGameManager_s.Instance.curGameStatus == EGameStatus.PLAYING&&!InGameManager_s.Instance.isPause)
         {
             if (Input.anyKeyDown)
             {

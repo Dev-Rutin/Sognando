@@ -63,7 +63,7 @@ public partial class InGamePlayer_s//game system
         PlayerUI_s.Instance.StopAttackParticle();
         PlayerUI_s.Instance.SinglePlayerAnimation("idle", true);
         DoremiUI_s.Instance.SingleDoremiAnimation("idle",true);
-        DoremiUI_s.Instance.DoremiTextChange("¹æÇâÅ°·Î ÀÌµ¿ÇØ ¸¶¹ıÀ» ÁØºñÇÏÀÚ");
+        DoremiUI_s.Instance.DoremiTextChange("ë°©í–¥í‚¤ë¡œ ì´ë™í•´ì„œ\në§ˆë²•ì„ ì¤€ë¹„í•˜ì");
 
     }
     public void GameEnd()
@@ -108,7 +108,7 @@ public partial class InGamePlayer_s//game system
             case EInGameStatus.CUBEROTATE:
                 if(!firstCount)
                 {
-                    DoremiUI_s.Instance.DoremiTextChange("È­»ìÇ¥¿Í °°Àº ¹æÇâÅ°¸¦ ´©¸£¸é ¸¶¹ıÀ» ¹ßµ¿ÇÒ ¼ö ÀÖ¾î");
+                    DoremiUI_s.Instance.DoremiTextChange("ë°•ìì— ë§ì¶° ë°©í–¥í‚¤ë¥¼\nëˆ„ë¥´ë©´ ë§ˆë²•ì„\në°œë™í•  ìˆ˜ ìˆì–´!");
                 }
                 if (_isGracePeriod)
                 {
@@ -141,7 +141,7 @@ public partial class InGamePlayer_s  //move
             StartCoroutine(MoveTimeLock());
         }
     }
-    private bool PlayerMoveCheck(Vector2Int movePos, Vector2Int divideSize)//±× Æ÷Áö¼ÇÀ¸·Î ÀÌµ¿ÀÌ °¡´ÉÇÑÁö ºÒ°¡´ÉÇÑÁö ÆÇ´Ü
+    private bool PlayerMoveCheck(Vector2Int movePos, Vector2Int divideSize)//ê·¸ í¬ì§€ì…˜ìœ¼ë¡œ ì´ë™ì´ ê°€ëŠ¥í•œì§€ ë¶ˆê°€ëŠ¥í•œì§€ íŒë‹¨
     {
         Vector2Int movedPosition = playerPos + movePos;
         movedPosition.x = movedPosition.x < 0 ? 0 : movedPosition.x;

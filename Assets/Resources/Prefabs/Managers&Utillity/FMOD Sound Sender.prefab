@@ -62,11 +62,11 @@ MonoBehaviour:
   Value: 0
   Clip:
     Guid:
-      Data1: -890654228
-      Data2: 1143184807
-      Data3: -2029791597
-      Data4: -616678529
-    Path: event:/BGM/BGM_1Stage
+      Data1: -1352816589
+      Data2: 1306433055
+      Data3: -968922192
+      Data4: -931697370
+    Path: event:/BGM/BackgroundMusic
   Params: []
   Key: 
   Fade: 0

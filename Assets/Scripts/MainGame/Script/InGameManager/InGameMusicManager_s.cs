@@ -79,7 +79,6 @@ public partial class InGameMusicManager_s //game system
             {
                 completedLoops++;
                 InGameBeatManager_s.Instance.NextBit();
-                Debug.Log(musicPosition);
             }
             loopPositionInBeats = _musicPositionInBeats - completedLoops;
             if(loopPositionInBeats>InGameBeatManager_s.Instance.beatJudgeMax&&_lastBeatCount<completedLoops)

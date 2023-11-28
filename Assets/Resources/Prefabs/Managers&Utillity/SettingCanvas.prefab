@@ -2652,7 +2652,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _soundMenu: {fileID: 8893682054109830119}
   _closeButton: {fileID: 2088357883622683638}
-  _moveSpeed: 0.5
+  _moveSpeed: 0.2
 --- !u!1 &6879731773246773438
 GameObject:
   m_ObjectHideFlags: 0
@@ -3211,7 +3211,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 436, y: 0}
+  m_AnchoredPosition: {x: -446, y: 0}
   m_SizeDelta: {x: 879.213, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5775215416070742674

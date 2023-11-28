@@ -8,7 +8,6 @@ public class LobbyManager : Singleton<LobbyManager>
     
     [SerializeField] private GameObject _fadePenal;
     [SerializeField] private float _fadeTime;
-    [SerializeField] private string _sceneName;
     [SerializeField] private GameObject _dataObject;
     private bool _isFade;
 
@@ -20,21 +19,27 @@ public class LobbyManager : Singleton<LobbyManager>
         //_continueStage = PlayerPrefs.GetInt("continueStage");
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (_isFade && _fadePenal.GetComponent<CanvasGroup>().alpha == 1)
-        {
-            SceneManager.LoadScene(_sceneName);
-        }
-    }
-
     public void StartGame()
     {
         FadeUtlity.Instance.CallFade(_fadeTime, _fadePenal, EGameObjectType.UI, EFadeType.FadeOut);
         _dataObject.GetComponent<StageDataController>().stage = 1;
         _isFade = true;
         //SoundUtility.Instance.StopSound(ESoundTypes.Bgm);
+    }
+
+    public void LoadScene(string name)
+    {
+        StartCoroutine(ChangeScene(name));
+    }
+
+    private IEnumerator ChangeScene(string Scenename)
+    {
+        FadeUtlity.Instance.CallFade(_fadeTime, _fadePenal, EGameObjectType.UI, EFadeType.FadeOut);
+        while (_fadePenal.GetComponent<CanvasGroup>().alpha > 0)
+        {
+            yield return null;
+        }
+        SceneManager.LoadScene(Scenename);
     }
 
 }

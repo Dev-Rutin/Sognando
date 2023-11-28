@@ -87,7 +87,6 @@ public class SettingUtility : Singleton<SettingUtility>
 
     private void CloseSetting()
     {
-        Debug.Log("close btn");
         StartCoroutine(CloseSettingPenal());
     }
 
@@ -106,7 +105,6 @@ public class SettingUtility : Singleton<SettingUtility>
 
     public void OpenSetting()
     {
-        Debug.Log("open btn");
         StartCoroutine(OpenSettingPenal());
     }
 

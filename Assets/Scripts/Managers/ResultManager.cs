@@ -42,17 +42,15 @@ public class ResultManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        /*if (!StageDataController.Instance.isClear)
+        if (!StageDataController.Instance.isClear)
         {
-            _clearText.text = "Fail...";
+            _gameoverLabel.SetActive(true);
         }
-
-        _scoreText.text = StageDataController.Instance.score.ToString();
-        _maxComboText.text = StageDataController.Instance.maxCombo.ToString();
-        _perfectText.text = StageDataController.Instance.perfectCount.ToString();
-        _goodText.text = StageDataController.Instance.goodCount.ToString();
-        _missText.text = StageDataController.Instance.missCount.ToString();
-        _isPenalFading = true;*/
+        else
+        {
+            _clearLabel.SetActive(true);
+        }
+        _isPenalFading = true;
         
         CalcRank();
         StartCoroutine(StartCount());
@@ -61,10 +59,10 @@ public class ResultManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        /*if (_isPenalFading && !_isTextFading && Input.GetKeyDown(KeyCode.Return))
+        if (_isPenalFading && !_isTextFading && Input.GetKeyDown(KeyCode.Return))
         {
-            SceneManager.LoadScene("GameScene");
-        }*/
+            SceneManager.LoadScene("StartScene");
+        }
     }
 
     private IEnumerator StartCount()
@@ -76,11 +74,11 @@ public class ResultManager : MonoBehaviour
         //Score
         int Scoredata = 0;
         int ETCData = 0;
-        int maxscore = Int32.Parse(_scoreText.text) + 1;
-        int maxCombo = Int32.Parse(_maxComboText.text);
-        int maxPerfect = Int32.Parse(_perfectText.text);
-        int maxGood = Int32.Parse(_goodText.text);
-        int maxMiss = Int32.Parse(_missText.text);
+        int maxscore = StageDataController.Instance.score + 1;
+        int maxCombo = StageDataController.Instance.maxCombo;
+        int maxPerfect = StageDataController.Instance.perfectCount;
+        int maxGood = StageDataController.Instance.goodCount;
+        int maxMiss = StageDataController.Instance.missCount;
         while (Scoredata < maxscore)
         {
             Scoredata += Random.Range(_maxCountSpeed, _minCountSpeed);

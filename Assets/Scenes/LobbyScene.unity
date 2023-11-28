@@ -386,7 +386,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _fadePenal: {fileID: 978140405}
   _fadeTime: 3
-  _sceneName: StoryScene
   _dataObject: {fileID: 2028302534}
 --- !u!1 &175592555
 GameObject:

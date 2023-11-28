@@ -241,6 +241,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: FMOD Sound Sender(MagicCircle)
       objectReference: {fileID: 0}
+    - target: {fileID: 5910919648529410482, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
+      propertyPath: audioType
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6610,6 +6614,10 @@ PrefabInstance:
     - target: {fileID: 4668352979243032242, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
       propertyPath: m_Name
       value: FMOD Sound Sender(Attack)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5910919648529410482, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
+      propertyPath: audioType
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -13978,7 +13986,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 6e7fdad94e4a9e24ab1aedf7c682fc20, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -20070,6 +20078,10 @@ PrefabInstance:
     - target: {fileID: 4668352979243032242, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
       propertyPath: m_Name
       value: FMOD Sound Sender(CubeAnim)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5910919648529410482, guid: 201235faad2eb9c40b947a5665c8cfad, type: 3}
+      propertyPath: audioType
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

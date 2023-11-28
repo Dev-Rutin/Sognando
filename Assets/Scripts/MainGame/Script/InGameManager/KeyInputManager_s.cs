@@ -169,7 +169,6 @@ public partial class KeyInputManager_s //InGame Setting
                                 }
                                 else
                                 {
-                                    Debug.Log("aa");
                                     InGameManager_s.Instance.MissScore();
                                 }
                             }

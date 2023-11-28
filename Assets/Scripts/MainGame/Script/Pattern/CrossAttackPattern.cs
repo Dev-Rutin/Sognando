@@ -146,7 +146,7 @@ public class CrossAttackPattern : Singleton<CrossAttackPattern>
                         for (int i = 0; i < _crossAttackObjList.Count; i++)
                         {
                             GameObject AttackObj = _crossAttackObjList[i].transform.GetChild(0).gameObject;
-                            StartCoroutine(LineAttackMove(AttackObj));
+                            StartCoroutine(CrossAttackMove(AttackObj));
                             _crossAttackObjList[i].transform.GetChild(1).gameObject.SetActive(false);
                         }
                         curCrossAttackMod = ELineAttackMode.ATTACK;
@@ -167,7 +167,7 @@ public class CrossAttackPattern : Singleton<CrossAttackPattern>
             }
         }
     }
-    IEnumerator LineAttackMove(GameObject target)
+    IEnumerator CrossAttackMove(GameObject target)
     {
         ObjectAction.ImageAlphaChange(target.GetComponent<Image>(), 1f);
         target.transform.localPosition = _attackStartPos;
@@ -178,6 +178,6 @@ public class CrossAttackPattern : Singleton<CrossAttackPattern>
         {
             _crossAttackObjList[i].transform.GetChild(0).GetComponent<Image>().sprite = _attackEndImage;
         }
-        StartCoroutine(ObjectAction.ImageFade(target.GetComponent<Image>(), InGameMusicManager_s.Instance.secPerBeat - _attackTime, true, 1, 0));
+        StartCoroutine(ObjectAction.ImageFade(target.GetComponent<Image>(), InGameMusicManager_s.Instance.secPerBeat - _attackTime, true, 1,0,1));
     }
 }

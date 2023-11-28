@@ -169,7 +169,6 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
         {
             _moveEffectBad.Play();
             _cameraShake.ShakeStart();
-            SoundUtility.Instance.PlaySound(ESoundTypes.SFX);
             return false;
         }
         /*else

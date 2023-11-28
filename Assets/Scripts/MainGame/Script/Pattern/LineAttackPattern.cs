@@ -148,6 +148,6 @@ public class LineAttackPattern : Singleton<LineAttackPattern>
         {
             _lineAttackObjList[i].transform.GetChild(0).GetComponent<Image>().sprite = _attackEndImage;
         }
-        StartCoroutine(ObjectAction.ImageFade(target.GetComponent<Image>(), InGameMusicManager_s.Instance.secPerBeat-_attackTime,true,1,0 ));
+        StartCoroutine(ObjectAction.ImageFade(target.GetComponent<Image>(), InGameMusicManager_s.Instance.secPerBeat-_attackTime,true,1,0,1 ));
     }
 }

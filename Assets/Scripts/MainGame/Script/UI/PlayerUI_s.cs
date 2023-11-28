@@ -1,3 +1,4 @@
+using FMODPlus;
 using Spine.Unity;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using UnityEngine.UI;
 public class PlayerUI_s : Singleton<PlayerUI_s>
 {
     [Header("HP")]
-    [SerializeField] private Slider _playerHPSlider;
+    [SerializeField] private HPBarController _hpController;
 
     [Header("Effect")]
     //[SerializeField] private ParticleSystem _playerHealEffect;
@@ -37,10 +38,18 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
     [SerializeField] private int _level2DMG;
     [SerializeField] private int _level3DMG;
     private int _curDMG;
+    private int _curAttackLevel;
+
     private WaitForEndOfFrame _waitUpdate;
 
     [Header("Animation")]
     [SerializeField] private SkeletonAnimation _animation;
+
+    [Header("Sound")]
+    [SerializeField] private CommandSender _hitSound;
+    [SerializeField] private CommandSender _attackSound;
+    [SerializeField] private CommandSender _magicCircleSound;
+
     private void Start()
     {
         _curAttackParticle = null;
@@ -86,7 +95,6 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
     }
     public void PlayerHPInitialize(int maxValue)
     {
-        _playerHPSlider.maxValue = maxValue;
     }
     public void PlayerHPUp()
     {
@@ -95,11 +103,12 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
     public void PlayerHPDown()
     {
         // _playerHurtEffect.Play();
+        _hitSound.SendCommand();
         MutiplePlayerAnimation(new List<string>() { "hit", "idle" });
     }
     public void PlayerHPUpdate(int curPlayerHP)
     {
-        _playerHPSlider.value = curPlayerHP;
+        _hpController.PlayerDamage();
     }
     public void ShowAttackGuage(EPlayerAttackLevel level)
     {
@@ -120,6 +129,7 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
     }
     public void ShowAttackParticle(EPlayerAttackLevel level)
     {
+        _magicCircleSound.SendCommand();
         _attackIncrease.Play();
         _attackGuagesObj.SetActive(false);
         switch (level)
@@ -144,6 +154,7 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
             default:
                 break;
         }
+        _curAttackLevel = (int)level;
     }
     public void StopAttackParticle()
     {
@@ -160,7 +171,9 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
     {
         PlayerUI_s.Instance.SinglePlayerAnimation("attack", false);
         DoremiUI_s.Instance.SingleDoremiAnimation("attack", false);
+        _attackTrail.gameObject.SetActive(true);
         _attackTrail.Play();
+
         double startPosition = InGameMusicManager_s.Instance.musicPosition;
         double curTimeCount = 0;
         while(curTimeCount<=2.2f)
@@ -180,15 +193,16 @@ public class PlayerUI_s : Singleton<PlayerUI_s>
             }
             else
             {
-                _attackTsf.localPosition = Vector3.Slerp(_playerAttackMiddlePos.localPosition, _playerAttackEndPos.localPosition, (lerpValue-0.5f)/0.5f);
+                _attackTsf.localPosition = Vector3.Lerp(_playerAttackMiddlePos.localPosition, _playerAttackEndPos.localPosition, (lerpValue-0.5f)/0.5f);
             }
             curTimeCount = InGameMusicManager_s.Instance.musicPosition - startPosition;
             yield return _waitUpdate;
         }
-        InGameEnemy_s.Instance.UpdateEnemyHP(_curDMG * -1);
+        _attackSound.SendCommand();
+        InGameEnemy_s.Instance.UpdateEnemyHP(_curDMG * -1,_curAttackLevel);
         _attackTrail.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
+        _attackTrail.gameObject.SetActive(false);
         _curAttackParticle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        InGamePlayer_s.Instance.UpdatePlayerHP(1);
         PlayerUI_s.Instance.SinglePlayerAnimation("idle", true);
         DoremiUI_s.Instance.SingleDoremiAnimation("idle", true);
         yield return new WaitForSeconds(1f);

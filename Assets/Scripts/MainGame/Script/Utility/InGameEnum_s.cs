@@ -79,7 +79,8 @@ public enum EEnemyPhase
     Phase1,
     Phase2,
     Phase3,
-    Phase4
+    Phase4,
+    Phase5
 }
 public enum EBeatJudgement
 {

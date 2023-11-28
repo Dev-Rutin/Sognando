@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class EnemyUI_s : Singleton<EnemyUI_s>
 {
     [Header("HP")]
-    [SerializeField] private Slider _enemyHPSlider;
+    [SerializeField] private HPBarController hpController;
 
     [Header("Effect")]
     [SerializeField] private ParticleSystem _enemyHitEffect;
@@ -49,17 +49,13 @@ public class EnemyUI_s : Singleton<EnemyUI_s>
     {
         _animation.timeScale = 1;
     }
-    public void EnemyHPInitialize(int maxValue)
-    {
-        _enemyHPSlider.maxValue = maxValue;
-    }
     public void EnemyHPDown()
     {
         _enemyHitEffect.Play();
         MutipleEnemyAnimation(new List<string>() { "hit", "idle" });
     }
-    public void EnemyHPUpdate(int curEnemyHP)
+    public void EnemyHPUpdate(int attackLevel)
     {
-        _enemyHPSlider.value = curEnemyHP;
+        hpController.MonsterDamage(attackLevel);
     }
 }

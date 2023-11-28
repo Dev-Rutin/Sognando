@@ -55,7 +55,6 @@ public partial class InGameEnemy_s //game system
     public void GameStart()
     {
         _curEnemyMods.Clear();
-        EnemyUI_s.Instance.EnemyHPInitialize(_enemyMaxHP);
         _curEnemyHP = _enemyMaxHP;
         _curEnemyATKGauge = 0;
         _curEnemyATKGaugeCount = 0;
@@ -63,7 +62,6 @@ public partial class InGameEnemy_s //game system
     }
     public void GamePlay()
     {
-        EnemyUI_s.Instance.EnemyHPUpdate(_curEnemyHP);
         EnemyUI_s.Instance.MutipleEnemyAnimation(new List<string>() { "start", "idle" });
     }
     public void GameEnd()
@@ -123,6 +121,9 @@ public partial class InGameEnemy_s //game system
                         break;
                     case EEnemyPhase.Phase3:
                         EnemyPhaseChange(EEnemyPhase.Phase4);
+                        break;
+                    case EEnemyPhase.Phase4:
+                        EnemyPhaseChange(EEnemyPhase.Phase5);
                         break;
                 }
                 break;
@@ -257,11 +258,19 @@ public partial class InGameEnemy_s //game system
                 _curEnemyMods.Remove(EEnemyMode.GHOST);
                 break;
             case EEnemyPhase.Phase2:
-                _curEnemyMods.Add(EEnemyMode.CROSSATTACK);
+                _curEnemyMods.Add(EEnemyMode.LINKLINEATTACK);
                 break;
             case EEnemyPhase.Phase3:
-                _curEnemyMods.Add(EEnemyMode.LINKLINEATTACK);
+                _curEnemyMods.Remove(EEnemyMode.LINKLINEATTACK);
                 _curEnemyMods.Add(EEnemyMode.LINEATTACK);
+                break;
+            case EEnemyPhase.Phase4:
+                _curEnemyMods.Remove(EEnemyMode.LINEATTACK);
+                _curEnemyMods.Add(EEnemyMode.CROSSATTACK);
+                break;
+            case EEnemyPhase.Phase5:
+                _curEnemyMods.Add(EEnemyMode.LINEATTACK) ;
+                _curEnemyMods.Add(EEnemyMode.LINKLINEATTACK);
                 break;
             default:
                 break;
@@ -271,18 +280,18 @@ public partial class InGameEnemy_s //game system
 }
 public partial class InGameEnemy_s //data change
 {
-    public void UpdateEnemyHP(int changevalue)
+    public void UpdateEnemyHP(int changevalue,int attackLevel)
     {
         _curEnemyHP += changevalue;
         if (changevalue < 0)
         {
-            EnemyHPDown();
+            EnemyHPDown(attackLevel);
         }
     }
-    private void EnemyHPDown()
+    private void EnemyHPDown(int attackLevel)
     {
         EnemyUI_s.Instance.EnemyHPDown();
-        EnemyUI_s.Instance.EnemyHPUpdate(_curEnemyHP);
+        EnemyUI_s.Instance.EnemyHPUpdate(attackLevel);
         if (_curEnemyHP <= 0)
         {
             EnemyUI_s.Instance.SingleEnemyAnimation("die", false);
@@ -372,7 +381,7 @@ public partial class InGameEnemy_s //pattern
             {
                 if (isDestroy)
                 {
-                    Destroy((GameObject)target);
+                    DestroyImmediate((GameObject)target);
                 }
                 else
                 {

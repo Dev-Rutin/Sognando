@@ -1,5 +1,7 @@
+using FMODPlus;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 public partial class InGameManager_s : Singleton<InGameManager_s>//Data
 {
     public static Vector2 throwVector2 = new Vector2(10000, 10000);
@@ -11,6 +13,9 @@ public partial class InGameManager_s : Singleton<InGameManager_s>//Data
     public EStage curStage { get; private set; }
     public int beatFreezeCount { get; private set; }
     public bool isPause { get; private set; }
+
+    [SerializeField] private float _fadeTime;
+    [SerializeField] private GameObject _fadeObj;
     public void Start()
     {
         InGameMusicManager_s.Instance.InGameBind();
@@ -78,9 +83,15 @@ public partial class InGameManager_s : Singleton<InGameManager_s>//Data
             curGameStatus = EGameStatus.END;
             InGameFunBind_s.Instance.GameEnd();
             StopAllCoroutines();
-            //SceneManager.LoadScene("ResultScene");
+        StartCoroutine(FadeStart());
         }
-        public void GameOverByPlayer()
+    IEnumerator FadeStart()
+    {
+        FadeUtlity.Instance.CallFade(_fadeTime, _fadeObj, EGameObjectType.UI, EFadeType.FadeOut);
+        yield return new WaitForSeconds(_fadeTime);
+        SceneManager.LoadScene("ResultScene");
+    }
+    public void GameOverByPlayer()
         {
             StageDataController.Instance.isClear = false;
             StartCoroutine(GameOver(1f));
@@ -192,6 +203,7 @@ public partial class InGameManager_s //data Change
         UpdateScore(50);
         SystemUI_s.Instance.Good();
         StageDataController.Instance.judgementValue++;
+        StageDataController.Instance.goodCount++;
         InGamePlayer_s.Instance.AttackValueIncrease(EBeatJudgement.Good);
         CubeUI_s.Instance.HitEffect(EBeatJudgement.Good);
     }
@@ -202,6 +214,7 @@ public partial class InGameManager_s //data Change
         UpdateScore(100);
         SystemUI_s.Instance.Perfect();
         StageDataController.Instance.judgementValue += 2;
+        StageDataController.Instance.perfectCount++;
         InGamePlayer_s.Instance.AttackValueIncrease(EBeatJudgement.Perfect);
         CubeUI_s.Instance.HitEffect(EBeatJudgement.Perfect);
     }
@@ -210,11 +223,16 @@ public partial class InGameManager_s //data Change
         InGamePlayer_s.Instance.UpdatePlayerHP(-1);
         UpdateCombo(combo * -1);
         SystemUI_s.Instance.Miss();
+        StageDataController.Instance.missCount++;
     }
     public void UpdateCombo(int changevalue)
     {
         combo += changevalue;
         SystemUI_s.Instance.UpdateCombo(combo);
+        if(StageDataController.Instance.maxCombo<combo)
+        {
+            StageDataController.Instance.maxCombo = combo;
+        }
     }
     public void UpdateScore(int changevalue)
     {

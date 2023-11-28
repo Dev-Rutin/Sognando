@@ -57,8 +57,6 @@ public partial class InGamePlayer_s//game system
     public void GamePlay()
     {
         ObjectAction.ImageAlphaChange(_flickerImage, 0);
-        PlayerUI_s.Instance.PlayerHPInitialize(_playerMaxHP);
-        PlayerUI_s.Instance.PlayerHPUpdate(_curPlayerHP);
         _playerObj.transform.localPosition = InGameSideData_s.Instance.sideDatas[playerPos.x, playerPos.y].transform;
         PlayerUI_s.Instance.StopAttackParticle();
         PlayerUI_s.Instance.SinglePlayerAnimation("idle", true);
@@ -238,7 +236,8 @@ public partial class InGamePlayer_s  //data change
             }
             else
             {
-                ObjectAction.ImageAlphaChange(_playerImage, 0.7f);
+                StartCoroutine(ObjectAction.ImageFade(_playerImage, InGameMusicManager_s.Instance.secPerBeat/2, false, 1,1, 2));
+                //ObjectAction.ImageAlphaChange(_playerImage, 0.7f);
                 _isGracePeriod = true;
                 _playerHitBlock = 1;
                 PlayerUI_s.Instance.PlayerHPDown();

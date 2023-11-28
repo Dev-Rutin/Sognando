@@ -448,10 +448,10 @@ MonoBehaviour:
   Path: FmodData/Build/Desktop/BGM.bank
   Name: BGM
   StudioPath: bank:/BGM
-  lastModified: 638367387882365395
+  lastModified: 638368044474907343
   FileSizes:
   - Name: Desktop
-    Value: 9577728
+    Value: 9577760
   Exists: 1
 --- !u!114 &-4745529267483324108
 MonoBehaviour:
@@ -1079,7 +1079,7 @@ MonoBehaviour:
   Path: FmodData/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 638367387882375364
+  lastModified: 638367234495626183
   FileSizes:
   - Name: Desktop
     Value: 1670
@@ -1214,7 +1214,7 @@ MonoBehaviour:
   - {fileID: 2808107962254031061}
   StringsBanks:
   - {fileID: -1052012836664817542}
-  cacheTime: 638367387882385340
+  cacheTime: 638368044474907343
   cacheVersion: 131609
 --- !u!114 &108081892887431359
 MonoBehaviour:
@@ -1599,7 +1599,7 @@ MonoBehaviour:
   Path: FmodData/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 638365638901581548
+  lastModified: 638367234495571624
   FileSizes:
   - Name: Desktop
     Value: 1632
@@ -1962,7 +1962,7 @@ MonoBehaviour:
   Path: FmodData/Build/Desktop/AMB.bank
   Name: AMB
   StudioPath: bank:/AMB
-  lastModified: 638367387882006359
+  lastModified: 638367234416722107
   FileSizes:
   - Name: Desktop
     Value: 1721216
@@ -2129,7 +2129,7 @@ MonoBehaviour:
   Path: FmodData/Build/Desktop/SFX.bank
   Name: SFX
   StudioPath: bank:/SFX
-  lastModified: 638367387882385340
+  lastModified: 638367234498745853
   FileSizes:
   - Name: Desktop
     Value: 205536

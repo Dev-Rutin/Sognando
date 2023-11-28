@@ -36,32 +36,7 @@ public static class ObjectAction
         target.transform.RotateAround(target.transform.position, rotatePos, (float)(Mathf.Abs(rotatePos.x + rotatePos.y + rotatePos.z) - rotateIncrease));
         target.transform.localEulerAngles = new Vector3(MathF.Round(target.transform.localEulerAngles.x), Mathf.Round(target.transform.localEulerAngles.y), Mathf.Round(target.transform.localEulerAngles.z));
     }
-    public static IEnumerator ImageFade(Image target, double time,bool isAllFade, float startValue, float endValue = 0)
-    {
-        float lerpValue = 0;
-        double startTime = InGameMusicManager_s.Instance.musicPosition;
-        while (lerpValue <= 1)
-        {
-            lerpValue = (float)((InGameMusicManager_s.Instance.musicPosition - startTime) * 1 /time);
-            if (isAllFade)
-            {
-                ImageAlphaChange(target, Mathf.Lerp(startValue, endValue, lerpValue));
-            }
-            else
-            {
-                if (lerpValue < time / 2)
-                {
-                    ImageAlphaChange(target, Mathf.Lerp(startValue, 0.5f, 0.5f/lerpValue));
-                }
-                else
-                {
-                    ImageAlphaChange(target, Mathf.Lerp(0.5f, startValue, 0.5f/lerpValue-1));
-                }
-            }
-            yield return waitUpdate;
-        }
-    }
-    public static IEnumerator ImageFade(SpriteRenderer target, double time, bool isAllFade,float startValue, float endValue = 0,int repeat = 0)
+    public static IEnumerator ImageFade(Image target, double time, bool isAllFade, float startValue, float endValue = 0, int repeat = 0)
     {
         for (int i = 0; i < repeat; i++)
         {
@@ -69,20 +44,53 @@ public static class ObjectAction
             double startTime = InGameMusicManager_s.Instance.musicPosition;
             while (lerpValue <= 1)
             {
-                lerpValue = (float)((InGameMusicManager_s.Instance.musicPosition - startTime) * 1 / time);
+                lerpValue = (float)((InGameMusicManager_s.Instance.musicPosition - startTime) / time);
                 if (isAllFade)
                 {
                     ImageAlphaChange(target, Mathf.Lerp(startValue, endValue, lerpValue));
                 }
                 else
                 {
-                    if (lerpValue < time / 2)
+                    if (InGameMusicManager_s.Instance.musicPosition - startTime < time / 2)
                     {
-                        ImageAlphaChange(target, Mathf.Lerp(startValue, 0.5f, 0.5f / lerpValue));
+                        ImageAlphaChange(target, Mathf.Lerp(startValue, 0.5f, lerpValue / (float)time / 2));
+
                     }
                     else
                     {
-                        ImageAlphaChange(target, Mathf.Lerp(0.5f, startValue, 0.5f / lerpValue - 1));
+                        Debug.Log((float)(time - time / 2) / lerpValue);
+                        ImageAlphaChange(target, Mathf.Lerp(0.5f, startValue, lerpValue - (1 / 2 * (float)time) - ((float)time / 2)));
+                    }
+                }
+                yield return waitUpdate;
+            }
+        }
+        ImageAlphaChange(target,endValue);
+    }
+    public static IEnumerator ImageFade(SpriteRenderer target, double time, bool isAllFade, float startValue, float endValue = 0, int repeat = 0)
+    {
+        for (int i = 0; i < repeat; i++)
+        {
+            float lerpValue = 0;
+            double startTime = InGameMusicManager_s.Instance.musicPosition;
+            while (lerpValue <= 1)
+            {
+                lerpValue = (float)((InGameMusicManager_s.Instance.musicPosition - startTime) / time);
+                if (isAllFade)
+                {
+                    ImageAlphaChange(target, Mathf.Lerp(startValue, endValue, lerpValue));
+                }
+                else
+                {
+                    if (InGameMusicManager_s.Instance.musicPosition - startTime < time / 3)
+                    {
+                        ImageAlphaChange(target, Mathf.Lerp(startValue, 0.5f, lerpValue / (float)time / 3));
+
+                    }
+                    else
+                    {
+                        Debug.Log((float)(time - time / 3) / lerpValue);
+                        ImageAlphaChange(target, Mathf.Lerp(0.5f, startValue, lerpValue - (1 / 3 * (float)time) - ((float)time / 3)));
                     }
                 }
                 yield return waitUpdate;
@@ -97,20 +105,22 @@ public static class ObjectAction
             double startTime = InGameMusicManager_s.Instance.musicPosition;
             while (lerpValue <= 1)
             {
-                lerpValue = (float)((InGameMusicManager_s.Instance.musicPosition - startTime) * 1 / time);
+                lerpValue = (float)((InGameMusicManager_s.Instance.musicPosition - startTime) / time);
                 if (isAllFade)
                 {
                     ImageAlphaChange(target, Mathf.Lerp(startValue, endValue, lerpValue));
                 }
                 else
                 {
-                    if (lerpValue < time / 2)
+                    if (InGameMusicManager_s.Instance.musicPosition-startTime < time/3)
                     {
-                        ImageAlphaChange(target, Mathf.Lerp(startValue, 0.5f, 0.5f / lerpValue));
+                        ImageAlphaChange(target, Mathf.Lerp(startValue, 0.5f, lerpValue/(float)time/3));
+                
                     }
                     else
                     {
-                        ImageAlphaChange(target, Mathf.Lerp(0.5f, startValue, 0.5f / lerpValue - 1));
+                        Debug.Log((float)(time - time / 3) / lerpValue);
+                        ImageAlphaChange(target, Mathf.Lerp(0.5f, startValue, lerpValue-(1/3*(float)time)-((float)time/3)));
                     }
                 }
                 yield return waitUpdate;

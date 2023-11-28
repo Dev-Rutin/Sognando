@@ -14,7 +14,6 @@ public class HPBarController : MonoBehaviour
     void Start()
     {
         _HPGauge = GetComponentsInChildren<Transform>();
-        Debug.Log(_HPGauge.Length);
         _distance = 30f;
     }
     
@@ -30,7 +29,7 @@ public class HPBarController : MonoBehaviour
 
     private IEnumerator Damage()
     {
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 2; i++)
         {
             Vector3 target = _HPGauge[_HPindex].localPosition;
             Vector3 origin;

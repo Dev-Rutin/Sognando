@@ -353,7 +353,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &268020853
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1443,6 +1443,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 894412403}
     m_Modifications:
     - target: {fileID: 294423763823554307, guid: b6d359b6481df4d4683002498ccde123, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 294423763823554307, guid: b6d359b6481df4d4683002498ccde123, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.7247
       objectReference: {fileID: 0}
@@ -1469,6 +1473,14 @@ PrefabInstance:
     - target: {fileID: 1795515686427211004, guid: b6d359b6481df4d4683002498ccde123, type: 3}
       propertyPath: m_Name
       value: StartButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 1942595115322033974, guid: b6d359b6481df4d4683002498ccde123, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 1942595115322033974, guid: b6d359b6481df4d4683002498ccde123, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 1942595115322033974, guid: b6d359b6481df4d4683002498ccde123, type: 3}
       propertyPath: m_LocalScale.x
@@ -1501,11 +1513,11 @@ PrefabInstance:
     - target: {fileID: 1990346820843254427, guid: b6d359b6481df4d4683002498ccde123, type: 3}
       propertyPath: m_SpriteState.m_SelectedSprite
       value: 
-      objectReference: {fileID: 21300000, guid: 9b38ab75bdae8664c84e72285138a159, type: 3}
+      objectReference: {fileID: 21300000, guid: a936542027718f44cb6314dfaea27f97, type: 3}
     - target: {fileID: 1990346820843254427, guid: b6d359b6481df4d4683002498ccde123, type: 3}
       propertyPath: m_SpriteState.m_HighlightedSprite
       value: 
-      objectReference: {fileID: 21300000, guid: 9b38ab75bdae8664c84e72285138a159, type: 3}
+      objectReference: {fileID: 21300000, guid: a936542027718f44cb6314dfaea27f97, type: 3}
     - target: {fileID: 3782433060728359129, guid: b6d359b6481df4d4683002498ccde123, type: 3}
       propertyPath: m_Transition
       value: 2
@@ -1517,11 +1529,11 @@ PrefabInstance:
     - target: {fileID: 3782433060728359129, guid: b6d359b6481df4d4683002498ccde123, type: 3}
       propertyPath: m_SpriteState.m_SelectedSprite
       value: 
-      objectReference: {fileID: 21300000, guid: 528e83226d7b2a3469e0e8ef7ee9741c, type: 3}
+      objectReference: {fileID: 21300000, guid: 131dc25ea1062294b801588fe06f21ee, type: 3}
     - target: {fileID: 3782433060728359129, guid: b6d359b6481df4d4683002498ccde123, type: 3}
       propertyPath: m_SpriteState.m_HighlightedSprite
       value: 
-      objectReference: {fileID: 21300000, guid: 528e83226d7b2a3469e0e8ef7ee9741c, type: 3}
+      objectReference: {fileID: 21300000, guid: 131dc25ea1062294b801588fe06f21ee, type: 3}
     - target: {fileID: 3933535501242682329, guid: b6d359b6481df4d4683002498ccde123, type: 3}
       propertyPath: m_Name
       value: ButtonBasePrefab
@@ -1533,7 +1545,11 @@ PrefabInstance:
     - target: {fileID: 6241633528131014388, guid: b6d359b6481df4d4683002498ccde123, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: dc3451b73a92b8847ae7680c7ee1fda1, type: 3}
+      objectReference: {fileID: 21300000, guid: c12e02f10f5e3b94da63b973a76904b9, type: 3}
+    - target: {fileID: 6366449910502220860, guid: b6d359b6481df4d4683002498ccde123, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 80
+      objectReference: {fileID: 0}
     - target: {fileID: 6366449910502220860, guid: b6d359b6481df4d4683002498ccde123, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.7247
@@ -1553,7 +1569,7 @@ PrefabInstance:
     - target: {fileID: 8877370240758932385, guid: b6d359b6481df4d4683002498ccde123, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: a37631faba102f844affdc503171b7e6, type: 3}
+      objectReference: {fileID: 21300000, guid: 2c32bd78fd9cd694e989c65483fc1c81, type: 3}
     - target: {fileID: 9190869484155061636, guid: b6d359b6481df4d4683002498ccde123, type: 3}
       propertyPath: m_LocalPosition.x
       value: -491

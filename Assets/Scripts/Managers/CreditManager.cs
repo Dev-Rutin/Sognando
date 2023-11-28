@@ -15,7 +15,7 @@ public class CreditManager : MonoBehaviour
     private float _speedUp;
     private float _originSpeed;
     
-    private float _targetY = 3257f;
+    private float _targetY = 3586f;
     // Start is called before the first frame update
     void Start()
     {

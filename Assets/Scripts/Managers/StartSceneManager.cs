@@ -26,10 +26,9 @@ public class StartSceneManager : MonoBehaviour
     
     private void StartButton()
     {
-        _isFade = true;
         FadeUtlity.Instance.CallFade(_fadeTime, _fade, EGameObjectType.UI, EFadeType.FadeOut);
         
-        if (_isFade && _fade.GetComponent<CanvasGroup>().alpha == 1)
+        if (_fade.GetComponent<CanvasGroup>().alpha == 1)
         {
             SceneManager.LoadScene("LobbyScene");
         }

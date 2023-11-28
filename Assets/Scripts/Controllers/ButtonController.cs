@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class ButtonController : MonoBehaviour, ISelectHandler
 {
@@ -12,5 +14,10 @@ public class ButtonController : MonoBehaviour, ISelectHandler
         Vector3 target = selectArrow.transform.position;
         target.y = transform.position.y;
         selectArrow.transform.position = target;
+    }
+
+    private void OnMouseEnter()
+    {
+        GetComponent<Button>().Select();
     }
 }

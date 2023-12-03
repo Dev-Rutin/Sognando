@@ -72,6 +72,7 @@ public partial class InGameMusicManager_s //game system
         if (!isPause&&InGameManager_s.Instance.curGameStatus==EGameStatus.PLAYING)
         {
             GetCurrentDSPClock(_channelsGroup, out _dspClock, out _parent);
+            Debug.Log("curDsp" + _dspClock);
             musicPosition = ((_currentSample-_startDspClock) / _masterSampleRate)+_offset;
             SoundUtility.Instance.BGMAudioSource.EventInstance.getTimelinePosition(out positionTest);
             _musicPositionInBeats = musicPosition / secPerBeat;
@@ -111,12 +112,15 @@ public partial class InGameMusicManager_s //game system
     {
         _channelsGroup.setPaused(true);
         GetCurrentDSPClock(_channelsGroup, out _dspClock, out _parent);
+        Debug.Log("pauseStartDsp"+_dspClock);
         isPause = true;
     }
     public void AudioUnPause()
     {
-        _requestdChannel.setPosition((uint)_dspClock, FMOD.TIMEUNIT.PCM);
+        //_requestdChannel.setPosition((uint)_dspClock, FMOD.TIMEUNIT.PCM);;
         _channelsGroup.setPaused(false);
+        GetCurrentDSPClock(_channelsGroup, out _dspClock, out _parent);
+        Debug.Log("pauseEndDsp" + _dspClock);
         isPause = false;
     }
     public void ChangeVolume(float volume) { }

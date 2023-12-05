@@ -25,7 +25,7 @@ public class ObjectButtonController : MonoBehaviour
             switch (gameObject.name)
             {
                 case ObjectButtonName.GAMESTARTBUTTON:
-                    LobbyManager.Instance.LoadScene("GameScene");
+                    LobbyManager.Instance.OpenStageSelect();
                     break;
                 case ObjectButtonName.CREDITBUTTON:
                     LobbyManager.Instance.LoadScene("CreditScene");

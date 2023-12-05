@@ -9,6 +9,7 @@ public class StageDataController : Singleton<StageDataController>
     public int perfectCount;
     public int goodCount;
     public int missCount;
+    public bool isHardModeOn;
     //score
     public int totalValue;
     public int judgementValue;

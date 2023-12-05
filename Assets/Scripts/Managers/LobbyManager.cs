@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using FMODPlus;
@@ -12,6 +13,8 @@ public class LobbyManager : Singleton<LobbyManager>
     [SerializeField] private float _fadeTime;
     [SerializeField] private GameObject _dataObject;
     [SerializeField] private CommandSender _commandSender;
+    [SerializeField] private GameObject StageSelect;
+
     private bool _isFade;
 
     private int _continueStage;
@@ -22,6 +25,27 @@ public class LobbyManager : Singleton<LobbyManager>
         //_continueStage = PlayerPrefs.GetInt("continueStage");
         StartCoroutine(RaySetting());
         _commandSender.SendCommand();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            StageSelect.SetActive(false);
+        }
+        if (StageSelect.activeSelf && Input.GetKeyDown(KeyCode.Space))
+        {
+            int stage = StageDataController.Instance.stage;
+            switch (stage)
+            {
+                case 1:
+                    LoadScene("GameSceneStage1");
+                    break;
+                case 2:
+                    LoadScene("GameSceneStage2");
+                    break;
+            }
+        }
     }
 
     public void StartGame()
@@ -56,6 +80,11 @@ public class LobbyManager : Singleton<LobbyManager>
             yield return null;
         }
         _fadePenal.GetComponent<Image>().raycastTarget = false;
+    }
+
+    public void OpenStageSelect()
+    {
+        StageSelect.SetActive(true);
     }
 
 }

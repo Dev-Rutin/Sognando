@@ -37,14 +37,16 @@ public class LobbyManager : Singleton<LobbyManager>
         {
             
             int stage = StageDataController.Instance.stage;
-            Debug.Log(stage);
             switch (stage)
             {
                 case 1:
                     LoadScene("GameSceneStage1");
                     break;
                 case 2:
-                    LoadScene("GameSceneStage2");
+                    if (PlayerPrefs.GetInt(PlayerPrefsKeyNames.STAGE1CLEARCHECK) == 1)
+                    {
+                        LoadScene("GameSceneStage2");
+                    }
                     break;
             }
         }

@@ -6,6 +6,8 @@ using UnityEngine;
 
 public partial class InGameMusicManager_s : Singleton<InGameMusicManager_s>//data 
 {
+    [Header("GameMode")]
+    public bool easyMode;
     [Header("fmod")]
     private int _masterSampleRate;
     private float _currentSample;
@@ -78,13 +80,39 @@ public partial class InGameMusicManager_s //game system
             if (_musicPositionInBeats >= (completedLoops + 1))
             {
                 completedLoops++;
-                InGameBeatManager_s.Instance.NextBit();
+                if (easyMode)
+                {
+                    if (completedLoops % 2 == 0)
+                    {
+                        InGameBeatManager_s.Instance.NextBeat();
+                    }
+                    else
+                    {
+                        InGameBeatManager_s.Instance.UnshowBeat();
+                    }
+                }
+                else
+                {
+                    InGameBeatManager_s.Instance.NextBeat();
+                }
             }
             loopPositionInBeats = _musicPositionInBeats - completedLoops;
             if(loopPositionInBeats>InGameBeatManager_s.Instance.beatJudgeMax&&_lastBeatCount<completedLoops)
             {
-                InGameManager_s.Instance.MoveNextBeat();
-                _lastBeatCount = completedLoops;
+                if (easyMode)
+                {
+                    if (completedLoops % 2 == 0)
+                    {
+                        InGameManager_s.Instance.MoveNextBeat();
+                        _lastBeatCount = completedLoops;
+                    }
+                }
+                else
+                {
+                    InGameManager_s.Instance.MoveNextBeat();
+                    _lastBeatCount = completedLoops;
+                }
+                
             }
         }
     }

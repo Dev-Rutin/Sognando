@@ -135,6 +135,7 @@ public partial class KeyInputManager_s //InGame Setting
         {
             if (Input.anyKeyDown)
             {
+                Debug.Log("keyInput");
                 if (InGameManager_s.Instance.curInGameStatus == EInGameStatus.PLAYERMOVE|| InGameManager_s.Instance.curInGameStatus == EInGameStatus.CUBEROTATE)
                 {
                     if (!_isInput)
@@ -152,7 +153,8 @@ public partial class KeyInputManager_s //InGame Setting
                         {
                             if (InGameBeatManager_s.Instance.BeatJudgement())
                             {
-                                _playerKeyBinds[_inGameInputQueue.Peek()]();
+     
+                                    _playerKeyBinds[_inGameInputQueue.Peek()]();
                             }
                             else
                             {

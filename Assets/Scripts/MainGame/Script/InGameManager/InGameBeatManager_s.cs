@@ -92,7 +92,12 @@ public partial class InGameBeatManager_s : Singleton<InGameBeatManager_s>,IInGam
         }
     }
     [SerializeField] private bool _beatSelect;
-    public void NextBit()
+    public void UnshowBeat()
+    {
+        _beatObjList[1].SetActive(false);
+        _beatObjList[0].SetActive(false);
+    }
+    public void NextBeat()
     {
         _beatSelect = UnityEngine.Random.Range(0, 2) == 1 ? true : false;//
         _beatSelect = true;

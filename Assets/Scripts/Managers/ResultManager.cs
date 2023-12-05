@@ -46,14 +46,39 @@ public class ResultManager : MonoBehaviour
         {
             _gameoverLabel.SetActive(true);
             _failSoundSender.SendCommand();
+            if (StageDataController.Instance.stage == 1)
+            {
+                PlayerPrefs.SetInt(PlayerPrefsKeyNames.STAGE1HIGHSCORE, StageDataController.Instance.score);
+                PlayerPrefs.SetInt(PlayerPrefsKeyNames.STAGE1MAXCOMBO, StageDataController.Instance.maxCombo);
+                PlayerPrefs.SetInt(PlayerPrefsKeyNames.STAGE1CLEARCHECK, 0);
+            }
+            else
+            {
+                PlayerPrefs.SetInt(PlayerPrefsKeyNames.STAGE2HIGHSCORE, StageDataController.Instance.score);
+                PlayerPrefs.SetInt(PlayerPrefsKeyNames.STAGE2MAXCOMBO, StageDataController.Instance.maxCombo);
+                PlayerPrefs.SetInt(PlayerPrefsKeyNames.STAGE2CLEARCHECK, 0);
+            }
         }
         else
         {
             _clearLabel.SetActive(true);
             _clearSoundSender.SendCommand();
+            if (StageDataController.Instance.stage == 1)
+            {
+                PlayerPrefs.SetInt(PlayerPrefsKeyNames.STAGE1HIGHSCORE, StageDataController.Instance.score);
+                PlayerPrefs.SetInt(PlayerPrefsKeyNames.STAGE1MAXCOMBO, StageDataController.Instance.maxCombo);
+                PlayerPrefs.SetInt(PlayerPrefsKeyNames.STAGE1CLEARCHECK, 1);
+            }
+            else
+            {
+                PlayerPrefs.SetInt(PlayerPrefsKeyNames.STAGE2HIGHSCORE, StageDataController.Instance.score);
+                PlayerPrefs.SetInt(PlayerPrefsKeyNames.STAGE2MAXCOMBO, StageDataController.Instance.maxCombo);
+                PlayerPrefs.SetInt(PlayerPrefsKeyNames.STAGE2CLEARCHECK, 1);
+            }
         }
         _isPenalFading = true;
         _isTextFading = true;
+        
         
         StartCoroutine(StartCount());
     }

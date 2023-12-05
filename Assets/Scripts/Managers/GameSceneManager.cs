@@ -34,6 +34,7 @@ public class GameSceneManager : Singleton<GameSceneManager>
     {
         _player.GetComponent<SkeletonAnimation>().Skeleton.A = 0;
         _fairy.GetComponent<SkeletonAnimation>().Skeleton.A = 0;
+        InGameMusicManager_s.Instance.easyMode = !StageDataController.Instance.isHardModeOn;
     }
 
     // Start is called before the first frame update

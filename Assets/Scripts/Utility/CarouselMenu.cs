@@ -38,17 +38,16 @@ public class CarouselMenu : MonoBehaviour
             rest4.SetActive(false);
             scoreText.text = PlayerPrefs.GetInt(PlayerPrefsKeyNames.STAGE1HIGHSCORE).ToString();
             comboText.text = PlayerPrefs.GetInt(PlayerPrefsKeyNames.STAGE1MAXCOMBO).ToString();
-        }
-
-        if (PlayerPrefs.HasKey(PlayerPrefsKeyNames.STAGE2CLEARCHECK))
-        {
-            Stage2.GetComponent<Image>().sprite = stageBG;
-            Stage2Childs[0].SetActive(true);
-            Stage2Childs[1].SetActive(true);
+            /*if (PlayerPrefs.GetInt(PlayerPrefsKeyNames.STAGE1CLEARCHECK) == 1)
+            {
+                Stage2.GetComponent<Image>().sprite = stageBG;
+                Stage2Childs[0].SetActive(true);
+                Stage2Childs[1].SetActive(true);
+            }*/
         }
         StageDataController.Instance.isHardModeOn = false;
         easyButton.GetComponent<Image>().sprite = easyButtons[1];
-        
+        StageDataController.Instance.stage = Index + 1;
         easyButton.onClick.AddListener(PressEasy);
         hardButton.onClick.AddListener(PressHard);
     }

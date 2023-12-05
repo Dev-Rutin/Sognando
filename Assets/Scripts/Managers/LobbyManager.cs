@@ -35,7 +35,9 @@ public class LobbyManager : Singleton<LobbyManager>
         }
         if (StageSelect.activeSelf && Input.GetKeyDown(KeyCode.Space))
         {
+            
             int stage = StageDataController.Instance.stage;
+            Debug.Log(stage);
             switch (stage)
             {
                 case 1:

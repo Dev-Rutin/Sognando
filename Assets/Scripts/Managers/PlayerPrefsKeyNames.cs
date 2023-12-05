@@ -1,19 +1,12 @@
 public static class PlayerPrefsKeyNames
 {
-    public const string TRUEENDINGCHECK = "TrueEndingCheck";
-    public const string PLAYERDEADCHECK = "PlayerDeadCheck";
-    public const string SEASONORBCOUNT = "SeaonOrbCount";
-    public const string SPRINGDIARYCOUNT = "SpringDiaryCount";
-    public const string SUMMERDIARYCOUNT = "SummerDiaryCount";
-    public const string AUTUMNDIARYCOUNT = "AutumnDiaryCount";
-    public const string WINTERDIARYCOUNT = "WinterDiaryCount";
-    public const string SPRINGDIARYCHECK = "SpringDiaryCheck";
-    public const string SUMMERDIARYCHECK = "SummerDiaryCheck";
-    public const string AUTUMNDIARYCHECK = "AutumnDiaryCheck";
-    public const string WINTERDIARYCHECK = "WinterDiaryCheck";
+    public const string STAGE1CLEARCHECK = "Stage1ClearCheck";
+    public const string STAGE2CLEARCHECK = "Stage2ClearCheck";
+    public const string STAGE1MAXCOMBO = "Stage1MaxCombo";
+    public const string STAGE2MAXCOMBO = "Stage2MaxCombo";
+    public const string STAGE1HIGHSCORE = "Stage1HighScore";
+    public const string STAGE2HIGHSCORE = "Stage2HighScore";
     public const string MASTER_VOLUME = "MasterVolume";
     public const string BGM_VOLUME = "BgmVolume";
     public const string SE_VOLUME = "SeVolume";
-    public const string RESOULTION_STATE = "ResolutionState";
-    public const string FULLSCREEN_STATE = "FullScreenState";
 }

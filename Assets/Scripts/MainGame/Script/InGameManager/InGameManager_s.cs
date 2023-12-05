@@ -18,7 +18,6 @@ public partial class InGameManager_s : Singleton<InGameManager_s>//Data
     [SerializeField] private GameObject _fadeObj;
     [SerializeField] private GameObject _puaseCanvas;
     [SerializeField] private UnityEngine.Animation _reTryAni;
-    [SerializeField] private GameObject _pauseCanvasButtons;
     public void Start()
     {
         InGameMusicManager_s.Instance.InGameBind();
@@ -69,7 +68,6 @@ public partial class InGameManager_s : Singleton<InGameManager_s>//Data
                 InGameFunBind_s.Instance.Pause();
                 isPause = !isPause;
                 _puaseCanvas.SetActive(true);
-                _pauseCanvasButtons.SetActive(true);
             }
         }
     }
@@ -79,11 +77,10 @@ public partial class InGameManager_s : Singleton<InGameManager_s>//Data
     }
     private IEnumerator UnPuaseWait()
     {
-        _pauseCanvasButtons.SetActive(false);
+        _puaseCanvas.SetActive(false);
         _reTryAni.gameObject.SetActive(true);
         _reTryAni.Play();
         yield return new WaitForSeconds(3.2f);
-        _puaseCanvas.SetActive(false);
         _reTryAni.gameObject.SetActive(false);
         InGameFunBind_s.Instance.UnPause();
         isPause = !isPause;
@@ -146,10 +143,6 @@ public partial class InGameManager_s //update
                 }
                 break;
             case EInGameStatus.PLAYERMOVE:
-                if (InGameEnemy_s.Instance.EnemyPhaseEndCheck())
-                {
-                    ChangeInGameState(EInGameStatus.CUBEROTATE);
-                }
                 break;
             case EInGameStatus.CUBEROTATE:
                 if (beatFreezeCount > 0)
@@ -183,13 +176,20 @@ public partial class InGameManager_s //update
         {
             case EInGameStatus.SHOWPATH:
                 curStage++;
-                beatFreezeCount = 2;
+                    beatFreezeCount = 2;
                 break;
             case EInGameStatus.CUBEROTATE:
                 beatFreezeCount = 3;
                 break;
             case EInGameStatus.TIMEWAIT:
+                if (InGameMusicManager_s.Instance.easyMode)
+                {
+                    beatFreezeCount = 5;
+                }
+                else
+                {
                     beatFreezeCount = 8;
+                }
                 break;
             default:
                 break;

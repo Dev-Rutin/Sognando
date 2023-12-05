@@ -11,6 +11,8 @@ public struct SideData
     public GameObject lineAttack;
     public GameObject linkLineAttack;
     public GameObject crossAttack;
+    public bool areaAttackSafe;
+    public GameObject pathNoise;
     public SideData(Vector2 _position, Vector2 _transform)
     {
         position = _position;
@@ -19,6 +21,8 @@ public struct SideData
         lineAttack = null;
         linkLineAttack = null;
         crossAttack = null;
+        areaAttackSafe = false;
+        pathNoise = null;
     }
     public bool isCanMakeCheck(bool isStack, string dataName)
     {
@@ -48,6 +52,14 @@ public struct SideData
             {
                 return false;
             }
+            if(areaAttackSafe==true)
+            {
+                return false;
+            }
+            if(pathNoise!=null)
+            {
+                return false;
+            }
         }
         return true;
     }
@@ -58,5 +70,7 @@ public struct SideData
         lineAttack = null;
         linkLineAttack = null;
         crossAttack = null;
+        areaAttackSafe = false;
+        pathNoise = null;
     }
 }

@@ -1,4 +1,5 @@
 using FMOD;
+using Spine.Unity.Editor;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -8,6 +9,10 @@ public partial class InGamePlayer_s : Singleton<InGamePlayer_s>, IInGame//data
 {
     [Header("player data")]
     [SerializeField] private GameObject _playerObj;
+    public GameObject GetPlayerObj()
+    {
+        return _playerObj;
+    }
     private Image _playerImage;
     public Vector2Int playerPos { get; private set; }
     [SerializeField] private float _movingTime;
@@ -134,9 +139,20 @@ public partial class InGamePlayer_s  //move
 {
     public void MovePlayer(Vector2Int movePos, Vector2Int divideSize)
     {
-        if (PlayerMoveCheck(movePos, divideSize))
+        if (InGameEnemy_s.Instance.isStage2&&InGameManager_s.Instance.curInGameStatus==EInGameStatus.PLAYERMOVE)
         {
-            StartCoroutine(MoveTimeLock());
+            if(playerPos+movePos==PathPattern.Instance.GetMoveTarget())
+            {
+                playerPos += movePos;
+                StartCoroutine(MoveTimeLock());
+            }
+        }
+        else
+        {
+            if (PlayerMoveCheck(movePos, divideSize))
+            {
+                StartCoroutine(MoveTimeLock());
+            }
         }
     }
     private bool PlayerMoveCheck(Vector2Int movePos, Vector2Int divideSize)//그 포지션으로 이동이 가능한지 불가능한지 판단
@@ -167,6 +183,11 @@ public partial class InGamePlayer_s  //move
         {
             DoremiUI_s.Instance.DoremiTextChange("");
         }
+        if (InGameEnemy_s.Instance.isStage2&&InGameManager_s.Instance.curInGameStatus==EInGameStatus.PLAYERMOVE)
+        {
+            PathPattern.Instance.MovePath();
+
+        }
     }
     public void PlayerPositionCheck()
     {
@@ -174,6 +195,15 @@ public partial class InGamePlayer_s  //move
         {
             InGameEnemy_s.Instance.RemoveTargetObj("noise", playerPos.x, playerPos.y, true);
             _noiseDissolveEffect.Play();
+            if (InGameEnemy_s.Instance.EnemyPhaseEndCheck())
+            {
+                UnityEngine.Debug.Log("end");
+                InGameManager_s.Instance.ChangeInGameState(EInGameStatus.CUBEROTATE);
+            }
+            else
+            {
+                UnityEngine.Debug.Log("not end");
+            }
         }
     }
 }

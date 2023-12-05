@@ -56,7 +56,10 @@ public enum EEnemyMode
     NOISE,
     LINEATTACK,
     LINKLINEATTACK,
-    CROSSATTACK
+    CROSSATTACK,
+    AREAATTACK,
+    BLOCK,
+    PATH
 }
 public enum ELineAttackMode
 {
